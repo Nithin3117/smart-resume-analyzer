@@ -1,10 +1,6 @@
-def load_job_description(file_path):
-    with open(file_path, "r") as file:
-        text = file.read().lower()
-    return text
-
-
 def extract_job_skills(job_text, skills_list):
+
+    job_text = job_text.lower()
 
     job_skills = []
 
@@ -17,10 +13,15 @@ def extract_job_skills(job_text, skills_list):
 
 def calculate_match(resume_skills, job_skills):
 
-    matched = set(resume_skills) & set(job_skills)
+    resume_set = set(resume_skills)
+    job_set = set(job_skills)
 
-    score = (len(matched) / len(job_skills)) * 100
+    matched = resume_set.intersection(job_set)
+    missing = job_set - resume_set
 
-    missing_skills = set(job_skills) - set(resume_skills)
+    if len(job_skills) == 0:
+        score = 0
+    else:
+        score = (len(matched) / len(job_skills)) * 100
 
-    return score, matched, missing_skills
+    return score, matched, missing
