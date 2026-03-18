@@ -1,0 +1,3 @@
+Looking for a software engineer with experience in python, sql,
+machine learning, deep learning, and nlp.
+Knowledge of git and linux is a plus.
