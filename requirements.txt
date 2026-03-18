@@ -1,6 +1,6 @@
 streamlit
 nltk
 PyPDF2
-matplotlib
-scikit-learn
-pandas
+nltk
+requests
+beautifulsoup4
