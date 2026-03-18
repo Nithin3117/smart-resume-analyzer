@@ -2,9 +2,10 @@ import streamlit as st
 import PyPDF2
 import matplotlib.pyplot as plt
 
+from job_link_extractor import extract_job_text
 from nlp_processing import preprocess
 from skill_extractor import load_skills, extract_skills
-from job_matcher import load_job_description, extract_job_skills, calculate_match
+from job_matcher import extract_job_skills, calculate_match
 
 
 def extract_text(file):
@@ -22,8 +23,11 @@ st.write("Upload your resume and check how well it matches the job requirements.
 
 uploaded_file = st.file_uploader("Upload your Resume (PDF)", type="pdf")
 
-if uploaded_file is not None:
+job_url = st.text_input("Paste Job Description Link")
 
+if uploaded_file is not None and job_url != "":
+
+    # -------- Extract Resume Text --------
     resume_text = extract_text(uploaded_file)
 
     tokens = preprocess(resume_text)
@@ -32,7 +36,8 @@ if uploaded_file is not None:
 
     resume_skills = extract_skills(tokens, skills_list)
 
-    job_text = load_job_description("job_description.txt")
+    # -------- Extract Job Text from URL --------
+    job_text = extract_job_text(job_url)
 
     job_skills = extract_job_skills(job_text, skills_list)
 
@@ -51,7 +56,7 @@ if uploaded_file is not None:
     st.write(list(missing))
 
     st.subheader("🎯 Resume Match Score")
-    st.success(str(round(score,2)) + "%")
+    st.success(str(round(score, 2)) + "%")
 
     # -------- Graph --------
     labels = ["Matched Skills", "Missing Skills"]
