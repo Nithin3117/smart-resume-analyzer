@@ -4,3 +4,4 @@ PyPDF2
 nltk
 requests
 beautifulsoup4
+python-docx
