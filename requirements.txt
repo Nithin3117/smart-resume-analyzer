@@ -6,4 +6,3 @@ beautifulsoup4
 python-docx
 matplotlib
 plotly
-google-generativeai
