@@ -15,14 +15,16 @@ from job_matcher import extract_job_skills, calculate_match
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
+if "theme" not in st.session_state:
+    st.session_state.theme = "dark"
 
-# ---------------- LOGIN PAGE ----------------
+
+# ---------------- LOGIN ----------------
 if not st.session_state.logged_in:
 
     st.title("🔐 Login / Signup")
 
     option = st.selectbox("Choose Option", ["Login", "Signup"])
-
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
 
@@ -31,7 +33,6 @@ if not st.session_state.logged_in:
             if login(username, password):
                 st.session_state.logged_in = True
                 st.session_state.username = username
-                st.success("Login successful")
                 st.rerun()
             else:
                 st.error("Invalid credentials")
@@ -47,45 +48,40 @@ if not st.session_state.logged_in:
     st.stop()
 
 
-# ---------------- MAIN APP ----------------
-st.set_page_config(page_title="Smart Resume Analyzer", layout="wide")
+# ---------------- THEME TOGGLE ----------------
+def apply_theme():
+    if st.session_state.theme == "dark":
+        st.markdown("""
+        <style>
+        .stApp { background:#0f172a; color:white; }
+        .card { background:#1e293b; padding:10px; border-radius:10px; margin:5px; }
+        </style>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <style>
+        .stApp { background:#f8fafc; color:black; }
+        .card { background:#e2e8f0; padding:10px; border-radius:10px; margin:5px; }
+        </style>
+        """, unsafe_allow_html=True)
 
 
-# ---------------- SIDEBAR PROFILE ----------------
+apply_theme()
+
+
+# ---------------- SIDEBAR ----------------
 username = st.session_state.username
-user_data = get_user(username)
 
 st.sidebar.title("👤 Profile")
 st.sidebar.write(f"Welcome, **{username}**")
 
+if st.sidebar.button("🌗 Toggle Theme"):
+    st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+    st.rerun()
+
 if st.sidebar.button("Logout"):
     st.session_state.logged_in = False
     st.rerun()
-
-# SHOW HISTORY
-if "history" in user_data and user_data["history"]:
-    st.sidebar.subheader("📊 History")
-    for item in user_data["history"][-5:]:
-        st.sidebar.write(f"Score: {round(item['score'],2)}%")
-
-
-# ---------------- UI ----------------
-st.markdown("""
-<style>
-.stApp {
-    background: linear-gradient(135deg, #0f172a, #1e293b);
-    color: white;
-}
-.card {
-    background: #1e293b;
-    padding: 10px;
-    border-radius: 10px;
-    margin-bottom: 8px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("<h1 style='text-align:center;'>🚀 Smart Resume Analyzer</h1>", unsafe_allow_html=True)
 
 
 # ---------------- DISPLAY ----------------
@@ -98,29 +94,20 @@ def display_clean(title, items):
 # ---------------- RESUME READER ----------------
 def extract_resume_text(file):
     text = ""
-
     if file.type == "application/pdf":
         reader = PyPDF2.PdfReader(file)
         for page in reader.pages:
             text += page.extract_text()
-
     else:
         doc = Document(file)
         for para in doc.paragraphs:
             text += para.text
-
     return text
 
 
 # ---------------- SIMPLE EXTRACTION ----------------
-def extract_experience(text):
-    return [l for l in text.lower().split("\n") if "intern" in l or "experience" in l][:3] or ["No experience found"]
-
-def extract_education(text):
-    return [l for l in text.lower().split("\n") if "btech" in l or "degree" in l][:3] or ["No education found"]
-
-def extract_projects(text):
-    return [l for l in text.lower().split("\n") if "project" in l][:3] or ["No projects found"]
+def extract_info(text, keywords):
+    return [l for l in text.lower().split("\n") if any(k in l for k in keywords)][:3]
 
 
 # ---------------- SCORE ----------------
@@ -140,63 +127,50 @@ def show_gauge(score):
     st.plotly_chart(fig)
 
 
-# ---------------- INPUT ----------------
-col1, col2 = st.columns(2)
+# ---------------- UI ----------------
+st.title("🚀 Smart Resume Analyzer")
 
-with col1:
-    file = st.file_uploader("Upload Resume", type=["pdf", "docx"])
-
-with col2:
-    job_url = st.text_input("Paste Job Link")
+files = st.file_uploader("Upload Multiple Resumes", type=["pdf", "docx"], accept_multiple_files=True)
+job_url = st.text_input("Paste Job Link")
 
 
-# ---------------- MAIN LOGIC ----------------
-if file and job_url:
-
-    resume_text = extract_resume_text(file)
-    tokens = preprocess(resume_text)
-
-    skills_list = load_skills("skills.txt")
-    resume_skills = extract_skills(tokens, skills_list)
+# ---------------- MAIN ----------------
+if files and job_url:
 
     job_text = extract_job_text(job_url)
+    skills_list = load_skills("skills.txt")
     job_skills = extract_job_skills(job_text, skills_list)
 
-    score = calculate_score(resume_skills, job_skills)
+    results = []
 
-    missing = list(set(job_skills) - set(resume_skills))
+    for file in files:
 
-    exp = extract_experience(resume_text)
-    edu = extract_education(resume_text)
-    proj = extract_projects(resume_text)
+        resume_text = extract_resume_text(file)
+        tokens = preprocess(resume_text)
+        resume_skills = extract_skills(tokens, skills_list)
+
+        score = calculate_score(resume_skills, job_skills)
+        missing = list(set(job_skills) - set(resume_skills))
+
+        results.append((file.name, score, resume_skills, missing, resume_text))
 
     st.divider()
 
-    display_clean("Experience", exp)
-    display_clean("Education", edu)
-    display_clean("Projects", proj)
+    for name, score, skills, missing, text in results:
 
-    st.subheader("Skills")
-    st.success(", ".join(resume_skills))
+        st.markdown(f"## 📄 {name}")
 
-    st.subheader("Missing Skills")
-    st.error(", ".join(missing))
+        display_clean("Experience", extract_info(text, ["intern", "experience"]))
+        display_clean("Education", extract_info(text, ["btech", "degree"]))
+        display_clean("Projects", extract_info(text, ["project"]))
 
-    st.subheader("Score")
-    show_gauge(score)
+        st.success("Skills: " + ", ".join(skills))
+        st.error("Missing: " + ", ".join(missing))
 
-    st.subheader("AI Suggestions")
+        show_gauge(score)
 
-    if missing:
-        st.markdown(f"👉 Learn: {', '.join(missing)}")
+        st.markdown("### 🤖 Suggestions")
+        if missing:
+            st.markdown(f"👉 Learn: {', '.join(missing)}")
 
-    st.markdown("👉 Add projects")
-    st.markdown("👉 Customize resume")
-
-    # SAVE HISTORY
-    users = load_users()
-    if username in users:
-        users[username]["history"].append({
-            "score": score
-        })
-        save_users(users)
+        st.markdown("---")
