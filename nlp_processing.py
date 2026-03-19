@@ -1,34 +1,31 @@
 import nltk
+import os
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import string
 
-# -------- DOWNLOAD NLTK DATA SAFELY --------
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    nltk.download('punkt')
-    nltk.download('punkt_tab')
+# -------- SET NLTK DATA PATH --------
+nltk_data_path = os.path.join(os.getcwd(), "nltk_data")
+if not os.path.exists(nltk_data_path):
+    os.makedirs(nltk_data_path)
 
-try:
-    nltk.data.find('corpora/stopwords')
-except LookupError:
-    nltk.download('stopwords')
+nltk.data.path.append(nltk_data_path)
+
+# -------- DOWNLOAD REQUIRED DATA --------
+nltk.download('punkt', download_dir=nltk_data_path)
+nltk.download('punkt_tab', download_dir=nltk_data_path)
+nltk.download('stopwords', download_dir=nltk_data_path)
 
 
 # -------- PREPROCESS FUNCTION --------
 def preprocess(text):
 
-    # Convert to lowercase
     text = text.lower()
 
-    # Tokenize text
     tokens = word_tokenize(text)
 
-    # Remove punctuation
     tokens = [word for word in tokens if word not in string.punctuation]
 
-    # Remove stopwords
     stop_words = set(stopwords.words('english'))
     tokens = [word for word in tokens if word not in stop_words]
 
