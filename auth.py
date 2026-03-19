@@ -1,12 +1,18 @@
 import json
 import os
 import hashlib
+import re
 
 USER_FILE = "users.json"
 
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
+
+
+def is_valid_email(email):
+    pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    return re.match(pattern, email)
 
 
 def load_users():
@@ -21,13 +27,16 @@ def save_users(users):
         json.dump(users, f)
 
 
-def signup(username, password):
+def signup(email, password):
     users = load_users()
 
-    if username in users:
+    if not is_valid_email(email):
+        return False, "Invalid email format"
+
+    if email in users:
         return False, "User already exists"
 
-    users[username] = {
+    users[email] = {
         "password": hash_password(password),
         "history": []
     }
@@ -36,15 +45,27 @@ def signup(username, password):
     return True, "Signup successful"
 
 
-def login(username, password):
+def login(email, password):
     users = load_users()
 
-    if username in users:
-        if users[username]["password"] == hash_password(password):
+    if email in users:
+        if users[email]["password"] == hash_password(password):
             return True
     return False
 
 
-def get_user(username):
+def reset_password(email, new_password):
     users = load_users()
-    return users.get(username, {})
+
+    if email not in users:
+        return False, "User not found"
+
+    users[email]["password"] = hash_password(new_password)
+    save_users(users)
+
+    return True, "Password updated"
+
+
+def get_user(email):
+    users = load_users()
+    return users.get(email, {})
