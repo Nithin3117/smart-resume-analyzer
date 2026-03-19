@@ -38,23 +38,45 @@ def extract_resume_text(file):
 # ---------------- SCORE FUNCTION ----------------
 def calculate_resume_score(resume_skills, job_skills, experience, education):
 
-    # Skills score
     if len(job_skills) == 0:
         skills_score = 0
     else:
         matched_skills = set(resume_skills).intersection(set(job_skills))
         skills_score = (len(matched_skills) / len(job_skills)) * 100
 
-    # Experience score (simple logic)
     exp_score = 50 if len(experience) > 0 else 20
-
-    # Education score
     edu_score = 50 if len(education) > 0 else 20
 
-    # Final weighted score
     final_score = (0.6 * skills_score) + (0.2 * exp_score) + (0.2 * edu_score)
 
     return skills_score, exp_score, edu_score, final_score
+
+
+# ---------------- AI SUGGESTIONS ----------------
+def generate_ai_suggestions(missing_skills, score):
+
+    suggestions = []
+
+    if len(missing_skills) > 0:
+        suggestions.append(
+            "Learn and include these skills: " + ", ".join(missing_skills)
+        )
+
+    if score < 50:
+        suggestions.append("Your resume is weak. Add more relevant projects and skills.")
+        suggestions.append("Include internships or hands-on experience.")
+
+    elif score < 75:
+        suggestions.append("Your resume is decent. Add projects and certifications to improve.")
+        suggestions.append("Highlight your achievements with measurable results.")
+
+    else:
+        suggestions.append("Your resume is strong. Focus on advanced projects and real-world impact.")
+
+    suggestions.append("Add GitHub projects to showcase your work.")
+    suggestions.append("Customize your resume for each job application.")
+
+    return suggestions
 
 
 # ---------------- INPUT UI ----------------
@@ -84,22 +106,19 @@ if uploaded_file and job_url:
 
     score, matched, missing = calculate_match(resume_skills, job_skills)
 
-    # -------- NEW ANALYSIS --------
     experience = extract_experience(job_text)
     education = extract_education(job_text)
     responsibilities = extract_responsibilities(job_text)
 
-    # -------- SCORE CALCULATION --------
     skills_score, exp_score, edu_score, final_score = calculate_resume_score(
-        resume_skills,
-        job_skills,
-        experience,
-        education
+        resume_skills, job_skills, experience, education
     )
+
+    ai_suggestions = generate_ai_suggestions(list(missing), final_score)
 
     st.divider()
 
-    # -------- DISPLAY RESULTS --------
+    # -------- RESULTS --------
     col1, col2 = st.columns(2)
 
     with col1:
@@ -116,7 +135,7 @@ if uploaded_file and job_url:
         st.subheader("❌ Missing Skills")
         st.write(list(missing))
 
-    # -------- SCORE BREAKDOWN --------
+    # -------- SCORE --------
     st.subheader("🎯 Resume Score Breakdown")
 
     col1, col2, col3 = st.columns(3)
@@ -130,7 +149,6 @@ if uploaded_file and job_url:
     with col3:
         st.metric("Education Match", f"{round(edu_score,2)}%")
 
-    # -------- FINAL SCORE --------
     st.subheader("🏆 Overall Resume Score")
 
     st.progress(int(final_score))
@@ -163,14 +181,8 @@ if uploaded_file and job_url:
         st.write("Responsibilities")
         st.write(responsibilities)
 
-    # -------- SUGGESTIONS --------
-    st.subheader("💡 Suggestions")
+    # -------- AI SUGGESTIONS --------
+    st.subheader("🤖 AI Suggestions")
 
-    if final_score < 50:
-        st.warning("Your resume needs improvement. Add more relevant skills.")
-
-    elif final_score < 75:
-        st.info("Your resume is decent but could be improved by adding missing skills.")
-
-    else:
-        st.success("Great! Your resume matches the job very well.")
+    for suggestion in ai_suggestions:
+        st.markdown(f"👉 {suggestion}")
