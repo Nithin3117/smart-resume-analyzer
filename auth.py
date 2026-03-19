@@ -37,8 +37,7 @@ def signup(email, password):
         return False, "User already exists"
 
     users[email] = {
-        "password": hash_password(password),
-        "history": []
+        "password": hash_password(password)
     }
 
     save_users(users)
@@ -64,8 +63,3 @@ def reset_password(email, new_password):
     save_users(users)
 
     return True, "Password updated"
-
-
-def get_user(email):
-    users = load_users()
-    return users.get(email, {})
