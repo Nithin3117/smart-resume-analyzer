@@ -41,8 +41,10 @@ if not st.session_state.logged_in:
     if option == "Login":
 
         if st.button("Send OTP"):
-            st.session_state.otp = send_otp(email)
-            st.success("OTP sent")
+            otp = send_otp(email)
+            st.session_state.otp = otp
+            st.success("OTP sent to email")
+            st.info(f"Demo OTP: {otp}")  # 🔥 always visible
 
         otp_input = st.text_input("Enter OTP")
 
@@ -61,8 +63,10 @@ if not st.session_state.logged_in:
     elif option == "Signup":
 
         if st.button("Send OTP"):
-            st.session_state.otp = send_otp(email)
+            otp = send_otp(email)
+            st.session_state.otp = otp
             st.success("OTP sent")
+            st.info(f"Demo OTP: {otp}")
 
         otp_input = st.text_input("Enter OTP")
 
@@ -80,8 +84,10 @@ if not st.session_state.logged_in:
     else:
 
         if st.button("Send OTP"):
-            st.session_state.otp = send_otp(email)
+            otp = send_otp(email)
+            st.session_state.otp = otp
             st.success("OTP sent")
+            st.info(f"Demo OTP: {otp}")
 
         otp_input = st.text_input("Enter OTP")
         new_password = st.text_input("New Password", type="password")
@@ -106,7 +112,7 @@ else:
     st.markdown("<style>.stApp{background:#f8fafc;color:black}</style>", unsafe_allow_html=True)
 
 
-# ---------------- SIDEBAR ----------------
+# SIDEBAR
 st.sidebar.write(f"👤 {st.session_state.username}")
 
 if st.sidebar.button("🌗 Toggle Theme"):
@@ -168,6 +174,7 @@ if files and job_url:
         st.plotly_chart(fig)
 
         st.markdown("### Suggestions")
+
         if missing:
             st.markdown(f"👉 Learn: {', '.join(missing)}")
 
