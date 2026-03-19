@@ -1,10 +1,8 @@
 import streamlit as st
 import time
 
-# MUST FIRST
 st.set_page_config(page_title="Smart Resume Analyzer", layout="wide")
 
-# IMPORTS
 import PyPDF2
 from docx import Document
 import plotly.graph_objects as go
@@ -17,7 +15,7 @@ from skill_extractor import load_skills, extract_skills
 from job_matcher import extract_job_skills
 
 
-# ---------------- SESSION ----------------
+# SESSION
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
@@ -31,70 +29,65 @@ if "otp_time" not in st.session_state:
 # ---------------- LOGIN SYSTEM ----------------
 if not st.session_state.logged_in:
 
-    st.title("🔐 Secure Authentication")
+    st.title("🔐 Secure Login")
 
     option = st.selectbox("Choose", ["Login", "Signup", "Forgot Password"])
 
     email = st.text_input("Email")
     password = st.text_input("Password", type="password")
 
-    # SEND OTP FUNCTION
-    def handle_send_otp():
+    def send_and_store_otp():
         otp = send_otp(email)
+
         if otp:
             st.session_state.otp = otp
             st.session_state.otp_time = time.time()
-            st.success("OTP sent to your email")
+            st.success("OTP sent to your email 📧")
         else:
-            st.error("Failed to send OTP")
+            st.error("Failed to send OTP ❌")
 
-    # ---------------- LOGIN ----------------
+    # LOGIN
     if option == "Login":
 
         col1, col2 = st.columns(2)
 
         with col1:
             if st.button("Send OTP"):
-                handle_send_otp()
+                send_and_store_otp()
 
         with col2:
             if st.button("Resend OTP"):
-                handle_send_otp()
+                send_and_store_otp()
 
         otp_input = st.text_input("Enter OTP")
 
         if st.button("Login"):
+
             if not st.session_state.otp:
-                st.error("Please request OTP")
+                st.error("Request OTP first")
 
             elif time.time() - st.session_state.otp_time > 300:
                 st.error("OTP expired")
                 st.session_state.otp = None
 
             elif otp_input == st.session_state.otp:
+
                 if login(email, password):
                     st.session_state.logged_in = True
                     st.session_state.username = email
                     st.success("Login successful")
                     st.rerun()
                 else:
-                    st.error("Invalid password")
+                    st.error("Wrong password")
 
             else:
                 st.error("Invalid OTP")
 
-    # ---------------- SIGNUP ----------------
+    # SIGNUP
     elif option == "Signup":
 
-        col1, col2 = st.columns(2)
-
-        with col1:
-            if st.button("Send OTP"):
-                handle_send_otp()
-
-        with col2:
-            if st.button("Resend OTP"):
-                handle_send_otp()
+        if st.button("Send OTP"):
+            send_and_store_otp()
 
         otp_input = st.text_input("Enter OTP")
 
@@ -108,18 +101,11 @@ if not st.session_state.logged_in:
             else:
                 st.error("Invalid OTP")
 
-    # ---------------- RESET ----------------
+    # RESET
     else:
 
-        col1, col2 = st.columns(2)
-
-        with col1:
-            if st.button("Send OTP"):
-                handle_send_otp()
-
-        with col2:
-            if st.button("Resend OTP"):
-                handle_send_otp()
+        if st.button("Send OTP"):
+            send_and_store_otp()
 
         otp_input = st.text_input("Enter OTP")
         new_password = st.text_input("New Password", type="password")
@@ -140,7 +126,7 @@ if not st.session_state.logged_in:
 # ---------------- MAIN APP ----------------
 st.title("🚀 Smart Resume Analyzer")
 
-files = st.file_uploader("Upload Resumes", type=["pdf", "docx"], accept_multiple_files=True)
+files = st.file_uploader("Upload Resume", type=["pdf", "docx"], accept_multiple_files=True)
 job_url = st.text_input("Paste Job Link")
 
 
@@ -185,10 +171,3 @@ if files and job_url:
 
         fig = go.Figure(go.Indicator(mode="gauge+number", value=score))
         st.plotly_chart(fig)
-
-        st.markdown("### Suggestions")
-
-        if missing:
-            st.markdown(f"👉 Learn: {', '.join(missing)}")
-
-        st.markdown("---")
