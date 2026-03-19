@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 
 # MUST FIRST
 st.set_page_config(page_title="Smart Resume Analyzer", layout="wide")
@@ -16,57 +17,84 @@ from skill_extractor import load_skills, extract_skills
 from job_matcher import extract_job_skills
 
 
-# SESSION
+# ---------------- SESSION ----------------
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-if "theme" not in st.session_state:
-    st.session_state.theme = "dark"
-
 if "otp" not in st.session_state:
     st.session_state.otp = None
+
+if "otp_time" not in st.session_state:
+    st.session_state.otp_time = None
 
 
 # ---------------- LOGIN SYSTEM ----------------
 if not st.session_state.logged_in:
 
-    st.title("🔐 Authentication")
+    st.title("🔐 Secure Authentication")
 
     option = st.selectbox("Choose", ["Login", "Signup", "Forgot Password"])
 
     email = st.text_input("Email")
     password = st.text_input("Password", type="password")
 
-    # LOGIN
+    # SEND OTP FUNCTION
+    def handle_send_otp():
+        otp = send_otp(email)
+        if otp:
+            st.session_state.otp = otp
+            st.session_state.otp_time = time.time()
+            st.success("OTP sent to your email")
+        else:
+            st.error("Failed to send OTP")
+
+    # ---------------- LOGIN ----------------
     if option == "Login":
 
-        if st.button("Send OTP"):
-            otp = send_otp(email)
-            st.session_state.otp = otp
-            st.success("OTP sent to email")
-            st.info(f"Demo OTP: {otp}")  # 🔥 always visible
+        col1, col2 = st.columns(2)
+
+        with col1:
+            if st.button("Send OTP"):
+                handle_send_otp()
+
+        with col2:
+            if st.button("Resend OTP"):
+                handle_send_otp()
 
         otp_input = st.text_input("Enter OTP")
 
         if st.button("Login"):
-            if otp_input == st.session_state.otp:
+            if not st.session_state.otp:
+                st.error("Please request OTP")
+
+            elif time.time() - st.session_state.otp_time > 300:
+                st.error("OTP expired")
+                st.session_state.otp = None
+
+            elif otp_input == st.session_state.otp:
                 if login(email, password):
                     st.session_state.logged_in = True
                     st.session_state.username = email
+                    st.success("Login successful")
                     st.rerun()
                 else:
                     st.error("Invalid password")
+
             else:
                 st.error("Invalid OTP")
 
-    # SIGNUP
+    # ---------------- SIGNUP ----------------
     elif option == "Signup":
 
-        if st.button("Send OTP"):
-            otp = send_otp(email)
-            st.session_state.otp = otp
-            st.success("OTP sent")
-            st.info(f"Demo OTP: {otp}")
+        col1, col2 = st.columns(2)
+
+        with col1:
+            if st.button("Send OTP"):
+                handle_send_otp()
+
+        with col2:
+            if st.button("Resend OTP"):
+                handle_send_otp()
 
         otp_input = st.text_input("Enter OTP")
 
@@ -80,14 +108,18 @@ if not st.session_state.logged_in:
             else:
                 st.error("Invalid OTP")
 
-    # RESET PASSWORD
+    # ---------------- RESET ----------------
     else:
 
-        if st.button("Send OTP"):
-            otp = send_otp(email)
-            st.session_state.otp = otp
-            st.success("OTP sent")
-            st.info(f"Demo OTP: {otp}")
+        col1, col2 = st.columns(2)
+
+        with col1:
+            if st.button("Send OTP"):
+                handle_send_otp()
+
+        with col2:
+            if st.button("Resend OTP"):
+                handle_send_otp()
 
         otp_input = st.text_input("Enter OTP")
         new_password = st.text_input("New Password", type="password")
@@ -105,26 +137,7 @@ if not st.session_state.logged_in:
     st.stop()
 
 
-# ---------------- THEME ----------------
-if st.session_state.theme == "dark":
-    st.markdown("<style>.stApp{background:#0f172a;color:white}</style>", unsafe_allow_html=True)
-else:
-    st.markdown("<style>.stApp{background:#f8fafc;color:black}</style>", unsafe_allow_html=True)
-
-
-# SIDEBAR
-st.sidebar.write(f"👤 {st.session_state.username}")
-
-if st.sidebar.button("🌗 Toggle Theme"):
-    st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
-    st.rerun()
-
-if st.sidebar.button("Logout"):
-    st.session_state.logged_in = False
-    st.rerun()
-
-
-# ---------------- APP ----------------
+# ---------------- MAIN APP ----------------
 st.title("🚀 Smart Resume Analyzer")
 
 files = st.file_uploader("Upload Resumes", type=["pdf", "docx"], accept_multiple_files=True)
