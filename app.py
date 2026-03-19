@@ -3,7 +3,6 @@ import PyPDF2
 import matplotlib.pyplot as plt
 from docx import Document
 import plotly.graph_objects as go
-import google.generativeai as genai
 
 from job_link_extractor import extract_job_text
 from job_requirement_analyzer import extract_experience, extract_education, extract_responsibilities
@@ -37,12 +36,6 @@ st.markdown("""
 <p style='text-align:center;'>AI-powered resume analysis system</p>
 """, unsafe_allow_html=True)
 
-
-# ---------------- GEMINI API ----------------
-import os
-
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-flash")
 
 # ---------------- RESUME READER ----------------
 def extract_resume_text(file):
@@ -118,21 +111,29 @@ Final Score:
 """
 
 
-# ---------------- AI ----------------
-def generate_ai_response(resume_text, job_text):
-    prompt = f"""
-    Analyze this resume and job description.
+# ---------------- AI SUGGESTIONS (NO API) ----------------
+def generate_ai_response(resume_skills, missing_skills, score):
 
-    Resume:
-    {resume_text}
+    suggestions = []
 
-    Job:
-    {job_text}
+    if missing_skills:
+        suggestions.append("You are missing important skills: " + ", ".join(missing_skills))
 
-    Give suggestions to improve the resume.
-    """
-    response = model.generate_content(prompt)
-    return response.text
+    if score < 50:
+        suggestions.append("Your resume is weak. Add more projects and technical skills.")
+        suggestions.append("Include internships or real-world experience.")
+
+    elif score < 75:
+        suggestions.append("Your resume is good but can be improved.")
+        suggestions.append("Add certifications and highlight achievements.")
+
+    else:
+        suggestions.append("Excellent resume! Focus on advanced topics.")
+
+    suggestions.append("Add GitHub projects to showcase your work.")
+    suggestions.append("Customize your resume for each job role.")
+
+    return suggestions
 
 
 # ---------------- INPUT ----------------
@@ -148,7 +149,7 @@ with col2:
 # ---------------- MAIN ----------------
 if uploaded_file and job_url:
 
-    with st.spinner("Analyzing..."):
+    with st.spinner("🔍 Analyzing Resume..."):
 
         resume_text = extract_resume_text(uploaded_file)
         tokens = preprocess(resume_text)
@@ -169,18 +170,20 @@ if uploaded_file and job_url:
             resume_skills, job_skills, experience, education
         )
 
+        ai_suggestions = generate_ai_response(resume_skills, list(missing), final_score)
+
     st.divider()
 
     # RESULTS
     col1, col2 = st.columns(2)
 
-    col1.subheader("Resume Skills")
+    col1.subheader("📌 Resume Skills")
     col1.success(", ".join(resume_skills))
 
-    col2.subheader("Missing Skills")
+    col2.subheader("❌ Missing Skills")
     col2.error(", ".join(missing))
 
-    # GAUGE
+    # SCORE
     st.subheader("🎯 Resume Score")
     show_gauge(final_score)
 
@@ -195,13 +198,20 @@ if uploaded_file and job_url:
     ax.bar(["Matched", "Missing"], [len(matched), len(missing)])
     st.pyplot(fig)
 
-    # DOWNLOAD
+    # DOWNLOAD REPORT
     report = generate_report(resume_skills, job_skills, matched, missing, final_score)
 
-    st.download_button("📄 Download Report", report, "report.txt")
+    st.download_button("📄 Download Report", report, "resume_report.txt")
 
-    # AI
-    st.subheader("🤖 AI Feedback")
+    # AI SUGGESTIONS
+    st.subheader("🤖 AI Suggestions")
 
-    ai_text = generate_ai_response(resume_text, job_text)
-    st.write(ai_text)
+    for s in ai_suggestions:
+        st.info(s)
+
+
+# ---------------- FOOTER ----------------
+st.markdown("""
+<hr>
+<p style='text-align:center;'>Built with ❤️ using Python & AI</p>
+""", unsafe_allow_html=True)
