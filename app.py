@@ -39,9 +39,10 @@ st.markdown("""
 
 
 # ---------------- GEMINI API ----------------
-genai.configure(api_key="YOUR_API_KEY")  # 🔑 Replace with your key
-model = genai.GenerativeModel("gemini-pro")
+import os
 
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 # ---------------- RESUME READER ----------------
 def extract_resume_text(file):
