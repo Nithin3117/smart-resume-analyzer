@@ -1,14 +1,18 @@
 import streamlit as st
+
+# ---------------- CONFIG (MUST BE FIRST) ----------------
+st.set_page_config(page_title="Smart Resume Analyzer", layout="wide")
+
+# ---------------- IMPORTS ----------------
 import PyPDF2
-import matplotlib.pyplot as plt
 from docx import Document
 import plotly.graph_objects as go
 
-from auth import login, signup, get_user, load_users, save_users
+from auth import login, signup
 from job_link_extractor import extract_job_text
 from nlp_processing import preprocess
 from skill_extractor import load_skills, extract_skills
-from job_matcher import extract_job_skills, calculate_match
+from job_matcher import extract_job_skills
 
 
 # ---------------- SESSION ----------------
@@ -19,12 +23,13 @@ if "theme" not in st.session_state:
     st.session_state.theme = "dark"
 
 
-# ---------------- LOGIN ----------------
+# ---------------- LOGIN PAGE ----------------
 if not st.session_state.logged_in:
 
     st.title("🔐 Login / Signup")
 
     option = st.selectbox("Choose Option", ["Login", "Signup"])
+
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
 
@@ -33,6 +38,7 @@ if not st.session_state.logged_in:
             if login(username, password):
                 st.session_state.logged_in = True
                 st.session_state.username = username
+                st.success("Login successful")
                 st.rerun()
             else:
                 st.error("Invalid credentials")
@@ -45,10 +51,10 @@ if not st.session_state.logged_in:
             else:
                 st.error(msg)
 
-    st.stop()
+    st.stop()   # 🔥 VERY IMPORTANT
 
 
-# ---------------- THEME TOGGLE ----------------
+# ---------------- THEME ----------------
 def apply_theme():
     if st.session_state.theme == "dark":
         st.markdown("""
@@ -65,15 +71,12 @@ def apply_theme():
         </style>
         """, unsafe_allow_html=True)
 
-
 apply_theme()
 
 
 # ---------------- SIDEBAR ----------------
-username = st.session_state.username
-
 st.sidebar.title("👤 Profile")
-st.sidebar.write(f"Welcome, **{username}**")
+st.sidebar.write(f"Welcome, **{st.session_state.username}**")
 
 if st.sidebar.button("🌗 Toggle Theme"):
     st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
@@ -84,16 +87,24 @@ if st.sidebar.button("Logout"):
     st.rerun()
 
 
+# ---------------- UI ----------------
+st.title("🚀 Smart Resume Analyzer")
+
+
 # ---------------- DISPLAY ----------------
 def display_clean(title, items):
     st.markdown(f"### {title}")
-    for item in items:
-        st.markdown(f"<div class='card'>👉 {item}</div>", unsafe_allow_html=True)
+    if not items:
+        st.markdown("👉 No data found")
+    else:
+        for item in items:
+            st.markdown(f"<div class='card'>👉 {item}</div>", unsafe_allow_html=True)
 
 
 # ---------------- RESUME READER ----------------
 def extract_resume_text(file):
     text = ""
+
     if file.type == "application/pdf":
         reader = PyPDF2.PdfReader(file)
         for page in reader.pages:
@@ -102,10 +113,11 @@ def extract_resume_text(file):
         doc = Document(file)
         for para in doc.paragraphs:
             text += para.text
+
     return text
 
 
-# ---------------- SIMPLE EXTRACTION ----------------
+# ---------------- EXTRACTION ----------------
 def extract_info(text, keywords):
     return [l for l in text.lower().split("\n") if any(k in l for k in keywords)][:3]
 
@@ -127,11 +139,14 @@ def show_gauge(score):
     st.plotly_chart(fig)
 
 
-# ---------------- UI ----------------
-st.title("🚀 Smart Resume Analyzer")
+# ---------------- INPUT ----------------
+files = st.file_uploader(
+    "📂 Upload Multiple Resumes",
+    type=["pdf", "docx"],
+    accept_multiple_files=True
+)
 
-files = st.file_uploader("Upload Multiple Resumes", type=["pdf", "docx"], accept_multiple_files=True)
-job_url = st.text_input("Paste Job Link")
+job_url = st.text_input("🔗 Paste Job Link")
 
 
 # ---------------- MAIN ----------------
@@ -141,9 +156,11 @@ if files and job_url:
     skills_list = load_skills("skills.txt")
     job_skills = extract_job_skills(job_text, skills_list)
 
-    results = []
+    st.divider()
 
     for file in files:
+
+        st.markdown(f"## 📄 {file.name}")
 
         resume_text = extract_resume_text(file)
         tokens = preprocess(resume_text)
@@ -152,25 +169,25 @@ if files and job_url:
         score = calculate_score(resume_skills, job_skills)
         missing = list(set(job_skills) - set(resume_skills))
 
-        results.append((file.name, score, resume_skills, missing, resume_text))
+        # DISPLAY DETAILS
+        display_clean("Experience", extract_info(resume_text, ["intern", "experience"]))
+        display_clean("Education", extract_info(resume_text, ["btech", "degree"]))
+        display_clean("Projects", extract_info(resume_text, ["project"]))
 
-    st.divider()
-
-    for name, score, skills, missing, text in results:
-
-        st.markdown(f"## 📄 {name}")
-
-        display_clean("Experience", extract_info(text, ["intern", "experience"]))
-        display_clean("Education", extract_info(text, ["btech", "degree"]))
-        display_clean("Projects", extract_info(text, ["project"]))
-
-        st.success("Skills: " + ", ".join(skills))
+        # SKILLS
+        st.success("Skills: " + ", ".join(resume_skills))
         st.error("Missing: " + ", ".join(missing))
 
+        # SCORE
         show_gauge(score)
 
+        # SUGGESTIONS
         st.markdown("### 🤖 Suggestions")
+
         if missing:
             st.markdown(f"👉 Learn: {', '.join(missing)}")
+
+        st.markdown("👉 Add projects")
+        st.markdown("👉 Customize resume")
 
         st.markdown("---")
