@@ -5,7 +5,7 @@ from docx import Document
 import plotly.graph_objects as go
 
 from job_link_extractor import extract_job_text
-from job_requirement_analyzer import extract_experience, extract_education, extract_responsibilities
+from job_requirement_analyzer import extract_experience, extract_education
 from nlp_processing import preprocess
 from skill_extractor import load_skills, extract_skills
 from job_matcher import extract_job_skills, calculate_match
@@ -15,7 +15,7 @@ from job_matcher import extract_job_skills, calculate_match
 st.set_page_config(page_title="Smart Resume Analyzer", page_icon="🚀", layout="wide")
 
 
-# ---------------- CSS ----------------
+# ---------------- UI ----------------
 st.markdown("""
 <style>
 .stApp {
@@ -29,11 +29,9 @@ h1 {
 </style>
 """, unsafe_allow_html=True)
 
-
-# ---------------- HEADER ----------------
 st.markdown("""
 <h1>🚀 Smart Resume Analyzer</h1>
-<p style='text-align:center;'>AI-powered resume analysis system</p>
+<p style='text-align:center;'>AI-powered Resume + Job Matching System</p>
 """, unsafe_allow_html=True)
 
 
@@ -52,6 +50,31 @@ def extract_resume_text(file):
             text += para.text
 
     return text
+
+
+# ---------------- EXTRA ANALYSIS ----------------
+def extract_experience_from_resume(text):
+    keywords = ["intern", "experience", "worked", "company"]
+    for word in keywords:
+        if word in text.lower():
+            return "Experience found"
+    return "No clear experience found"
+
+
+def extract_education_from_resume(text):
+    keywords = ["btech", "bachelor", "degree", "university", "college"]
+    for word in keywords:
+        if word in text.lower():
+            return "Education found"
+    return "No education details found"
+
+
+def extract_projects_from_resume(text):
+    keywords = ["project", "developed", "built", "created"]
+    for word in keywords:
+        if word in text.lower():
+            return "Projects found"
+    return "No projects found"
 
 
 # ---------------- SCORE ----------------
@@ -111,27 +134,23 @@ Final Score:
 """
 
 
-# ---------------- AI SUGGESTIONS (NO API) ----------------
+# ---------------- AI SUGGESTIONS ----------------
 def generate_ai_response(resume_skills, missing_skills, score):
 
     suggestions = []
 
     if missing_skills:
-        suggestions.append("You are missing important skills: " + ", ".join(missing_skills))
+        suggestions.append("Missing skills: " + ", ".join(missing_skills))
 
     if score < 50:
-        suggestions.append("Your resume is weak. Add more projects and technical skills.")
-        suggestions.append("Include internships or real-world experience.")
-
+        suggestions.append("Add more projects and improve technical skills.")
     elif score < 75:
-        suggestions.append("Your resume is good but can be improved.")
-        suggestions.append("Add certifications and highlight achievements.")
-
+        suggestions.append("Improve by adding certifications and achievements.")
     else:
-        suggestions.append("Excellent resume! Focus on advanced topics.")
+        suggestions.append("Strong resume! Focus on advanced topics.")
 
-    suggestions.append("Add GitHub projects to showcase your work.")
-    suggestions.append("Customize your resume for each job role.")
+    suggestions.append("Customize resume for each job role.")
+    suggestions.append("Add GitHub projects.")
 
     return suggestions
 
@@ -152,6 +171,7 @@ if uploaded_file and job_url:
     with st.spinner("🔍 Analyzing Resume..."):
 
         resume_text = extract_resume_text(uploaded_file)
+
         tokens = preprocess(resume_text)
 
         skills_list = load_skills("skills.txt")
@@ -163,18 +183,23 @@ if uploaded_file and job_url:
 
         score, matched, missing = calculate_match(resume_skills, job_skills)
 
-        experience = extract_experience(job_text)
-        education = extract_education(job_text)
+        # EXTRA ANALYSIS
+        exp_resume = extract_experience_from_resume(resume_text)
+        edu_resume = extract_education_from_resume(resume_text)
+        proj_resume = extract_projects_from_resume(resume_text)
+
+        exp_job = extract_experience(job_text)
+        edu_job = extract_education(job_text)
 
         skills_score, exp_score, edu_score, final_score = calculate_resume_score(
-            resume_skills, job_skills, experience, education
+            resume_skills, job_skills, exp_resume, edu_resume
         )
 
         ai_suggestions = generate_ai_response(resume_skills, list(missing), final_score)
 
     st.divider()
 
-    # RESULTS
+    # SKILLS
     col1, col2 = st.columns(2)
 
     col1.subheader("📌 Resume Skills")
@@ -182,6 +207,21 @@ if uploaded_file and job_url:
 
     col2.subheader("❌ Missing Skills")
     col2.error(", ".join(missing))
+
+    # RESUME ANALYSIS
+    st.subheader("📊 Resume Analysis")
+
+    col1, col2, col3 = st.columns(3)
+    col1.info(exp_resume)
+    col2.info(edu_resume)
+    col3.info(proj_resume)
+
+    # JOB ANALYSIS
+    st.subheader("📋 Job Requirements")
+
+    col1, col2 = st.columns(2)
+    col1.info(exp_job)
+    col2.info(edu_job)
 
     # SCORE
     st.subheader("🎯 Resume Score")
@@ -198,20 +238,15 @@ if uploaded_file and job_url:
     ax.bar(["Matched", "Missing"], [len(matched), len(missing)])
     st.pyplot(fig)
 
-    # DOWNLOAD REPORT
+    # DOWNLOAD
     report = generate_report(resume_skills, job_skills, matched, missing, final_score)
-
     st.download_button("📄 Download Report", report, "resume_report.txt")
 
-    # AI SUGGESTIONS
+    # AI
     st.subheader("🤖 AI Suggestions")
-
     for s in ai_suggestions:
         st.info(s)
 
 
-# ---------------- FOOTER ----------------
-st.markdown("""
-<hr>
-<p style='text-align:center;'>Built with ❤️ using Python & AI</p>
-""", unsafe_allow_html=True)
+# FOOTER
+st.markdown("<hr><p style='text-align:center;'>Built with ❤️</p>", unsafe_allow_html=True)
