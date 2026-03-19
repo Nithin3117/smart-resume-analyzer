@@ -3,6 +3,7 @@ import PyPDF2
 import matplotlib.pyplot as plt
 from docx import Document
 import plotly.graph_objects as go
+import re
 
 from job_link_extractor import extract_job_text
 from job_requirement_analyzer import extract_experience, extract_education
@@ -52,29 +53,52 @@ def extract_resume_text(file):
     return text
 
 
-# ---------------- EXTRA ANALYSIS ----------------
+# ---------------- REAL DETAIL EXTRACTION ----------------
 def extract_experience_from_resume(text):
-    keywords = ["intern", "experience", "worked", "company"]
-    for word in keywords:
-        if word in text.lower():
-            return "Experience found"
-    return "No clear experience found"
+    text = text.lower()
+
+    # detect years
+    matches = re.findall(r'\d+\+?\s*(years|year)', text)
+
+    lines = text.split("\n")
+    exp_lines = []
+
+    for line in lines:
+        if any(word in line for word in ["intern", "worked", "experience", "company"]):
+            exp_lines.append(line.strip())
+
+    if exp_lines:
+        return exp_lines[:3]
+    elif matches:
+        return matches
+    else:
+        return ["No experience details found"]
 
 
 def extract_education_from_resume(text):
-    keywords = ["btech", "bachelor", "degree", "university", "college"]
-    for word in keywords:
-        if word in text.lower():
-            return "Education found"
-    return "No education details found"
+    text = text.lower()
+
+    lines = text.split("\n")
+    edu_lines = []
+
+    for line in lines:
+        if any(word in line for word in ["btech", "bachelor", "master", "degree", "college", "university"]):
+            edu_lines.append(line.strip())
+
+    return edu_lines[:3] if edu_lines else ["No education details found"]
 
 
 def extract_projects_from_resume(text):
-    keywords = ["project", "developed", "built", "created"]
-    for word in keywords:
-        if word in text.lower():
-            return "Projects found"
-    return "No projects found"
+    text = text.lower()
+
+    lines = text.split("\n")
+    proj_lines = []
+
+    for line in lines:
+        if any(word in line for word in ["project", "developed", "built", "created"]):
+            proj_lines.append(line.strip())
+
+    return proj_lines[:5] if proj_lines else ["No projects found"]
 
 
 # ---------------- SCORE ----------------
@@ -183,7 +207,7 @@ if uploaded_file and job_url:
 
         score, matched, missing = calculate_match(resume_skills, job_skills)
 
-        # EXTRA ANALYSIS
+        # NEW DETAIL EXTRACTION
         exp_resume = extract_experience_from_resume(resume_text)
         edu_resume = extract_education_from_resume(resume_text)
         proj_resume = extract_projects_from_resume(resume_text)
@@ -208,20 +232,29 @@ if uploaded_file and job_url:
     col2.subheader("❌ Missing Skills")
     col2.error(", ".join(missing))
 
-    # RESUME ANALYSIS
+    # RESUME DETAILS
     st.subheader("📊 Resume Analysis")
 
     col1, col2, col3 = st.columns(3)
-    col1.info(exp_resume)
-    col2.info(edu_resume)
-    col3.info(proj_resume)
 
-    # JOB ANALYSIS
+    col1.write("Experience")
+    col1.write(exp_resume)
+
+    col2.write("Education")
+    col2.write(edu_resume)
+
+    col3.write("Projects")
+    col3.write(proj_resume)
+
+    # JOB DETAILS
     st.subheader("📋 Job Requirements")
 
     col1, col2 = st.columns(2)
-    col1.info(exp_job)
-    col2.info(edu_job)
+    col1.write("Experience Required")
+    col1.write(exp_job)
+
+    col2.write("Education Required")
+    col2.write(edu_job)
 
     # SCORE
     st.subheader("🎯 Resume Score")
