@@ -16,24 +16,42 @@ from job_matcher import extract_job_skills, calculate_match
 st.set_page_config(page_title="Smart Resume Analyzer", page_icon="🚀", layout="wide")
 
 
-# ---------------- UI ----------------
+# ---------------- UI STYLE ----------------
 st.markdown("""
 <style>
 .stApp {
     background: linear-gradient(135deg, #0f172a, #1e293b);
     color: white;
 }
-h1 {
-    text-align: center;
-    color: #38bdf8;
+.card {
+    background: #1e293b;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 8px;
 }
 </style>
 """, unsafe_allow_html=True)
 
 st.markdown("""
-<h1>🚀 Smart Resume Analyzer</h1>
+<h1 style='text-align:center;'>🚀 Smart Resume Analyzer</h1>
 <p style='text-align:center;'>AI-powered Resume + Job Matching System</p>
 """, unsafe_allow_html=True)
+
+
+# ---------------- CLEAN DISPLAY ----------------
+def display_clean(title, items):
+    st.markdown(f"### {title}")
+
+    if not items:
+        st.markdown("👉 No data found")
+    else:
+        for item in items:
+            st.markdown(
+                f"""
+                <div class="card">👉 {item}</div>
+                """,
+                unsafe_allow_html=True
+            )
 
 
 # ---------------- RESUME READER ----------------
@@ -53,34 +71,24 @@ def extract_resume_text(file):
     return text
 
 
-# ---------------- REAL DETAIL EXTRACTION ----------------
+# ---------------- DETAIL EXTRACTION ----------------
 def extract_experience_from_resume(text):
     text = text.lower()
-
-    # detect years
-    matches = re.findall(r'\d+\+?\s*(years|year)', text)
-
     lines = text.split("\n")
-    exp_lines = []
 
+    exp_lines = []
     for line in lines:
         if any(word in line for word in ["intern", "worked", "experience", "company"]):
             exp_lines.append(line.strip())
 
-    if exp_lines:
-        return exp_lines[:3]
-    elif matches:
-        return matches
-    else:
-        return ["No experience details found"]
+    return exp_lines[:3] if exp_lines else ["No experience details found"]
 
 
 def extract_education_from_resume(text):
     text = text.lower()
-
     lines = text.split("\n")
-    edu_lines = []
 
+    edu_lines = []
     for line in lines:
         if any(word in line for word in ["btech", "bachelor", "master", "degree", "college", "university"]):
             edu_lines.append(line.strip())
@@ -90,10 +98,9 @@ def extract_education_from_resume(text):
 
 def extract_projects_from_resume(text):
     text = text.lower()
-
     lines = text.split("\n")
-    proj_lines = []
 
+    proj_lines = []
     for line in lines:
         if any(word in line for word in ["project", "developed", "built", "created"]):
             proj_lines.append(line.strip())
@@ -207,7 +214,6 @@ if uploaded_file and job_url:
 
         score, matched, missing = calculate_match(resume_skills, job_skills)
 
-        # NEW DETAIL EXTRACTION
         exp_resume = extract_experience_from_resume(resume_text)
         edu_resume = extract_education_from_resume(resume_text)
         proj_resume = extract_projects_from_resume(resume_text)
@@ -232,29 +238,30 @@ if uploaded_file and job_url:
     col2.subheader("❌ Missing Skills")
     col2.error(", ".join(missing))
 
-    # RESUME DETAILS
+    # RESUME ANALYSIS (CLEAN UI)
     st.subheader("📊 Resume Analysis")
 
     col1, col2, col3 = st.columns(3)
 
-    col1.write("Experience")
-    col1.write(exp_resume)
+    with col1:
+        display_clean("Experience", exp_resume)
 
-    col2.write("Education")
-    col2.write(edu_resume)
+    with col2:
+        display_clean("Education", edu_resume)
 
-    col3.write("Projects")
-    col3.write(proj_resume)
+    with col3:
+        display_clean("Projects", proj_resume)
 
     # JOB DETAILS
     st.subheader("📋 Job Requirements")
 
     col1, col2 = st.columns(2)
-    col1.write("Experience Required")
-    col1.write(exp_job)
 
-    col2.write("Education Required")
-    col2.write(edu_job)
+    with col1:
+        display_clean("Experience Required", [exp_job])
+
+    with col2:
+        display_clean("Education Required", [edu_job])
 
     # SCORE
     st.subheader("🎯 Resume Score")
@@ -271,14 +278,14 @@ if uploaded_file and job_url:
     ax.bar(["Matched", "Missing"], [len(matched), len(missing)])
     st.pyplot(fig)
 
-    # DOWNLOAD
+    # DOWNLOAD REPORT
     report = generate_report(resume_skills, job_skills, matched, missing, final_score)
     st.download_button("📄 Download Report", report, "resume_report.txt")
 
-    # AI
+    # AI SUGGESTIONS
     st.subheader("🤖 AI Suggestions")
     for s in ai_suggestions:
-        st.info(s)
+        st.markdown(f"👉 {s}")
 
 
 # FOOTER
