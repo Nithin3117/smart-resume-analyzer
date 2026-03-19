@@ -31,25 +31,23 @@ def signup(email, password):
     users = load_users()
 
     if not is_valid_email(email):
-        return False, "Invalid email format"
+        return False, "Invalid email"
 
     if email in users:
-        return False, "User already exists"
+        return False, "User exists"
 
-    users[email] = {
-        "password": hash_password(password)
-    }
-
+    users[email] = {"password": hash_password(password)}
     save_users(users)
+
     return True, "Signup successful"
 
 
 def login(email, password):
     users = load_users()
 
-    if email in users:
-        if users[email]["password"] == hash_password(password):
-            return True
+    if email in users and users[email]["password"] == hash_password(password):
+        return True
+
     return False
 
 
