@@ -2,6 +2,8 @@ import streamlit as st
 import PyPDF2
 import matplotlib.pyplot as plt
 from docx import Document
+import plotly.graph_objects as go
+import google.generativeai as genai
 
 from job_link_extractor import extract_job_text
 from job_requirement_analyzer import extract_experience, extract_education, extract_responsibilities
@@ -10,35 +12,20 @@ from skill_extractor import load_skills, extract_skills
 from job_matcher import extract_job_skills, calculate_match
 
 
-# ---------------- PAGE CONFIG ----------------
+# ---------------- CONFIG ----------------
 st.set_page_config(page_title="Smart Resume Analyzer", page_icon="🚀", layout="wide")
 
 
-# ---------------- CUSTOM CSS ----------------
+# ---------------- CSS ----------------
 st.markdown("""
 <style>
 .stApp {
     background: linear-gradient(135deg, #0f172a, #1e293b);
     color: white;
 }
-
 h1 {
     text-align: center;
     color: #38bdf8;
-    font-size: 3rem;
-}
-
-.stButton>button {
-    background-color: #38bdf8;
-    color: black;
-    border-radius: 8px;
-    font-weight: bold;
-}
-
-[data-testid="stMetric"] {
-    background-color: #1e293b;
-    padding: 10px;
-    border-radius: 10px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -47,13 +34,17 @@ h1 {
 # ---------------- HEADER ----------------
 st.markdown("""
 <h1>🚀 Smart Resume Analyzer</h1>
-<p style='text-align:center;'>Analyze your resume with AI & match it with real job roles</p>
+<p style='text-align:center;'>AI-powered resume analysis system</p>
 """, unsafe_allow_html=True)
+
+
+# ---------------- GEMINI API ----------------
+genai.configure(api_key="YOUR_API_KEY")  # 🔑 Replace with your key
+model = genai.GenerativeModel("gemini-pro")
 
 
 # ---------------- RESUME READER ----------------
 def extract_resume_text(file):
-
     text = ""
 
     if file.type == "application/pdf":
@@ -69,66 +60,96 @@ def extract_resume_text(file):
     return text
 
 
-# ---------------- SCORE FUNCTION ----------------
+# ---------------- SCORE ----------------
 def calculate_resume_score(resume_skills, job_skills, experience, education):
 
     if len(job_skills) == 0:
         skills_score = 0
     else:
-        matched_skills = set(resume_skills).intersection(set(job_skills))
-        skills_score = (len(matched_skills) / len(job_skills)) * 100
+        skills_score = (len(set(resume_skills) & set(job_skills)) / len(job_skills)) * 100
 
-    exp_score = 50 if len(experience) > 0 else 20
-    edu_score = 50 if len(education) > 0 else 20
+    exp_score = 50 if experience else 20
+    edu_score = 50 if education else 20
 
     final_score = (0.6 * skills_score) + (0.2 * exp_score) + (0.2 * edu_score)
 
     return skills_score, exp_score, edu_score, final_score
 
 
-# ---------------- AI SUGGESTIONS ----------------
-def generate_ai_suggestions(missing_skills, score):
-
-    suggestions = []
-
-    if len(missing_skills) > 0:
-        suggestions.append("Learn these skills: " + ", ".join(missing_skills))
-
-    if score < 50:
-        suggestions.append("Your resume is weak. Add more projects and skills.")
-        suggestions.append("Include internships or hands-on experience.")
-
-    elif score < 75:
-        suggestions.append("Improve by adding certifications and projects.")
-        suggestions.append("Highlight achievements with measurable results.")
-
-    else:
-        suggestions.append("Great resume! Focus on advanced skills.")
-
-    suggestions.append("Add GitHub projects.")
-    suggestions.append("Customize resume for each job.")
-
-    return suggestions
+# ---------------- GAUGE ----------------
+def show_gauge(score):
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=score,
+        title={'text': "Resume Score"},
+        gauge={
+            'axis': {'range': [0, 100]},
+            'bar': {'color': "lightgreen"},
+            'steps': [
+                {'range': [0, 50], 'color': "red"},
+                {'range': [50, 75], 'color': "orange"},
+                {'range': [75, 100], 'color': "green"}
+            ]
+        }
+    ))
+    st.plotly_chart(fig)
 
 
-# ---------------- INPUT UI ----------------
-with st.container():
-    col1, col2 = st.columns(2)
+# ---------------- REPORT ----------------
+def generate_report(resume_skills, job_skills, matched, missing, score):
+    return f"""
+SMART RESUME ANALYSIS REPORT
 
-    with col1:
-        uploaded_file = st.file_uploader("📄 Upload Resume", type=["pdf", "docx"])
+Resume Skills:
+{', '.join(resume_skills)}
 
-    with col2:
-        job_url = st.text_input("🔗 Paste Job Link")
+Job Skills:
+{', '.join(job_skills)}
+
+Matched Skills:
+{', '.join(matched)}
+
+Missing Skills:
+{', '.join(missing)}
+
+Final Score:
+{round(score,2)}%
+"""
 
 
-# ---------------- MAIN LOGIC ----------------
+# ---------------- AI ----------------
+def generate_ai_response(resume_text, job_text):
+    prompt = f"""
+    Analyze this resume and job description.
+
+    Resume:
+    {resume_text}
+
+    Job:
+    {job_text}
+
+    Give suggestions to improve the resume.
+    """
+    response = model.generate_content(prompt)
+    return response.text
+
+
+# ---------------- INPUT ----------------
+col1, col2 = st.columns(2)
+
+with col1:
+    uploaded_file = st.file_uploader("📄 Upload Resume", type=["pdf", "docx"])
+
+with col2:
+    job_url = st.text_input("🔗 Paste Job Link")
+
+
+# ---------------- MAIN ----------------
 if uploaded_file and job_url:
 
-    with st.spinner("🔍 Analyzing Resume... Please wait"):
+    with st.spinner("Analyzing..."):
 
         resume_text = extract_resume_text(uploaded_file)
-
         tokens = preprocess(resume_text)
 
         skills_list = load_skills("skills.txt")
@@ -136,89 +157,50 @@ if uploaded_file and job_url:
         resume_skills = extract_skills(tokens, skills_list)
 
         job_text = extract_job_text(job_url)
-
         job_skills = extract_job_skills(job_text, skills_list)
 
         score, matched, missing = calculate_match(resume_skills, job_skills)
 
         experience = extract_experience(job_text)
         education = extract_education(job_text)
-        responsibilities = extract_responsibilities(job_text)
 
         skills_score, exp_score, edu_score, final_score = calculate_resume_score(
             resume_skills, job_skills, experience, education
         )
 
-        ai_suggestions = generate_ai_suggestions(list(missing), final_score)
-
     st.divider()
 
-    # -------- RESULTS --------
+    # RESULTS
     col1, col2 = st.columns(2)
 
-    with col1:
-        st.markdown("### 📌 Resume Skills")
-        st.success(", ".join(resume_skills))
+    col1.subheader("Resume Skills")
+    col1.success(", ".join(resume_skills))
 
-        st.markdown("### 📋 Job Skills")
-        st.info(", ".join(job_skills))
+    col2.subheader("Missing Skills")
+    col2.error(", ".join(missing))
 
-    with col2:
-        st.markdown("### ✅ Matched Skills")
-        st.success(", ".join(matched))
+    # GAUGE
+    st.subheader("🎯 Resume Score")
+    show_gauge(final_score)
 
-        st.markdown("### ❌ Missing Skills")
-        st.error(", ".join(missing))
-
-    # -------- SCORE --------
-    st.markdown("## 🏆 Overall Resume Score")
-
-    st.progress(int(final_score))
-
-    st.markdown(
-        f"<h2 style='text-align:center; color:#22c55e;'>{round(final_score,2)}%</h2>",
-        unsafe_allow_html=True
-    )
-
-    # -------- METRICS --------
+    # METRICS
     col1, col2, col3 = st.columns(3)
-
-    col1.metric("Skills Match", f"{round(skills_score,2)}%")
+    col1.metric("Skills", f"{round(skills_score,2)}%")
     col2.metric("Experience", f"{round(exp_score,2)}%")
     col3.metric("Education", f"{round(edu_score,2)}%")
 
-    # -------- GRAPH --------
-    labels = ["Matched", "Missing"]
-    values = [len(matched), len(missing)]
-
+    # GRAPH
     fig, ax = plt.subplots()
-    ax.bar(labels, values)
-
-    st.subheader("📊 Skill Match Graph")
+    ax.bar(["Matched", "Missing"], [len(matched), len(missing)])
     st.pyplot(fig)
 
-    # -------- JOB DETAILS --------
-    st.subheader("📊 Job Details")
+    # DOWNLOAD
+    report = generate_report(resume_skills, job_skills, matched, missing, final_score)
 
-    col1, col2, col3 = st.columns(3)
+    st.download_button("📄 Download Report", report, "report.txt")
 
-    col1.write("Experience")
-    col1.write(experience)
+    # AI
+    st.subheader("🤖 AI Feedback")
 
-    col2.write("Education")
-    col2.write(education)
-
-    col3.write("Responsibilities")
-    col3.write(responsibilities)
-
-    # -------- AI SUGGESTIONS --------
-    st.markdown("### 🤖 AI Suggestions")
-
-    for suggestion in ai_suggestions:
-        st.info(suggestion)
-
-# -------- FOOTER --------
-st.markdown("""
-<hr>
-<p style='text-align:center;'>Built with ❤️ using Python & AI</p>
-""", unsafe_allow_html=True)
+    ai_text = generate_ai_response(resume_text, job_text)
+    st.write(ai_text)
