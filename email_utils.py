@@ -1,55 +1,41 @@
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
 import random
 
-# 🔑 Replace with your actual SendGrid API Key
-SENDGRID_API_KEY = "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"
+# 🔑 Your Brevo API Key
+BREVO_API_KEY = "xkeysib-REPLACE_WITH_YOUR_KEY"
 
-# 📧 Must be VERIFIED in SendGrid
+# 📧 Verified sender email
 SENDER_EMAIL = "nithinbollineni04@gmail.com"
 
 
 def generate_otp():
-    """Generate a 6-digit OTP"""
     return str(random.randint(100000, 999999))
 
 
 def send_otp(receiver_email):
-    """Send OTP to user email"""
-
     otp = generate_otp()
 
-    message = Mail(
-        from_email=SENDER_EMAIL,
-        to_emails=receiver_email,
-        subject="🔐 Your OTP Code - Smart Resume Analyzer",
-        html_content=f"""
-        <div style="font-family: Arial; padding: 20px;">
-            <h2 style="color: #4CAF50;">Smart Resume Analyzer</h2>
-            <p>Your OTP for login/signup is:</p>
-            <h1 style="color: #333;">{otp}</h1>
-            <p>This OTP is valid for a short time.</p>
-            <br>
-            <p>If you didn’t request this, ignore this email.</p>
-        </div>
-        """
+    configuration = sib_api_v3_sdk.Configuration()
+    configuration.api_key['api-key'] = BREVO_API_KEY
+
+    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
+        sib_api_v3_sdk.ApiClient(configuration)
+    )
+
+    send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+        to=[{"email": receiver_email}],
+        sender={"email": SENDER_EMAIL},
+        subject="🔐 OTP Verification",
+        html_content=f"<h2>Your OTP is: {otp}</h2>"
     )
 
     try:
-        sg = SendGridAPIClient(SENDGRID_API_KEY)
-        response = sg.send(message)
+        response = api_instance.send_transac_email(send_smtp_email)
+        print("STATUS:", response)
+        print("OTP:", otp)
+        return otp
 
-        # 🔍 Debug logs (VERY IMPORTANT)
-        print("STATUS CODE:", response.status_code)
-        print("RESPONSE BODY:", response.body)
-        print("OTP SENT:", otp)
-
-        # ✅ Success check
-        if response.status_code == 202:
-            return otp
-        else:
-            return None
-
-    except Exception as e:
-        print("❌ ERROR SENDING EMAIL:", str(e))
+    except ApiException as e:
+        print("ERROR:", e)
         return None
