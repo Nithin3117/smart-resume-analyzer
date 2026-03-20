@@ -19,18 +19,38 @@ def extract_sections(text):
 
     lines = text.split("\n")
 
+    current_section = None
+
     for line in lines:
+        line = line.strip()
 
-        # EDUCATION
-        if ("b.tech" in line or "degree" in line or "education" in line or "university" in line):
-            education.append(line.strip())
+        if line == "":
+            continue
 
-        # EXPERIENCE
-        elif ("experience" in line or "intern" in line or "worked" in line or "company" in line):
-            experience.append(line.strip())
+        # Detect sections
+        if "education" in line:
+            current_section = "education"
+            continue
 
-        # PROJECTS
-        elif ("project" in line or "developed" in line or "built" in line):
-            projects.append(line.strip())
+        elif "experience" in line or "internship" in line:
+            current_section = "experience"
+            continue
+
+        elif "project" in line:
+            current_section = "projects"
+            continue
+
+        # Store meaningful lines
+        if current_section == "education":
+            if len(line) > 10:
+                education.append(line)
+
+        elif current_section == "experience":
+            if len(line) > 10:
+                experience.append(line)
+
+        elif current_section == "projects":
+            if len(line) > 10:
+                projects.append(line)
 
     return education, experience, projects
