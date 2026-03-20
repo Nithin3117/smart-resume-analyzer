@@ -1,12 +1,11 @@
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
+import streamlit as st
 import random
 
-# 🔑 Your Brevo API Key
-BREVO_API_KEY = "xkeysib-REPLACE_WITH_YOUR_KEY"
-
-# 📧 Verified sender email
-SENDER_EMAIL = "nithinbollineni04@gmail.com"
+# 🔐 Read from Streamlit secrets
+BREVO_API_KEY = st.secrets["BREVO_API_KEY"]
+SENDER_EMAIL = st.secrets["SENDER_EMAIL"]
 
 
 def generate_otp():
@@ -32,8 +31,7 @@ def send_otp(receiver_email):
 
     try:
         response = api_instance.send_transac_email(send_smtp_email)
-        print("STATUS:", response)
-        print("OTP:", otp)
+        print("SUCCESS:", response)
         return otp
 
     except ApiException as e:
