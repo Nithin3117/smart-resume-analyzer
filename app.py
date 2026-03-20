@@ -11,14 +11,11 @@ from nlp_processing import preprocess, extract_sections
 from skill_extractor import load_skills, extract_skills
 from job_matcher import extract_job_skills, calculate_match
 
-# ---------- CONFIG ----------
+
+# ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="Smart Resume Analyzer", layout="wide")
 
-# ---------- SECRETS ----------
-BREVO_API_KEY = st.secrets["BREVO_API_KEY"]
-SENDER_EMAIL = st.secrets["SENDER_EMAIL"]
-
-# ---------- SESSION ----------
+# ---------- SESSION RESET (FIX LOGIN ISSUE) ----------
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
@@ -28,9 +25,14 @@ if "otp_sent" not in st.session_state:
 if "generated_otp" not in st.session_state:
     st.session_state.generated_otp = ""
 
+
+# ---------- SECRETS ----------
+BREVO_API_KEY = st.secrets["BREVO_API_KEY"]
+SENDER_EMAIL = st.secrets["SENDER_EMAIL"]
+
+
 # ---------- EMAIL FUNCTION ----------
 def send_otp(email, otp):
-
     url = "https://api.brevo.com/v3/smtp/email"
 
     headers = {
@@ -94,7 +96,8 @@ def create_gauge(score):
     return fig
 
 
-# ---------- LOGIN + OTP ----------
+# ================= LOGIN PAGE =================
+
 if not st.session_state.logged_in:
 
     st.title("🔐 Secure Login")
@@ -104,19 +107,23 @@ if not st.session_state.logged_in:
     email = st.text_input("Email")
     password = st.text_input("Password", type="password")
 
+    # ---------- SEND OTP ----------
     if st.button("Send OTP"):
 
-        otp = str(random.randint(1000, 9999))
-
-        success = send_otp(email, otp)
-
-        if success:
-            st.session_state.generated_otp = otp
-            st.session_state.otp_sent = True
-            st.success("OTP sent to your email ✅")
+        if email == "" or password == "":
+            st.warning("Enter email and password first")
         else:
-            st.session_state.otp_sent = False
-            st.error("❌ Failed to send OTP. Check API / sender email")
+            otp = str(random.randint(1000, 9999))
+
+            success = send_otp(email, otp)
+
+            if success:
+                st.session_state.generated_otp = otp
+                st.session_state.otp_sent = True
+                st.success("OTP sent to your email ✅")
+            else:
+                st.session_state.otp_sent = False
+                st.error("❌ Failed to send OTP")
 
     # ---------- OTP VERIFY ----------
     if st.session_state.otp_sent:
@@ -135,6 +142,7 @@ if not st.session_state.logged_in:
 
                 if success:
                     st.session_state.logged_in = True
+                    st.session_state.otp_sent = False
                     st.success("Login successful ✅")
                     st.rerun()
                 else:
@@ -143,7 +151,9 @@ if not st.session_state.logged_in:
             else:
                 st.error("Invalid OTP ❌")
 
-# ---------- DASHBOARD ----------
+
+# ================= DASHBOARD =================
+
 else:
 
     st.title("🚀 Smart Resume Analyzer Dashboard")
@@ -178,9 +188,10 @@ else:
 
         education, experience, projects = extract_sections(resume_text)
 
-        # ---------- OUTPUT ----------
-        st.plotly_chart(create_gauge(score))
+        # ---------- SCORE ----------
+        st.plotly_chart(create_gauge(score), use_container_width=True)
 
+        # ---------- SKILLS ----------
         st.subheader("✅ Matched Skills")
         for s in matched:
             st.write(f"➡ {s}")
@@ -189,6 +200,7 @@ else:
         for s in missing:
             st.write(f"➡ {s}")
 
+        # ---------- SECTIONS ----------
         col1, col2, col3 = st.columns(3)
 
         with col1:
@@ -206,8 +218,11 @@ else:
             for i in projects:
                 st.write(f"➡ {i}")
 
+        # ---------- SUGGESTIONS ----------
         st.subheader("🤖 Suggestions")
 
         if missing:
             for s in missing:
                 st.write(f"➡ Learn {s}")
+        else:
+            st.success("Great profile! 🎉")
