@@ -6,4 +6,4 @@ beautifulsoup4
 python-docx
 matplotlib
 plotly
-sib-api-v3-sdk
+sib_api_v3_sdk
