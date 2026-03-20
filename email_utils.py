@@ -3,7 +3,7 @@ from sendgrid.helpers.mail import Mail
 import random
 
 # 🔑 Replace with your actual SendGrid API Key
-SENDGRID_API_KEY = "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"
+SENDGRID_API_KEY = "SG.xxxxxxxxx"
 
 # 📧 Must be VERIFIED in SendGrid
 SENDER_EMAIL = "nithinbollineni04@gmail.com"
