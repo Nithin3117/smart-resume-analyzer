@@ -1,173 +1,193 @@
 import streamlit as st
-import time
-
-st.set_page_config(page_title="Smart Resume Analyzer", layout="wide")
-
 import PyPDF2
-from docx import Document
+import docx
 import plotly.graph_objects as go
 
-from auth import login, signup, reset_password
-from email_utils import send_otp
 from job_link_extractor import extract_job_text
-from nlp_processing import preprocess
+from nlp_processing import preprocess, extract_sections
 from skill_extractor import load_skills, extract_skills
-from job_matcher import extract_job_skills
+from job_matcher import extract_job_skills, calculate_match
 
 
-# SESSION
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
+# ---------- FILE READERS ----------
 
-if "otp" not in st.session_state:
-    st.session_state.otp = None
-
-if "otp_time" not in st.session_state:
-    st.session_state.otp_time = None
-
-
-# ---------------- LOGIN SYSTEM ----------------
-if not st.session_state.logged_in:
-
-    st.title("🔐 Secure Login")
-
-    option = st.selectbox("Choose", ["Login", "Signup", "Forgot Password"])
-
-    email = st.text_input("Email")
-    password = st.text_input("Password", type="password")
-
-    def send_and_store_otp():
-        otp = send_otp(email)
-
-        if otp:
-            st.session_state.otp = otp
-            st.session_state.otp_time = time.time()
-            st.success("OTP sent to your email 📧")
-        else:
-            st.error("Failed to send OTP ❌")
-
-    # LOGIN
-    if option == "Login":
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            if st.button("Send OTP"):
-                send_and_store_otp()
-
-        with col2:
-            if st.button("Resend OTP"):
-                send_and_store_otp()
-
-        otp_input = st.text_input("Enter OTP")
-
-        if st.button("Login"):
-
-            if not st.session_state.otp:
-                st.error("Request OTP first")
-
-            elif time.time() - st.session_state.otp_time > 300:
-                st.error("OTP expired")
-                st.session_state.otp = None
-
-            elif otp_input == st.session_state.otp:
-
-                if login(email, password):
-                    st.session_state.logged_in = True
-                    st.session_state.username = email
-                    st.success("Login successful")
-                    st.rerun()
-                else:
-                    st.error("Wrong password")
-
-            else:
-                st.error("Invalid OTP")
-
-    # SIGNUP
-    elif option == "Signup":
-
-        if st.button("Send OTP"):
-            send_and_store_otp()
-
-        otp_input = st.text_input("Enter OTP")
-
-        if st.button("Signup"):
-            if otp_input == st.session_state.otp:
-                success, msg = signup(email, password)
-                if success:
-                    st.success(msg)
-                else:
-                    st.error(msg)
-            else:
-                st.error("Invalid OTP")
-
-    # RESET
-    else:
-
-        if st.button("Send OTP"):
-            send_and_store_otp()
-
-        otp_input = st.text_input("Enter OTP")
-        new_password = st.text_input("New Password", type="password")
-
-        if st.button("Reset Password"):
-            if otp_input == st.session_state.otp:
-                success, msg = reset_password(email, new_password)
-                if success:
-                    st.success(msg)
-                else:
-                    st.error(msg)
-            else:
-                st.error("Invalid OTP")
-
-    st.stop()
-
-
-# ---------------- MAIN APP ----------------
-st.title("🚀 Smart Resume Analyzer")
-
-files = st.file_uploader("Upload Resume", type=["pdf", "docx"], accept_multiple_files=True)
-job_url = st.text_input("Paste Job Link")
-
-
-def extract_text(file):
+def extract_text_pdf(file):
     text = ""
-    if file.type == "application/pdf":
-        reader = PyPDF2.PdfReader(file)
-        for p in reader.pages:
-            text += p.extract_text()
-    else:
-        doc = Document(file)
-        for para in doc.paragraphs:
-            text += para.text
+    reader = PyPDF2.PdfReader(file)
+    for page in reader.pages:
+        text += page.extract_text()
     return text
 
 
-def calculate_score(resume_skills, job_skills):
-    if not job_skills:
-        return 0
-    return (len(set(resume_skills) & set(job_skills)) / len(job_skills)) * 100
+def extract_text_docx(file):
+    doc = docx.Document(file)
+    text = ""
+    for para in doc.paragraphs:
+        text += para.text + "\n"
+    return text
 
 
-if files and job_url:
+# ---------- AI SUGGESTIONS ----------
 
+def generate_ai_response(resume_text, job_text, missing_skills):
+    suggestions = []
+
+    if len(missing_skills) > 0:
+        suggestions.append("Add missing skills to match the job requirements")
+
+    if "project" not in resume_text.lower():
+        suggestions.append("Add more projects to strengthen your resume")
+
+    if "experience" not in resume_text.lower():
+        suggestions.append("Include internship or work experience")
+
+    if len(resume_text.split()) < 200:
+        suggestions.append("Increase resume content with more details")
+
+    if "github" not in resume_text.lower():
+        suggestions.append("Add GitHub or portfolio links")
+
+    return suggestions
+
+
+# ---------- GAUGE FUNCTION ----------
+
+def create_gauge(score):
+    color = "red"
+    if score > 50:
+        color = "orange"
+    if score > 75:
+        color = "green"
+
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=score,
+        title={'text': "Resume Score"},
+        gauge={
+            'axis': {'range': [0, 100]},
+            'bar': {'color': color},
+
+            'steps': [
+                {'range': [0, 50], 'color': "#ff4d4d"},
+                {'range': [50, 75], 'color': "#ffa500"},
+                {'range': [75, 100], 'color': "#00cc44"}
+            ],
+        }
+    ))
+
+    return fig
+
+
+# ---------- UI ----------
+
+st.set_page_config(page_title="Smart Resume Analyzer", layout="wide")
+
+st.title("🚀 Smart Resume Analyzer")
+st.write("Upload your resume and compare with job requirements")
+
+uploaded_file = st.file_uploader("Upload Resume (PDF / DOCX)", type=["pdf", "docx"])
+job_url = st.text_input("Paste Job Description Link")
+
+job_text = ""
+
+if job_url:
     job_text = extract_job_text(job_url)
+
+
+# ---------- MAIN LOGIC ----------
+
+if uploaded_file is not None:
+
+    # Read file
+    if uploaded_file.type == "application/pdf":
+        resume_text = extract_text_pdf(uploaded_file)
+    else:
+        resume_text = extract_text_docx(uploaded_file)
+
+    # NLP
+    tokens = preprocess(resume_text)
+
+    # Skills
     skills_list = load_skills("skills.txt")
+    resume_skills = extract_skills(tokens, skills_list)
     job_skills = extract_job_skills(job_text, skills_list)
 
-    for file in files:
+    # Match
+    score, matched, missing = calculate_match(resume_skills, job_skills)
 
-        st.markdown(f"## 📄 {file.name}")
+    # Sections
+    education, experience, projects = extract_sections(resume_text)
 
-        resume_text = extract_text(file)
-        tokens = preprocess(resume_text)
-        resume_skills = extract_skills(tokens, skills_list)
+    # ---------- DISPLAY ----------
 
-        score = calculate_score(resume_skills, job_skills)
-        missing = list(set(job_skills) - set(resume_skills))
+    st.subheader("📌 Resume Skills")
+    st.success(", ".join(resume_skills))
 
-        st.success("Skills: " + ", ".join(resume_skills))
-        st.error("Missing: " + ", ".join(missing))
+    st.subheader("📋 Job Required Skills")
+    st.info(", ".join(job_skills))
 
-        fig = go.Figure(go.Indicator(mode="gauge+number", value=score))
-        st.plotly_chart(fig)
+    st.subheader("✅ Matched Skills")
+    for skill in matched:
+        st.write(f"➡ {skill}")
+
+    st.subheader("❌ Missing Skills")
+    if missing:
+        for skill in missing:
+            st.write(f"➡ {skill}")
+    else:
+        st.write("🎉 No missing skills")
+
+    # ---------- GAUGE SCORE ----------
+
+    st.subheader("🎯 Resume Score")
+
+    gauge_fig = create_gauge(score)
+    st.plotly_chart(gauge_fig, use_container_width=True)
+
+    # ---------- SECTIONS ----------
+
+    st.subheader("📊 Resume Analysis")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("### 🎓 Education")
+        if education:
+            for item in education:
+                st.write(f"➡ {item}")
+        else:
+            st.write("➡ No education details found")
+
+    with col2:
+        st.markdown("### 💼 Experience")
+        if experience:
+            for item in experience:
+                st.write(f"➡ {item}")
+        else:
+            st.write("➡ No experience details found")
+
+    with col3:
+        st.markdown("### 🚀 Projects")
+        if projects:
+            for item in projects:
+                st.write(f"➡ {item}")
+        else:
+            st.write("➡ No project details found")
+
+    # ---------- AI SUGGESTIONS ----------
+
+    ai_suggestions = generate_ai_response(resume_text, job_text, missing)
+
+    st.subheader("🤖 AI Suggestions")
+
+    for s in ai_suggestions:
+        st.write(f"➡ {s}")
+
+    # ---------- FINAL MESSAGE ----------
+
+    if score < 50:
+        st.error("Your resume needs improvement")
+    elif score < 75:
+        st.warning("Your resume is good but can improve")
+    else:
+        st.success("Excellent match! 🎉")
