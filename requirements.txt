@@ -6,4 +6,4 @@ beautifulsoup4
 python-docx
 matplotlib
 plotly
-sendgrid
+sib-api-v3-sdk
