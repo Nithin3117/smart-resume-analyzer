@@ -1,27 +1,36 @@
-import string
+import re
+
+# ---------- PREPROCESS ----------
 
 def preprocess(text):
+    text = text.lower()
+    tokens = re.findall(r'\b[a-z]+\b', text)
+    return tokens
 
-    # Convert to lowercase
+
+# ---------- EXTRACT SECTIONS ----------
+
+def extract_sections(text):
     text = text.lower()
 
-    # Simple tokenization (split by spaces)
-    tokens = text.split()
+    education = []
+    experience = []
+    projects = []
 
-    # Remove punctuation
-    tokens = [word.strip(string.punctuation) for word in tokens]
+    lines = text.split("\n")
 
-    # Remove empty tokens
-    tokens = [word for word in tokens if word != ""]
+    for line in lines:
 
-    # Simple stopwords list
-    stop_words = {
-        "the", "and", "is", "in", "to", "of", "for", "on", "with",
-        "as", "by", "an", "at", "from", "or", "that", "this",
-        "it", "be", "are", "was", "were"
-    }
+        # EDUCATION
+        if ("b.tech" in line or "degree" in line or "education" in line or "university" in line):
+            education.append(line.strip())
 
-    # Remove stopwords
-    tokens = [word for word in tokens if word not in stop_words]
+        # EXPERIENCE
+        elif ("experience" in line or "intern" in line or "worked" in line or "company" in line):
+            experience.append(line.strip())
 
-    return tokens
+        # PROJECTS
+        elif ("project" in line or "developed" in line or "built" in line):
+            projects.append(line.strip())
+
+    return education, experience, projects
