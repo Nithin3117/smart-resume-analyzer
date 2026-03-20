@@ -1,38 +1,34 @@
-import smtplib
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 import random
-from email.mime.text import MIMEText
 
-# 🔥 REPLACE THESE
-SENDER_EMAIL = "your_email@gmail.com"
-SENDER_PASSWORD = "your_app_password"  # MUST be Gmail App Password
+SENDGRID_API_KEY = "PASTE_YOUR_API_KEY_HERE"
+SENDER_EMAIL = "nithinbollineni04@gmail.com"
 
 
 def send_otp(receiver_email):
 
     otp = str(random.randint(100000, 999999))
 
-    msg = MIMEText(f"""
-Your OTP is: {otp}
-
-This OTP is valid for 5 minutes.
-Do not share it with anyone.
-""")
-
-    msg["Subject"] = "OTP Verification"
-    msg["From"] = SENDER_EMAIL
-    msg["To"] = receiver_email
+    message = Mail(
+        from_email=SENDER_EMAIL,
+        to_emails=receiver_email,
+        subject="Your OTP Code",
+        html_content=f"""
+        <h2>Your OTP is: {otp}</h2>
+        <p>This OTP is valid for 5 minutes.</p>
+        """
+    )
 
     try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.ehlo()
-        server.starttls()
-        server.login(SENDER_EMAIL, SENDER_PASSWORD)
-        server.sendmail(SENDER_EMAIL, receiver_email, msg.as_string())
-        server.quit()
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
 
-        print("OTP SENT:", otp)  # DEBUG
+        print("STATUS:", response.status_code)
+        print("OTP SENT:", otp)
+
         return otp
 
     except Exception as e:
-        print("EMAIL ERROR:", e)
+        print("ERROR:", e)
         return None
