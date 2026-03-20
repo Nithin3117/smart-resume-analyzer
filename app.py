@@ -216,7 +216,7 @@ else:
         with col3:
             st.markdown("### 🚀 Projects")
             for i in projects:
-                st.write(f"➡ {i}")
+                st.markdown(f"➡ **{i}**")
 
         # ---------- SUGGESTIONS ----------
         st.subheader("🤖 Suggestions")
