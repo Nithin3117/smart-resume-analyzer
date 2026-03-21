@@ -15,7 +15,8 @@ from job_matcher import extract_job_skills, calculate_match
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="Smart Resume Analyzer", layout="wide")
 
-# ---------- PREMIUM UI CSS ----------
+
+# ---------- PREMIUM UI ----------
 st.markdown("""
 <style>
 .card {
@@ -23,15 +24,11 @@ st.markdown("""
     padding: 20px;
     border-radius: 12px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
-
 .title {
     font-size: 20px;
     font-weight: bold;
-    margin-bottom: 10px;
 }
-
 .green {color: #00ff9f;}
 .red {color: #ff4b5c;}
 .blue {color: #4da6ff;}
@@ -79,7 +76,7 @@ def send_otp(email, otp):
 # ---------- FILE READERS ----------
 def extract_text_pdf(file):
     reader = PyPDF2.PdfReader(file)
-    return "".join([page.extract_text() for page in reader.pages])
+    return "".join([p.extract_text() for p in reader.pages])
 
 
 def extract_text_docx(file):
@@ -92,7 +89,7 @@ def create_gauge(score):
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=score,
-        title={'text': "Score"},
+        title={'text': "Resume Score"},
         gauge={
             'axis': {'range': [0, 100]},
             'steps': [
@@ -103,6 +100,42 @@ def create_gauge(score):
         }
     ))
     return fig
+
+
+# ---------- 🤖 AI SUGGESTIONS ----------
+def generate_ai_suggestions(resume_text, job_skills, missing_skills):
+
+    suggestions = []
+
+    # Missing skills impact
+    if missing_skills:
+        suggestions.append(
+            f"Add missing skills like {', '.join(missing_skills[:5])} to improve your score significantly."
+        )
+
+    # Resume length
+    words = len(resume_text.split())
+
+    if words < 150:
+        suggestions.append("Your resume is too short. Add more detailed content.")
+    elif words > 600:
+        suggestions.append("Your resume is too long. Keep it concise and relevant.")
+
+    # Projects
+    if "project" not in resume_text.lower():
+        suggestions.append("Add 2–3 strong projects with real-world impact.")
+
+    # Experience
+    if "experience" not in resume_text.lower():
+        suggestions.append("Include internships or practical experience.")
+
+    # ATS optimization
+    suggestions.append("Use job keywords to pass ATS systems.")
+
+    # Action verbs
+    suggestions.append("Use action words like Developed, Built, Implemented.")
+
+    return suggestions
 
 
 # ================= LOGIN =================
@@ -177,26 +210,26 @@ else:
         score, matched, missing = calculate_match(resume_skills, job_skills)
         education, experience, projects = extract_sections(resume_text)
 
-        # ---------- SCORE CARD ----------
+        # ---------- SCORE ----------
         st.markdown('<div class="card">', unsafe_allow_html=True)
         st.plotly_chart(create_gauge(score), use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-        # ---------- SKILLS CARDS ----------
+        # ---------- SKILLS ----------
         col1, col2 = st.columns(2)
 
         with col1:
             st.markdown('<div class="card">', unsafe_allow_html=True)
             st.markdown('<div class="title green">✅ Matched Skills</div>', unsafe_allow_html=True)
             for s in matched:
-                st.markdown(f"➡ {s.upper()}")
+                st.write(f"➡ {s}")
             st.markdown('</div>', unsafe_allow_html=True)
 
         with col2:
             st.markdown('<div class="card">', unsafe_allow_html=True)
             st.markdown('<div class="title red">❌ Missing Skills</div>', unsafe_allow_html=True)
             for s in missing:
-                st.markdown(f"➡ {s.upper()}")
+                st.write(f"➡ {s}")
             st.markdown('</div>', unsafe_allow_html=True)
 
         # ---------- DETAILS ----------
@@ -206,31 +239,30 @@ else:
             st.markdown('<div class="card">', unsafe_allow_html=True)
             st.markdown('<div class="title blue">🎓 Education</div>', unsafe_allow_html=True)
             for i in education:
-                st.markdown(f"➡ {i}")
+                st.write(f"➡ {i}")
             st.markdown('</div>', unsafe_allow_html=True)
 
         with col2:
             st.markdown('<div class="card">', unsafe_allow_html=True)
             st.markdown('<div class="title blue">💼 Experience</div>', unsafe_allow_html=True)
             for i in experience:
-                st.markdown(f"➡ {i}")
+                st.write(f"➡ {i}")
             st.markdown('</div>', unsafe_allow_html=True)
 
         with col3:
             st.markdown('<div class="card">', unsafe_allow_html=True)
             st.markdown('<div class="title blue">🚀 Projects</div>', unsafe_allow_html=True)
             for i in projects:
-                st.markdown(f"➡ {i}")
+                st.write(f"➡ {i}")
             st.markdown('</div>', unsafe_allow_html=True)
 
-        # ---------- SUGGESTIONS ----------
+        # ---------- AI SUGGESTIONS ----------
         st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="title">🤖 Suggestions</div>', unsafe_allow_html=True)
+        st.markdown('<div class="title">🤖 AI Resume Suggestions</div>', unsafe_allow_html=True)
 
-        if missing:
-            for s in missing:
-                st.markdown(f"➡ Learn {s}")
-        else:
-            st.success("Great profile! 🎉")
+        ai_suggestions = generate_ai_suggestions(resume_text, job_skills, missing)
+
+        for s in ai_suggestions:
+            st.write(f"➡ {s}")
 
         st.markdown('</div>', unsafe_allow_html=True)
