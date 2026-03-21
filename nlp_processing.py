@@ -16,7 +16,6 @@ def extract_sections(text):
     lines = text.split("\n")
 
     current_section = None
-    buffer = []
 
     for line in lines:
         line = line.strip()
@@ -24,7 +23,7 @@ def extract_sections(text):
         if line == "":
             continue
 
-        # Detect sections
+        # Detect section headers
         if "education" in line:
             current_section = "education"
             continue
@@ -38,16 +37,14 @@ def extract_sections(text):
             continue
 
         # Collect meaningful lines
-        if current_section == "education":
-            if len(line.split()) > 3:
+        if len(line.split()) > 3:
+            if current_section == "education":
                 education.append(line)
 
-        elif current_section == "experience":
-            if len(line.split()) > 3:
+            elif current_section == "experience":
                 experience.append(line)
 
-        elif current_section == "projects":
-            if len(line.split()) > 3:
+            elif current_section == "projects":
                 projects.append(line)
 
     return education, experience, projects
