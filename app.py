@@ -15,6 +15,30 @@ from job_matcher import extract_job_skills, calculate_match
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="Smart Resume Analyzer", layout="wide")
 
+# ---------- PREMIUM UI CSS ----------
+st.markdown("""
+<style>
+.card {
+    background-color: #1e1e2f;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.green {color: #00ff9f;}
+.red {color: #ff4b5c;}
+.blue {color: #4da6ff;}
+</style>
+""", unsafe_allow_html=True)
+
+
 # ---------- SESSION ----------
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
@@ -137,10 +161,8 @@ else:
 
     job_text = extract_job_text(job_url) if job_url else ""
 
-    # ---------- MAIN ----------
     if uploaded_file:
 
-        # Extract resume text
         if uploaded_file.type == "application/pdf":
             resume_text = extract_text_pdf(uploaded_file)
         else:
@@ -152,51 +174,63 @@ else:
         resume_skills = extract_skills(tokens, skills_list)
         job_skills = extract_job_skills(job_text, skills_list)
 
-        # 👉 IMPORTANT LINE (YOU ASKED)
         score, matched, missing = calculate_match(resume_skills, job_skills)
         education, experience, projects = extract_sections(resume_text)
 
-        # ================= DISPLAY BLOCK =================
-
+        # ---------- SCORE CARD ----------
+        st.markdown('<div class="card">', unsafe_allow_html=True)
         st.plotly_chart(create_gauge(score), use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
-        st.subheader("✅ Matched Skills")
-        if matched:
-            for skill in matched:
-                st.markdown(f"➡ **{skill.upper()}**")
-        else:
-            st.info("No matched skills found")
+        # ---------- SKILLS CARDS ----------
+        col1, col2 = st.columns(2)
 
-        st.subheader("❌ Missing Skills")
-        if missing:
-            for skill in missing:
-                st.markdown(f"➡ **{skill.upper()}**")
-        else:
-            st.success("No missing skills 🎉")
+        with col1:
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.markdown('<div class="title green">✅ Matched Skills</div>', unsafe_allow_html=True)
+            for s in matched:
+                st.markdown(f"➡ {s.upper()}")
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        st.subheader("📊 Resume Details")
+        with col2:
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.markdown('<div class="title red">❌ Missing Skills</div>', unsafe_allow_html=True)
+            for s in missing:
+                st.markdown(f"➡ {s.upper()}")
+            st.markdown('</div>', unsafe_allow_html=True)
 
+        # ---------- DETAILS ----------
         col1, col2, col3 = st.columns(3)
 
         with col1:
-            st.markdown("### 🎓 Education")
-            for item in education:
-                st.markdown(f"➡ {item.capitalize()}")
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.markdown('<div class="title blue">🎓 Education</div>', unsafe_allow_html=True)
+            for i in education:
+                st.markdown(f"➡ {i}")
+            st.markdown('</div>', unsafe_allow_html=True)
 
         with col2:
-            st.markdown("### 💼 Experience")
-            for item in experience:
-                st.markdown(f"➡ {item.capitalize()}")
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.markdown('<div class="title blue">💼 Experience</div>', unsafe_allow_html=True)
+            for i in experience:
+                st.markdown(f"➡ {i}")
+            st.markdown('</div>', unsafe_allow_html=True)
 
         with col3:
-            st.markdown("### 🚀 Projects")
-            for item in projects:
-                st.markdown(f"➡ {item.capitalize()}")
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.markdown('<div class="title blue">🚀 Projects</div>', unsafe_allow_html=True)
+            for i in projects:
+                st.markdown(f"➡ {i}")
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        st.subheader("🤖 Suggestions")
+        # ---------- SUGGESTIONS ----------
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.markdown('<div class="title">🤖 Suggestions</div>', unsafe_allow_html=True)
 
         if missing:
-            for skill in missing:
-                st.write(f"➡ Consider learning {skill}")
+            for s in missing:
+                st.markdown(f"➡ Learn {s}")
         else:
             st.success("Great profile! 🎉")
+
+        st.markdown('</div>', unsafe_allow_html=True)
