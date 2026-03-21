@@ -15,7 +15,7 @@ from job_matcher import extract_job_skills, calculate_match
 # ---------- PAGE CONFIG ----------
 st.set_page_config(page_title="Smart Resume Analyzer", layout="wide")
 
-# ---------- SESSION RESET (FIX LOGIN ISSUE) ----------
+# ---------- SESSION ----------
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
@@ -31,7 +31,7 @@ BREVO_API_KEY = st.secrets["BREVO_API_KEY"]
 SENDER_EMAIL = st.secrets["SENDER_EMAIL"]
 
 
-# ---------- EMAIL FUNCTION ----------
+# ---------- EMAIL ----------
 def send_otp(email, otp):
     url = "https://api.brevo.com/v3/smtp/email"
 
@@ -42,39 +42,25 @@ def send_otp(email, otp):
     }
 
     data = {
-        "sender": {
-            "name": "Resume Analyzer",
-            "email": SENDER_EMAIL
-        },
+        "sender": {"name": "Resume Analyzer", "email": SENDER_EMAIL},
         "to": [{"email": email}],
-        "subject": "Your OTP Code",
+        "subject": "OTP Verification",
         "htmlContent": f"<h2>Your OTP is: {otp}</h2>"
     }
 
     response = requests.post(url, headers=headers, json=data)
-
-    if response.status_code == 201:
-        return True
-    else:
-        print("EMAIL ERROR:", response.text)
-        return False
+    return response.status_code == 201
 
 
 # ---------- FILE READERS ----------
 def extract_text_pdf(file):
-    text = ""
     reader = PyPDF2.PdfReader(file)
-    for page in reader.pages:
-        text += page.extract_text()
-    return text
+    return "".join([page.extract_text() for page in reader.pages])
 
 
 def extract_text_docx(file):
     doc = docx.Document(file)
-    text = ""
-    for para in doc.paragraphs:
-        text += para.text + "\n"
-    return text
+    return "\n".join([p.text for p in doc.paragraphs])
 
 
 # ---------- GAUGE ----------
@@ -85,7 +71,6 @@ def create_gauge(score):
         title={'text': "Score"},
         gauge={
             'axis': {'range': [0, 100]},
-            'bar': {'color': "green"},
             'steps': [
                 {'range': [0, 50], 'color': "red"},
                 {'range': [50, 75], 'color': "orange"},
@@ -96,43 +81,30 @@ def create_gauge(score):
     return fig
 
 
-# ================= LOGIN PAGE =================
+# ================= LOGIN =================
 
 if not st.session_state.logged_in:
 
     st.title("🔐 Secure Login")
 
     option = st.selectbox("Choose", ["Login", "Signup"])
-
     email = st.text_input("Email")
     password = st.text_input("Password", type="password")
 
-    # ---------- SEND OTP ----------
     if st.button("Send OTP"):
+        otp = str(random.randint(1000, 9999))
 
-        if email == "" or password == "":
-            st.warning("Enter email and password first")
+        if send_otp(email, otp):
+            st.session_state.generated_otp = otp
+            st.session_state.otp_sent = True
+            st.success("OTP sent to email ✅")
         else:
-            otp = str(random.randint(1000, 9999))
+            st.error("Failed to send OTP ❌")
 
-            success = send_otp(email, otp)
-
-            if success:
-                st.session_state.generated_otp = otp
-                st.session_state.otp_sent = True
-                st.success("OTP sent to your email ✅")
-            else:
-                st.session_state.otp_sent = False
-                st.error("❌ Failed to send OTP")
-
-    # ---------- OTP VERIFY ----------
     if st.session_state.otp_sent:
-
-        st.subheader("Enter OTP")
-        user_otp = st.text_input("OTP")
+        user_otp = st.text_input("Enter OTP")
 
         if st.button("Verify OTP"):
-
             if user_otp == st.session_state.generated_otp:
 
                 if option == "Signup":
@@ -142,12 +114,9 @@ if not st.session_state.logged_in:
 
                 if success:
                     st.session_state.logged_in = True
-                    st.session_state.otp_sent = False
-                    st.success("Login successful ✅")
                     st.rerun()
                 else:
                     st.error(msg)
-
             else:
                 st.error("Invalid OTP ❌")
 
@@ -156,7 +125,7 @@ if not st.session_state.logged_in:
 
 else:
 
-    st.title("🚀 Smart Resume Analyzer Dashboard")
+    st.title("🚀 Smart Resume Analyzer")
 
     if st.button("Logout"):
         st.session_state.logged_in = False
@@ -166,63 +135,68 @@ else:
     uploaded_file = st.file_uploader("Upload Resume", type=["pdf", "docx"])
     job_url = st.text_input("Paste Job Link")
 
-    job_text = ""
-    if job_url:
-        job_text = extract_job_text(job_url)
+    job_text = extract_job_text(job_url) if job_url else ""
 
+    # ---------- MAIN ----------
     if uploaded_file:
 
+        # Extract resume text
         if uploaded_file.type == "application/pdf":
             resume_text = extract_text_pdf(uploaded_file)
         else:
             resume_text = extract_text_docx(uploaded_file)
 
         tokens = preprocess(resume_text)
-
         skills_list = load_skills("skills.txt")
 
         resume_skills = extract_skills(tokens, skills_list)
         job_skills = extract_job_skills(job_text, skills_list)
 
+        # 👉 IMPORTANT LINE (YOU ASKED)
         score, matched, missing = calculate_match(resume_skills, job_skills)
-
         education, experience, projects = extract_sections(resume_text)
 
-        # ---------- SCORE ----------
+        # ================= DISPLAY BLOCK =================
+
         st.plotly_chart(create_gauge(score), use_container_width=True)
 
-        # ---------- SKILLS ----------
         st.subheader("✅ Matched Skills")
-        for s in matched:
-            st.write(f"➡ {s}")
+        if matched:
+            for skill in matched:
+                st.markdown(f"➡ **{skill.upper()}**")
+        else:
+            st.info("No matched skills found")
 
         st.subheader("❌ Missing Skills")
-        for s in missing:
-            st.write(f"➡ {s}")
+        if missing:
+            for skill in missing:
+                st.markdown(f"➡ **{skill.upper()}**")
+        else:
+            st.success("No missing skills 🎉")
 
-        # ---------- SECTIONS ----------
+        st.subheader("📊 Resume Details")
+
         col1, col2, col3 = st.columns(3)
 
         with col1:
             st.markdown("### 🎓 Education")
-            for i in education:
-                st.write(f"➡ {i}")
+            for item in education:
+                st.markdown(f"➡ {item.capitalize()}")
 
         with col2:
             st.markdown("### 💼 Experience")
-            for i in experience:
-                st.write(f"➡ {i}")
+            for item in experience:
+                st.markdown(f"➡ {item.capitalize()}")
 
         with col3:
             st.markdown("### 🚀 Projects")
-            for i in projects:
-                st.markdown(f"➡ **{i}**")
+            for item in projects:
+                st.markdown(f"➡ {item.capitalize()}")
 
-        # ---------- SUGGESTIONS ----------
         st.subheader("🤖 Suggestions")
 
         if missing:
-            for s in missing:
-                st.write(f"➡ Learn {s}")
+            for skill in missing:
+                st.write(f"➡ Consider learning {skill}")
         else:
             st.success("Great profile! 🎉")
