@@ -1,9 +1,6 @@
 streamlit
 PyPDF2
-nltk
+python-docx
+plotly
 requests
 beautifulsoup4
-python-docx
-matplotlib
-plotly
-sib_api_v3_sdk
