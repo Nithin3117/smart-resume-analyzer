@@ -1,12 +1,15 @@
 def extract_job_skills(job_text, skills_list):
+
     job_text = job_text.lower()
+
     job_skills = []
 
     for skill in skills_list:
+
         if skill.lower() in job_text:
             job_skills.append(skill)
 
-    return job_skills
+    return list(set(job_skills))
 
 
 def calculate_match(resume_skills, job_skills):
@@ -18,6 +21,7 @@ def calculate_match(resume_skills, job_skills):
         return 0, [], []
 
     matched = list(resume_set & job_set)
+
     missing = list(job_set - resume_set)
 
     score = (len(matched) / len(job_set)) * 100
