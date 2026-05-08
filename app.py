@@ -11,7 +11,10 @@ from job_matcher import extract_job_skills, calculate_match
 
 
 # ---------- PAGE CONFIG ----------
-st.set_page_config(page_title="Smart Resume Analyzer", layout="wide")
+st.set_page_config(
+    page_title="Smart Resume Analyzer",
+    layout="wide"
+)
 
 
 # ---------- PREMIUM UI ----------
@@ -27,13 +30,13 @@ st.markdown("""
     padding: 20px;
     border-radius: 15px;
     margin-bottom: 20px;
-    box-shadow: 0px 4px 12px rgba(0,0,0,0.3);
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.35);
 }
 
 .title {
     font-size: 22px;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 .green {
@@ -48,9 +51,17 @@ st.markdown("""
     color: #4da6ff;
 }
 
+.orange {
+    color: #ffaa00;
+}
+
+.purple {
+    color: #b366ff;
+}
+
 .stButton>button {
     width: 100%;
-    border-radius: 10px;
+    border-radius: 12px;
     height: 3em;
     font-size: 16px;
     font-weight: bold;
@@ -94,81 +105,137 @@ def extract_text_docx(file):
     return text
 
 
-# ---------- GAUGE ----------
-def create_gauge(score):
+# ---------- ANALYTICS DASHBOARD ----------
+def create_analytics_dashboard(
+        score,
+        matched,
+        missing,
+        education,
+        experience,
+        projects
+):
 
-    fig = go.Figure(go.Indicator(
-        mode="gauge+number",
+    fig = go.Figure()
 
-        value=score,
+    categories = [
+        "Matched Skills",
+        "Missing Skills",
+        "Education",
+        "Experience",
+        "Projects"
+    ]
 
-        title={'text': "Resume Match Score"},
+    values = [
+        len(matched),
+        len(missing),
+        len(education),
+        len(experience),
+        len(projects)
+    ]
 
-        gauge={
+    colors = [
+        "#00ff9f",
+        "#ff4b5c",
+        "#4da6ff",
+        "#ffaa00",
+        "#b366ff"
+    ]
 
-            'axis': {'range': [0, 100]},
+    fig.add_trace(go.Bar(
 
-            'steps': [
-                {'range': [0, 50], 'color': "red"},
-                {'range': [50, 75], 'color': "orange"},
-                {'range': [75, 100], 'color': "green"}
-            ],
+        x=categories,
+        y=values,
 
-            'bar': {'color': "#00cc96"}
-        }
+        marker_color=colors,
+
+        text=values,
+        textposition='outside'
     ))
 
     fig.update_layout(
+
+        title={
+            'text': f"📊 Resume Analytics Dashboard — Match Score: {score:.0f}%",
+            'x': 0.5
+        },
+
         paper_bgcolor="#1e1e2f",
-        font={'color': "white"}
+        plot_bgcolor="#1e1e2f",
+
+        font=dict(
+            color="white",
+            size=14
+        ),
+
+        height=500,
+
+        xaxis=dict(
+            title="Resume Sections",
+            showgrid=False
+        ),
+
+        yaxis=dict(
+            title="Strength",
+            showgrid=False
+        )
     )
 
     return fig
 
 
 # ---------- AI SUGGESTIONS ----------
-def generate_ai_suggestions(resume_text, job_skills, missing_skills):
+def generate_ai_suggestions(
+        resume_text,
+        job_skills,
+        missing_skills
+):
 
     suggestions = []
 
+    # Missing skills
     if missing_skills:
 
         suggestions.append(
             f"Add important missing skills like {', '.join(missing_skills[:5])} to improve ATS score."
         )
 
+    # Resume size
     word_count = len(resume_text.split())
 
     if word_count < 150:
 
         suggestions.append(
-            "Your resume is short. Add more detailed content about projects and skills."
+            "Your resume is short. Add more project, experience, and technical details."
         )
 
     elif word_count > 700:
 
         suggestions.append(
-            "Your resume is too lengthy. Keep it concise."
+            "Your resume is too lengthy. Keep it concise and focused."
         )
 
+    # Projects
     if "project" not in resume_text.lower():
 
         suggestions.append(
-            "Add strong projects with technologies and outcomes."
+            "Add 2–3 strong projects with technologies used and achievements."
         )
 
+    # Experience
     if "experience" not in resume_text.lower():
 
         suggestions.append(
-            "Include internship or work experience."
+            "Include internships or real-world experience to strengthen your resume."
         )
 
+    # ATS
     suggestions.append(
-        "Use job-specific keywords to improve ATS ranking."
+        "Use job-specific keywords naturally throughout the resume."
     )
 
+    # Action verbs
     suggestions.append(
-        "Use strong action verbs like Developed, Built, Implemented."
+        "Use action words like Developed, Built, Implemented, Designed."
     )
 
     return suggestions
@@ -215,6 +282,7 @@ if not st.session_state.logged_in:
             success, msg = login(email, password)
 
             if success:
+
                 st.session_state.logged_in = True
 
                 st.success("Login Successful ✅")
@@ -253,10 +321,10 @@ else:
     if job_url:
         job_text = extract_job_text(job_url)
 
-    # ---------- PROCESS ----------
+    # ---------- MAIN PROCESS ----------
     if uploaded_file:
 
-        # Extract resume
+        # Read resume
         if uploaded_file.type == "application/pdf":
 
             resume_text = extract_text_pdf(uploaded_file)
@@ -281,7 +349,7 @@ else:
             skills_list
         )
 
-        # Match
+        # Match score
         score, matched, missing = calculate_match(
             resume_skills,
             job_skills
@@ -292,22 +360,41 @@ else:
             resume_text
         )
 
-        # ---------- SCORE ----------
-        st.markdown('<div class="card">', unsafe_allow_html=True)
+        # ---------- ANALYTICS GRAPH ----------
+        st.markdown(
+            '<div class="card">',
+            unsafe_allow_html=True
+        )
 
         st.plotly_chart(
-            create_gauge(score),
+
+            create_analytics_dashboard(
+                score,
+                matched,
+                missing,
+                education,
+                experience,
+                projects
+            ),
+
             use_container_width=True
         )
 
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown(
+            '</div>',
+            unsafe_allow_html=True
+        )
 
         # ---------- SKILLS ----------
         col1, col2 = st.columns(2)
 
+        # MATCHED
         with col1:
 
-            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="card">',
+                unsafe_allow_html=True
+            )
 
             st.markdown(
                 '<div class="title green">✅ Matched Skills</div>',
@@ -320,13 +407,20 @@ else:
                     st.markdown(f"➡ {skill.upper()}")
 
             else:
-                st.write("No matched skills")
+                st.write("No matched skills found")
 
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown(
+                '</div>',
+                unsafe_allow_html=True
+            )
 
+        # MISSING
         with col2:
 
-            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="card">',
+                unsafe_allow_html=True
+            )
 
             st.markdown(
                 '<div class="title red">❌ Missing Skills</div>',
@@ -341,16 +435,23 @@ else:
             else:
                 st.success("No missing skills 🎉")
 
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown(
+                '</div>',
+                unsafe_allow_html=True
+            )
 
         # ---------- DETAILS ----------
         st.markdown("## 📊 Resume Details")
 
         col1, col2, col3 = st.columns(3)
 
+        # EDUCATION
         with col1:
 
-            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="card">',
+                unsafe_allow_html=True
+            )
 
             st.markdown(
                 '<div class="title blue">🎓 Education</div>',
@@ -365,14 +466,21 @@ else:
             else:
                 st.write("No education details found")
 
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown(
+                '</div>',
+                unsafe_allow_html=True
+            )
 
+        # EXPERIENCE
         with col2:
 
-            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="card">',
+                unsafe_allow_html=True
+            )
 
             st.markdown(
-                '<div class="title blue">💼 Experience</div>',
+                '<div class="title orange">💼 Experience</div>',
                 unsafe_allow_html=True
             )
 
@@ -384,14 +492,21 @@ else:
             else:
                 st.write("No experience details found")
 
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown(
+                '</div>',
+                unsafe_allow_html=True
+            )
 
+        # PROJECTS
         with col3:
 
-            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="card">',
+                unsafe_allow_html=True
+            )
 
             st.markdown(
-                '<div class="title blue">🚀 Projects</div>',
+                '<div class="title purple">🚀 Projects</div>',
                 unsafe_allow_html=True
             )
 
@@ -403,10 +518,16 @@ else:
             else:
                 st.write("No project details found")
 
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown(
+                '</div>',
+                unsafe_allow_html=True
+            )
 
-        # ---------- AI ----------
-        st.markdown('<div class="card">', unsafe_allow_html=True)
+        # ---------- AI SUGGESTIONS ----------
+        st.markdown(
+            '<div class="card">',
+            unsafe_allow_html=True
+        )
 
         st.markdown(
             '<div class="title">🤖 AI Resume Suggestions</div>',
@@ -422,4 +543,7 @@ else:
         for suggestion in ai_suggestions:
             st.markdown(f"➡ {suggestion}")
 
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown(
+            '</div>',
+            unsafe_allow_html=True
+        )
