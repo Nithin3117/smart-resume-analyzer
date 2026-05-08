@@ -1,12 +1,18 @@
 import requests
 from bs4 import BeautifulSoup
 
+
 def extract_job_text(url):
 
     try:
-        response = requests.get(url)
 
-        soup = BeautifulSoup(response.text,"html.parser")
+        headers = {
+            "User-Agent": "Mozilla/5.0"
+        }
+
+        response = requests.get(url, headers=headers)
+
+        soup = BeautifulSoup(response.text, "html.parser")
 
         text = soup.get_text(separator=" ")
 
