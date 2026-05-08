@@ -1,20 +1,18 @@
 def load_skills(file_path):
 
-    with open(file_path,"r") as file:
-
-        skills = file.read().splitlines()
+    with open(file_path, "r") as f:
+        skills = [line.strip().lower() for line in f.readlines()]
 
     return skills
 
 
-def extract_skills(tokens,skills_list):
+def extract_skills(tokens, skills_list):
 
-    found = []
+    found_skills = []
 
-    for skill in skills_list:
+    for token in tokens:
 
-        if skill in tokens:
+        if token.lower() in skills_list:
+            found_skills.append(token.lower())
 
-            found.append(skill)
-
-    return found
+    return list(set(found_skills))
