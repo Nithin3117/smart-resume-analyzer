@@ -1,6 +1,7 @@
 streamlit
+plotly
 PyPDF2
 python-docx
-plotly
 requests
 beautifulsoup4
+reportlab
