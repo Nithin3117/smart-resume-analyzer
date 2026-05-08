@@ -40,7 +40,7 @@ st.markdown("""
 }
 
 .green {
-    color: #00ff9f;
+    color: #00cc66;
 }
 
 .red {
@@ -105,99 +105,92 @@ def extract_text_docx(file):
     return text
 
 
-# ---------- DUAL RING ATS METER ----------
-def create_dual_ring_chart(score, matched, missing):
+# ---------- PREMIUM ATS GAUGE ----------
+def create_gauge(score):
 
-    skill_score = 0
+    fig = go.Figure(go.Indicator(
 
-    if len(matched) + len(missing) > 0:
+        mode="gauge+number",
 
-        skill_score = (
-            len(matched) /
-            (len(matched) + len(missing))
-        ) * 100
+        value=score,
 
-    fig = go.Figure()
+        number={
+            'font': {
+                'size': 70,
+                'color': "white"
+            }
+        },
 
-    # OUTER RING
-    fig.add_trace(go.Pie(
+        title={
+            'text': "Resume Match Score",
+            'font': {
+                'size': 32,
+                'color': "white"
+            }
+        },
 
-        values=[score, 100-score],
+        gauge={
 
-        hole=0.72,
+            'axis': {
+                'range': [0, 100],
+                'tickwidth': 1,
+                'tickcolor': "white"
+            },
 
-        rotation=90,
+            'bar': {
+                'color': "white",
+                'thickness': 0.25
+            },
 
-        textinfo='none',
+            'bgcolor': "#1e1e2f",
 
-        marker=dict(
-            colors=["#00ff9f", "#23233a"]
-        ),
+            'borderwidth': 0,
 
-        sort=False,
+            'steps': [
 
-        direction='clockwise',
+                # RED
+                {
+                    'range': [0, 40],
+                    'color': "#ff4b5c"
+                },
 
-        showlegend=False
-    ))
+                # YELLOW
+                {
+                    'range': [40, 60],
+                    'color': "#f7c948"
+                },
 
-    # INNER RING
-    fig.add_trace(go.Pie(
+                # LIGHT GREEN
+                {
+                    'range': [60, 85],
+                    'color': "#66ff99"
+                },
 
-        values=[skill_score, 100-skill_score],
-
-        hole=0.50,
-
-        rotation=90,
-
-        textinfo='none',
-
-        marker=dict(
-            colors=["#4da6ff", "#1a1a2e"]
-        ),
-
-        sort=False,
-
-        direction='clockwise',
-
-        showlegend=False
+                # DARK GREEN
+                {
+                    'range': [85, 100],
+                    'color': "#00cc66"
+                }
+            ]
+        }
     ))
 
     fig.update_layout(
 
-        annotations=[
-
-            dict(
-                text=f"<b>{score:.0f}%</b><br>ATS Score",
-                x=0.5,
-                y=0.5,
-                font_size=28,
-                font_color="white",
-                showarrow=False
-            ),
-
-            dict(
-                text="Outer = ATS<br>Inner = Skills",
-                x=0.5,
-                y=0.15,
-                font_size=12,
-                font_color="#cccccc",
-                showarrow=False
-            )
-        ],
-
         paper_bgcolor="#1e1e2f",
 
-        plot_bgcolor="#1e1e2f",
+        font={
+            'color': "white"
+        },
+
+        height=500,
 
         margin=dict(
-            t=40,
-            b=20,
-            l=20,
-            r=20
-        ),
-
-        height=500
+            l=40,
+            r=40,
+            t=80,
+            b=20
+        )
     )
 
     return fig
@@ -212,12 +205,14 @@ def generate_ai_suggestions(
 
     suggestions = []
 
+    # Missing skills
     if missing_skills:
 
         suggestions.append(
             f"Add important missing skills like {', '.join(missing_skills[:5])} to improve ATS score."
         )
 
+    # Resume length
     word_count = len(resume_text.split())
 
     if word_count < 150:
@@ -232,22 +227,26 @@ def generate_ai_suggestions(
             "Your resume is too lengthy. Keep it concise and focused."
         )
 
+    # Projects
     if "project" not in resume_text.lower():
 
         suggestions.append(
             "Add strong real-world projects with technologies and outcomes."
         )
 
+    # Experience
     if "experience" not in resume_text.lower():
 
         suggestions.append(
             "Include internship or work experience to strengthen your profile."
         )
 
+    # ATS keywords
     suggestions.append(
         "Use ATS-friendly keywords naturally throughout your resume."
     )
 
+    # Action words
     suggestions.append(
         "Use action verbs like Developed, Built, Designed, Implemented."
     )
@@ -363,7 +362,7 @@ else:
             skills_list
         )
 
-        # MATCH
+        # MATCH SCORE
         score, matched, missing = calculate_match(
             resume_skills,
             job_skills
@@ -374,7 +373,7 @@ else:
             resume_text
         )
 
-        # ---------- PREMIUM ATS RING ----------
+        # ---------- PREMIUM GAUGE ----------
         st.markdown(
             '<div class="card">',
             unsafe_allow_html=True
@@ -382,11 +381,7 @@ else:
 
         st.plotly_chart(
 
-            create_dual_ring_chart(
-                score,
-                matched,
-                missing
-            ),
+            create_gauge(score),
 
             use_container_width=True,
 
@@ -403,7 +398,7 @@ else:
         # ---------- SKILLS ----------
         col1, col2 = st.columns(2)
 
-        # MATCHED
+        # MATCHED SKILLS
         with col1:
 
             st.markdown(
@@ -429,7 +424,7 @@ else:
                 unsafe_allow_html=True
             )
 
-        # MISSING
+        # MISSING SKILLS
         with col2:
 
             st.markdown(
