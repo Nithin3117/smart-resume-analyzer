@@ -28,9 +28,9 @@ st.markdown("""
 .card {
     background-color: #1e1e2f;
     padding: 20px;
-    border-radius: 15px;
+    border-radius: 18px;
     margin-bottom: 20px;
-    box-shadow: 0px 4px 15px rgba(0,0,0,0.35);
+    box-shadow: 0px 4px 20px rgba(0,0,0,0.35);
 }
 
 .title {
@@ -105,79 +105,99 @@ def extract_text_docx(file):
     return text
 
 
-# ---------- ANALYTICS DASHBOARD ----------
-def create_analytics_dashboard(
-        score,
-        matched,
-        missing,
-        education,
-        experience,
-        projects
-):
+# ---------- DUAL RING ATS METER ----------
+def create_dual_ring_chart(score, matched, missing):
+
+    skill_score = 0
+
+    if len(matched) + len(missing) > 0:
+
+        skill_score = (
+            len(matched) /
+            (len(matched) + len(missing))
+        ) * 100
 
     fig = go.Figure()
 
-    categories = [
-        "Matched Skills",
-        "Missing Skills",
-        "Education",
-        "Experience",
-        "Projects"
-    ]
+    # OUTER RING
+    fig.add_trace(go.Pie(
 
-    values = [
-        len(matched),
-        len(missing),
-        len(education),
-        len(experience),
-        len(projects)
-    ]
+        values=[score, 100-score],
 
-    colors = [
-        "#00ff9f",
-        "#ff4b5c",
-        "#4da6ff",
-        "#ffaa00",
-        "#b366ff"
-    ]
+        hole=0.72,
 
-    fig.add_trace(go.Bar(
+        rotation=90,
 
-        x=categories,
-        y=values,
+        textinfo='none',
 
-        marker_color=colors,
+        marker=dict(
+            colors=["#00ff9f", "#23233a"]
+        ),
 
-        text=values,
-        textposition='outside'
+        sort=False,
+
+        direction='clockwise',
+
+        showlegend=False
+    ))
+
+    # INNER RING
+    fig.add_trace(go.Pie(
+
+        values=[skill_score, 100-skill_score],
+
+        hole=0.50,
+
+        rotation=90,
+
+        textinfo='none',
+
+        marker=dict(
+            colors=["#4da6ff", "#1a1a2e"]
+        ),
+
+        sort=False,
+
+        direction='clockwise',
+
+        showlegend=False
     ))
 
     fig.update_layout(
 
-        title={
-            'text': f"📊 Resume Analytics Dashboard — Match Score: {score:.0f}%",
-            'x': 0.5
-        },
+        annotations=[
+
+            dict(
+                text=f"<b>{score:.0f}%</b><br>ATS Score",
+                x=0.5,
+                y=0.5,
+                font_size=28,
+                font_color="white",
+                showarrow=False
+            ),
+
+            dict(
+                text="Outer = ATS<br>Inner = Skills",
+                x=0.5,
+                y=0.15,
+                font_size=12,
+                font_color="#cccccc",
+                showarrow=False
+            )
+        ],
 
         paper_bgcolor="#1e1e2f",
+
         plot_bgcolor="#1e1e2f",
 
-        font=dict(
-            color="white",
-            size=14
+        margin=dict(
+            t=40,
+            b=20,
+            l=20,
+            r=20
         ),
 
-        height=500,
-
-        xaxis=dict(
-            showgrid=False
-        ),
-
-        yaxis=dict(
-            showgrid=False,
-            showticklabels=False,
-            visible=False
-        )
+        height=500
     )
 
     return fig
@@ -192,20 +212,18 @@ def generate_ai_suggestions(
 
     suggestions = []
 
-    # Missing skills
     if missing_skills:
 
         suggestions.append(
             f"Add important missing skills like {', '.join(missing_skills[:5])} to improve ATS score."
         )
 
-    # Resume size
     word_count = len(resume_text.split())
 
     if word_count < 150:
 
         suggestions.append(
-            "Your resume is short. Add more project, experience, and technical details."
+            "Your resume is short. Add more projects, experience, and technical details."
         )
 
     elif word_count > 700:
@@ -214,28 +232,24 @@ def generate_ai_suggestions(
             "Your resume is too lengthy. Keep it concise and focused."
         )
 
-    # Projects
     if "project" not in resume_text.lower():
 
         suggestions.append(
-            "Add 2–3 strong projects with technologies used and achievements."
+            "Add strong real-world projects with technologies and outcomes."
         )
 
-    # Experience
     if "experience" not in resume_text.lower():
 
         suggestions.append(
-            "Include internships or real-world experience to strengthen your resume."
+            "Include internship or work experience to strengthen your profile."
         )
 
-    # ATS
     suggestions.append(
-        "Use job-specific keywords naturally throughout the resume."
+        "Use ATS-friendly keywords naturally throughout your resume."
     )
 
-    # Action verbs
     suggestions.append(
-        "Use action words like Developed, Built, Implemented, Designed."
+        "Use action verbs like Developed, Built, Designed, Implemented."
     )
 
     return suggestions
@@ -324,7 +338,7 @@ else:
     # ---------- MAIN PROCESS ----------
     if uploaded_file:
 
-        # Read resume
+        # READ RESUME
         if uploaded_file.type == "application/pdf":
 
             resume_text = extract_text_pdf(uploaded_file)
@@ -336,7 +350,7 @@ else:
         # NLP
         tokens = preprocess(resume_text)
 
-        # Skills
+        # SKILLS
         skills_list = load_skills("skills.txt")
 
         resume_skills = extract_skills(
@@ -349,18 +363,18 @@ else:
             skills_list
         )
 
-        # Match score
+        # MATCH
         score, matched, missing = calculate_match(
             resume_skills,
             job_skills
         )
 
-        # Sections
+        # SECTIONS
         education, experience, projects = extract_sections(
             resume_text
         )
 
-        # ---------- ANALYTICS GRAPH ----------
+        # ---------- PREMIUM ATS RING ----------
         st.markdown(
             '<div class="card">',
             unsafe_allow_html=True
@@ -368,13 +382,10 @@ else:
 
         st.plotly_chart(
 
-            create_analytics_dashboard(
+            create_dual_ring_chart(
                 score,
                 matched,
-                missing,
-                education,
-                experience,
-                projects
+                missing
             ),
 
             use_container_width=True,
