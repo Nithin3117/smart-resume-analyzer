@@ -12,6 +12,7 @@ from job_matcher import extract_job_skills, calculate_match
 from score_breakdown import calculate_breakdown
 from ai_resume_improver import improve_resume
 from job_recommender import recommend_jobs
+from chatbot import chatbot_response
 
 
 # ---------- PAGE CONFIG ----------
@@ -313,6 +314,21 @@ if not st.session_state.logged_in:
 # ================= DASHBOARD =================
 
 else:
+
+    # ---------- AI CHATBOT SIDEBAR ----------
+    st.sidebar.title("🤖 AI Resume Assistant")
+
+    user_question = st.sidebar.text_input(
+        "Ask something about your resume"
+    )
+
+    if user_question:
+
+        answer = chatbot_response(
+            user_question
+        )
+
+        st.sidebar.success(answer)
 
     st.title("🚀 Smart Resume Analyzer Dashboard")
 
