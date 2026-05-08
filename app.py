@@ -170,13 +170,13 @@ def create_analytics_dashboard(
         height=500,
 
         xaxis=dict(
-            title="Resume Sections",
             showgrid=False
         ),
 
         yaxis=dict(
-            title="Strength",
-            showgrid=False
+            showgrid=False,
+            showticklabels=False,
+            visible=False
         )
     )
 
@@ -377,7 +377,11 @@ else:
                 projects
             ),
 
-            use_container_width=True
+            use_container_width=True,
+
+            config={
+                'displayModeBar': False
+            }
         )
 
         st.markdown(
