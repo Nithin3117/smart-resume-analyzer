@@ -9,6 +9,9 @@ from nlp_processing import preprocess, extract_sections
 from skill_extractor import load_skills, extract_skills
 from job_matcher import extract_job_skills, calculate_match
 
+# NEW IMPORT
+from score_breakdown import calculate_breakdown
+
 
 # ---------- PAGE CONFIG ----------
 st.set_page_config(
@@ -148,25 +151,21 @@ def create_gauge(score):
 
             'steps': [
 
-                # RED
                 {
                     'range': [0, 40],
                     'color': "#ff4b5c"
                 },
 
-                # YELLOW
                 {
                     'range': [40, 60],
                     'color': "#f7c948"
                 },
 
-                # LIGHT GREEN
                 {
                     'range': [60, 85],
                     'color': "#66ff99"
                 },
 
-                # DARK GREEN
                 {
                     'range': [85, 100],
                     'color': "#00cc66"
@@ -205,14 +204,12 @@ def generate_ai_suggestions(
 
     suggestions = []
 
-    # Missing skills
     if missing_skills:
 
         suggestions.append(
             f"Add important missing skills like {', '.join(missing_skills[:5])} to improve ATS score."
         )
 
-    # Resume length
     word_count = len(resume_text.split())
 
     if word_count < 150:
@@ -227,26 +224,22 @@ def generate_ai_suggestions(
             "Your resume is too lengthy. Keep it concise and focused."
         )
 
-    # Projects
     if "project" not in resume_text.lower():
 
         suggestions.append(
             "Add strong real-world projects with technologies and outcomes."
         )
 
-    # Experience
     if "experience" not in resume_text.lower():
 
         suggestions.append(
             "Include internship or work experience to strengthen your profile."
         )
 
-    # ATS keywords
     suggestions.append(
         "Use ATS-friendly keywords naturally throughout your resume."
     )
 
-    # Action words
     suggestions.append(
         "Use action verbs like Developed, Built, Designed, Implemented."
     )
@@ -274,7 +267,7 @@ if not st.session_state.logged_in:
         type="password"
     )
 
-    # ---------- SIGNUP ----------
+    # SIGNUP
     if option == "Signup":
 
         if st.button("Create Account"):
@@ -287,7 +280,7 @@ if not st.session_state.logged_in:
             else:
                 st.error(msg)
 
-    # ---------- LOGIN ----------
+    # LOGIN
     else:
 
         if st.button("Login"):
@@ -312,14 +305,14 @@ else:
 
     st.title("🚀 Smart Resume Analyzer Dashboard")
 
-    # ---------- LOGOUT ----------
+    # LOGOUT
     if st.button("Logout"):
 
         st.session_state.logged_in = False
 
         st.rerun()
 
-    # ---------- INPUTS ----------
+    # INPUTS
     uploaded_file = st.file_uploader(
         "📄 Upload Resume",
         type=["pdf", "docx"]
@@ -334,7 +327,7 @@ else:
     if job_url:
         job_text = extract_job_text(job_url)
 
-    # ---------- MAIN PROCESS ----------
+    # MAIN PROCESS
     if uploaded_file:
 
         # READ RESUME
@@ -362,7 +355,7 @@ else:
             skills_list
         )
 
-        # MATCH SCORE
+        # SCORE
         score, matched, missing = calculate_match(
             resume_skills,
             job_skills
@@ -371,6 +364,16 @@ else:
         # SECTIONS
         education, experience, projects = extract_sections(
             resume_text
+        )
+
+        # ATS BREAKDOWN
+        breakdown = calculate_breakdown(
+            score,
+            matched,
+            missing,
+            education,
+            experience,
+            projects
         )
 
         # ---------- PREMIUM GAUGE ----------
@@ -395,10 +398,37 @@ else:
             unsafe_allow_html=True
         )
 
+        # ---------- ATS BREAKDOWN ----------
+        st.markdown(
+            '<div class="card">',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            '<div class="title">📊 ATS Resume Breakdown</div>',
+            unsafe_allow_html=True
+        )
+
+        cols = st.columns(len(breakdown))
+
+        for col, (key, value) in zip(cols, breakdown.items()):
+
+            with col:
+
+                st.metric(
+                    label=key,
+                    value=f"{value}%"
+                )
+
+        st.markdown(
+            '</div>',
+            unsafe_allow_html=True
+        )
+
         # ---------- SKILLS ----------
         col1, col2 = st.columns(2)
 
-        # MATCHED SKILLS
+        # MATCHED
         with col1:
 
             st.markdown(
@@ -424,7 +454,7 @@ else:
                 unsafe_allow_html=True
             )
 
-        # MISSING SKILLS
+        # MISSING
         with col2:
 
             st.markdown(
