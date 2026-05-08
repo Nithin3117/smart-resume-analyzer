@@ -1,12 +1,17 @@
 import re
 
+
 def preprocess(text):
+
     text = text.lower()
+
     tokens = re.findall(r'\b[a-z]+\b', text)
+
     return tokens
 
 
 def extract_sections(text):
+
     text = text.lower()
 
     education = []
@@ -18,17 +23,18 @@ def extract_sections(text):
     current_section = None
 
     for line in lines:
+
         line = line.strip()
 
         if line == "":
             continue
 
-        # Detect section headers
+        # Detect section names
         if "education" in line:
             current_section = "education"
             continue
 
-        elif "experience" in line or "intern" in line:
+        elif "experience" in line or "internship" in line:
             current_section = "experience"
             continue
 
@@ -36,8 +42,9 @@ def extract_sections(text):
             current_section = "projects"
             continue
 
-        # Collect meaningful lines
+        # Store section content
         if len(line.split()) > 3:
+
             if current_section == "education":
                 education.append(line)
 
