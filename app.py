@@ -9,8 +9,8 @@ from nlp_processing import preprocess, extract_sections
 from skill_extractor import load_skills, extract_skills
 from job_matcher import extract_job_skills, calculate_match
 
-# NEW IMPORT
 from score_breakdown import calculate_breakdown
+from ai_resume_improver import improve_resume
 
 
 # ---------- PAGE CONFIG ----------
@@ -419,6 +419,36 @@ else:
                     label=key,
                     value=f"{value}%"
                 )
+
+        st.markdown(
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+        # ---------- AI RESUME IMPROVER ----------
+        st.markdown(
+            '<div class="card">',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            '<div class="title">✨ AI Resume Improvement Generator</div>',
+            unsafe_allow_html=True
+        )
+
+        if st.button("Generate AI Improvements"):
+
+            improvements = improve_resume(
+                missing,
+                education,
+                experience,
+                projects,
+                resume_text
+            )
+
+            for tip in improvements:
+
+                st.markdown(f"➡ {tip}")
 
         st.markdown(
             '</div>',
