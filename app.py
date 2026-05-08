@@ -11,6 +11,7 @@ from job_matcher import extract_job_skills, calculate_match
 
 from score_breakdown import calculate_breakdown
 from ai_resume_improver import improve_resume
+from job_recommender import recommend_jobs
 
 
 # ---------- PAGE CONFIG ----------
@@ -68,6 +69,16 @@ st.markdown("""
     height: 3em;
     font-size: 16px;
     font-weight: bold;
+}
+
+a {
+    color: #66ccff !important;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+    color: #00ffcc !important;
 }
 
 </style>
@@ -449,6 +460,32 @@ else:
             for tip in improvements:
 
                 st.markdown(f"➡ {tip}")
+
+        st.markdown(
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+        # ---------- JOB RECOMMENDATIONS ----------
+        st.markdown(
+            '<div class="card">',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            '<div class="title">💼 Recommended Jobs</div>',
+            unsafe_allow_html=True
+        )
+
+        recommended_jobs = recommend_jobs(
+            resume_skills
+        )
+
+        for job in recommended_jobs:
+
+            st.markdown(
+                f"➡ [{job['title']}]({job['link']})"
+            )
 
         st.markdown(
             '</div>',
