@@ -343,7 +343,10 @@ else:
 
         if uploaded_file:
 
+            # =====================================================
             # READ RESUME
+            # =====================================================
+
             if uploaded_file.type == "application/pdf":
 
                 resume_text = extract_text_pdf(
@@ -356,10 +359,16 @@ else:
                     uploaded_file
                 )
 
+            # =====================================================
             # NLP
+            # =====================================================
+
             tokens = preprocess(resume_text)
 
+            # =====================================================
             # SKILLS
+            # =====================================================
+
             skills_list = load_skills("skills.txt")
 
             resume_skills = extract_skills(
@@ -372,18 +381,27 @@ else:
                 skills_list
             )
 
+            # =====================================================
             # SCORE
+            # =====================================================
+
             score, matched, missing = calculate_match(
                 resume_skills,
                 job_skills
             )
 
+            # =====================================================
             # DETAILS
-            education, experience, projects = extract_sections(
+            # =====================================================
+
+            education, experience, projects, certificates = extract_sections(
                 resume_text
             )
 
+            # =====================================================
             # BREAKDOWN
+            # =====================================================
+
             breakdown = calculate_breakdown(
                 score,
                 matched,
@@ -463,6 +481,7 @@ else:
 
             col1, col2 = st.columns(2)
 
+            # MATCHED
             with col1:
 
                 st.markdown(
@@ -491,6 +510,7 @@ else:
                     unsafe_allow_html=True
                 )
 
+            # MISSING
             with col2:
 
                 st.markdown(
@@ -525,7 +545,7 @@ else:
 
             st.markdown("## 📋 Resume Details")
 
-            col1, col2, col3 = st.columns(3)
+            col1, col2, col3, col4 = st.columns(4)
 
             # EDUCATION
             with col1:
@@ -599,6 +619,34 @@ else:
 
                 else:
                     st.write("No project details found")
+
+                st.markdown(
+                    '</div>',
+                    unsafe_allow_html=True
+                )
+
+            # CERTIFICATES
+            with col4:
+
+                st.markdown(
+                    '<div class="card">',
+                    unsafe_allow_html=True
+                )
+
+                st.markdown(
+                    '<div class="title purple">🏆 Certificates</div>',
+                    unsafe_allow_html=True
+                )
+
+                if certificates:
+
+                    for item in certificates:
+
+                        st.markdown(f"➡ {item}")
+
+                else:
+
+                    st.write("No certificate details found")
 
                 st.markdown(
                     '</div>',
