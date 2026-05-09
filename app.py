@@ -27,55 +27,79 @@ st.set_page_config(
 
 
 # =====================================================
-# PREMIUM UI
+# SESSION
 # =====================================================
 
-st.markdown("""
+if "theme" not in st.session_state:
+    st.session_state.theme = "dark"
+
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+
+# =====================================================
+# DYNAMIC THEME
+# =====================================================
+
+if st.session_state.theme == "dark":
+
+    bg_color = "#0f1117"
+    card_color = "#1e1e2f"
+    text_color = "white"
+
+else:
+
+    bg_color = "#f5f7fa"
+    card_color = "white"
+    text_color = "#111111"
+
+st.markdown(f"""
 <style>
 
-html, body, [class*="css"] {
+html, body, [class*="css"] {{
     font-family: 'Segoe UI', sans-serif;
-}
+}}
 
-.main {
-    background-color: #0f1117;
-}
+.main {{
+    background-color: {bg_color};
+    color: {text_color};
+}}
 
-.card {
-    background-color: #1e1e2f;
+.card {{
+    background-color: {card_color};
     padding: 20px;
     border-radius: 18px;
     margin-bottom: 20px;
-    box-shadow: 0px 4px 20px rgba(0,0,0,0.35);
-}
+    box-shadow: 0px 4px 20px rgba(0,0,0,0.15);
+}}
 
-.title {
+.title {{
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 15px;
-}
+}}
 
-.green {
+.green {{
     color: #00cc66;
-}
+}}
 
-.red {
+.red {{
     color: #ff4b5c;
-}
+}}
 
-.blue {
+.blue {{
     color: #4da6ff;
-}
+}}
 
-.orange {
+.orange {{
     color: #ffaa00;
-}
+}}
 
-.purple {
+.purple {{
     color: #b366ff;
-}
+}}
 
-.stButton > button {
+.stButton > button {{
     width: 100%;
     border-radius: 12px;
     height: 3em;
@@ -84,33 +108,25 @@ html, body, [class*="css"] {
     background-color: #00cc66;
     color: white;
     border: none;
-}
+}}
 
-.stButton > button:hover {
+.stButton > button:hover {{
     background-color: #00aa55;
     color: white;
-}
+}}
 
-a {
+a {{
     color: #66ccff !important;
     text-decoration: none;
     font-weight: bold;
-}
+}}
 
-a:hover {
+a:hover {{
     color: #00ffcc !important;
-}
+}}
 
 </style>
 """, unsafe_allow_html=True)
-
-
-# =====================================================
-# SESSION
-# =====================================================
-
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
 
 
 # =====================================================
@@ -187,7 +203,7 @@ def create_gauge(score):
                 'thickness': 0.25
             },
 
-            'bgcolor': "#1e1e2f",
+            'bgcolor': card_color,
 
             'steps': [
 
@@ -216,9 +232,9 @@ def create_gauge(score):
 
     fig.update_layout(
 
-        paper_bgcolor="#1e1e2f",
+        paper_bgcolor=card_color,
 
-        font={'color': "white"},
+        font={'color': text_color},
 
         height=500
     )
@@ -286,6 +302,10 @@ if not st.session_state.logged_in:
 
 else:
 
+    # =====================================================
+    # SIDEBAR
+    # =====================================================
+
     st.sidebar.title("🤖 AI Resume Assistant")
 
     user_question = st.sidebar.text_input(
@@ -299,6 +319,23 @@ else:
         )
 
         st.sidebar.success(answer)
+
+    st.sidebar.markdown("---")
+
+    # =====================================================
+    # THEME TOGGLE
+    # =====================================================
+
+    theme_mode = st.sidebar.toggle(
+        "🌙 Dark Mode",
+        value=True
+    )
+
+    if theme_mode:
+        st.session_state.theme = "dark"
+
+    else:
+        st.session_state.theme = "light"
 
     st.sidebar.markdown("---")
 
@@ -463,6 +500,7 @@ else:
 
             col1, col2 = st.columns(2)
 
+            # MATCHED
             with col1:
 
                 st.markdown(
@@ -491,6 +529,7 @@ else:
                     unsafe_allow_html=True
                 )
 
+            # MISSING
             with col2:
 
                 st.markdown(
