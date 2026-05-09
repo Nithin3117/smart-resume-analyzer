@@ -10,8 +10,19 @@ from resume_parser import (
 
 from charts import create_gauge
 
+from ui_components import (
+    open_card,
+    close_card,
+    section_title,
+    display_list
+)
+
 from job_link_extractor import extract_job_text
-from nlp_processing import preprocess, extract_sections
+
+from nlp_processing import (
+    preprocess,
+    extract_sections
+)
 
 from skill_extractor import (
     load_skills,
@@ -65,26 +76,6 @@ html, body, [class*="css"] {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 15px;
-}
-
-.green {
-    color: #00cc66;
-}
-
-.red {
-    color: #ff4b5c;
-}
-
-.blue {
-    color: #4da6ff;
-}
-
-.orange {
-    color: #ffaa00;
-}
-
-.purple {
-    color: #b366ff;
 }
 
 .stButton > button {
@@ -161,11 +152,9 @@ if not st.session_state.logged_in:
             )
 
             if success:
-
                 st.success(msg)
 
             else:
-
                 st.error(msg)
 
     # =====================================================
@@ -232,7 +221,7 @@ else:
     )
 
     # =====================================================
-    # DASHBOARD PAGE
+    # DASHBOARD
     # =====================================================
 
     if page == "Dashboard":
@@ -246,7 +235,6 @@ else:
         if st.button("Logout"):
 
             st.session_state.logged_in = False
-
             st.rerun()
 
         # =====================================================
@@ -271,7 +259,7 @@ else:
             )
 
         # =====================================================
-        # AFTER UPLOAD
+        # AFTER RESUME UPLOAD
         # =====================================================
 
         if uploaded_file:
@@ -301,7 +289,7 @@ else:
             )
 
             # =====================================================
-            # SKILLS
+            # SKILLS EXTRACTION
             # =====================================================
 
             skills_list = load_skills(
@@ -319,7 +307,7 @@ else:
             )
 
             # =====================================================
-            # SCORE
+            # MATCH SCORE
             # =====================================================
 
             score, matched, missing = calculate_match(
@@ -336,7 +324,7 @@ else:
             )
 
             # =====================================================
-            # BREAKDOWN
+            # ATS BREAKDOWN
             # =====================================================
 
             breakdown = calculate_breakdown(
@@ -349,17 +337,13 @@ else:
             )
 
             # =====================================================
-            # SCORE CARD
+            # RESUME SCORE CARD
             # =====================================================
 
-            st.markdown(
-                '<div class="card">',
-                unsafe_allow_html=True
-            )
+            open_card()
 
-            st.markdown(
-                '<div class="title">📊 Resume Match Score</div>',
-                unsafe_allow_html=True
+            section_title(
+                "📊 Resume Match Score"
             )
 
             st.plotly_chart(
@@ -370,23 +354,16 @@ else:
                 }
             )
 
-            st.markdown(
-                '</div>',
-                unsafe_allow_html=True
-            )
+            close_card()
 
             # =====================================================
             # ATS BREAKDOWN
             # =====================================================
 
-            st.markdown(
-                '<div class="card">',
-                unsafe_allow_html=True
-            )
+            open_card()
 
-            st.markdown(
-                '<div class="title">📈 ATS Resume Breakdown</div>',
-                unsafe_allow_html=True
+            section_title(
+                "📈 ATS Resume Breakdown"
             )
 
             cols = st.columns(
@@ -405,10 +382,7 @@ else:
                         value=f"{value}%"
                     )
 
-            st.markdown(
-                '</div>',
-                unsafe_allow_html=True
-            )
+            close_card()
 
             # =====================================================
             # SKILLS ANALYSIS
@@ -426,41 +400,16 @@ else:
 
             with col1:
 
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
+                open_card()
+
+                section_title(
+                    "✅ Matched Skills",
+                    "#00cc66"
                 )
 
-                st.markdown(
-                    '<div class="title green">✅ Matched Skills</div>',
-                    unsafe_allow_html=True
-                )
+                display_list(matched)
 
-                if matched:
-
-                    for skill in matched:
-
-                        clean_skill = (
-                            skill
-                            .replace("•", "")
-                            .replace("-", "")
-                            .strip()
-                        )
-
-                        st.markdown(
-                            f"🔹 {clean_skill.upper()}"
-                        )
-
-                else:
-
-                    st.write(
-                        "No matched skills found"
-                    )
-
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
+                close_card()
 
             # =====================================================
             # MISSING SKILLS
@@ -468,41 +417,16 @@ else:
 
             with col2:
 
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
+                open_card()
+
+                section_title(
+                    "❌ Missing Skills",
+                    "#ff4b5c"
                 )
 
-                st.markdown(
-                    '<div class="title red">❌ Missing Skills</div>',
-                    unsafe_allow_html=True
-                )
+                display_list(missing)
 
-                if missing:
-
-                    for skill in missing:
-
-                        clean_skill = (
-                            skill
-                            .replace("•", "")
-                            .replace("-", "")
-                            .strip()
-                        )
-
-                        st.markdown(
-                            f"🔹 {clean_skill.upper()}"
-                        )
-
-                else:
-
-                    st.success(
-                        "No missing skills 🎉"
-                    )
-
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
+                close_card()
 
             # =====================================================
             # RESUME DETAILS
@@ -520,41 +444,16 @@ else:
 
             with col1:
 
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
+                open_card()
+
+                section_title(
+                    "🎓 Education",
+                    "#4da6ff"
                 )
 
-                st.markdown(
-                    '<div class="title blue">🎓 Education</div>',
-                    unsafe_allow_html=True
-                )
+                display_list(education)
 
-                if education:
-
-                    for item in education:
-
-                        clean_item = (
-                            item
-                            .replace("•", "")
-                            .replace("-", "")
-                            .strip()
-                        )
-
-                        st.markdown(
-                            f"🔹 {clean_item}"
-                        )
-
-                else:
-
-                    st.write(
-                        "No education details found"
-                    )
-
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
+                close_card()
 
             # =====================================================
             # EXPERIENCE
@@ -562,41 +461,16 @@ else:
 
             with col2:
 
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
+                open_card()
+
+                section_title(
+                    "💼 Experience",
+                    "#ffaa00"
                 )
 
-                st.markdown(
-                    '<div class="title orange">💼 Experience</div>',
-                    unsafe_allow_html=True
-                )
+                display_list(experience)
 
-                if experience:
-
-                    for item in experience:
-
-                        clean_item = (
-                            item
-                            .replace("•", "")
-                            .replace("-", "")
-                            .strip()
-                        )
-
-                        st.markdown(
-                            f"🔹 {clean_item}"
-                        )
-
-                else:
-
-                    st.write(
-                        "No experience details found"
-                    )
-
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
+                close_card()
 
             # =====================================================
             # PROJECTS
@@ -604,41 +478,16 @@ else:
 
             with col3:
 
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
+                open_card()
+
+                section_title(
+                    "🚀 Projects",
+                    "#b366ff"
                 )
 
-                st.markdown(
-                    '<div class="title purple">🚀 Projects</div>',
-                    unsafe_allow_html=True
-                )
+                display_list(projects)
 
-                if projects:
-
-                    for project in projects:
-
-                        clean_project = (
-                            project
-                            .replace("•", "")
-                            .replace("-", "")
-                            .strip()
-                        )
-
-                        st.markdown(
-                            f"🔹 {clean_project}"
-                        )
-
-                else:
-
-                    st.write(
-                        "No project details found"
-                    )
-
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
+                close_card()
 
             # =====================================================
             # CERTIFICATES
@@ -646,41 +495,16 @@ else:
 
             with col4:
 
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
+                open_card()
+
+                section_title(
+                    "🏆 Certificates",
+                    "#ff66cc"
                 )
 
-                st.markdown(
-                    '<div class="title purple">🏆 Certificates</div>',
-                    unsafe_allow_html=True
-                )
+                display_list(certificates)
 
-                if certificates:
-
-                    for item in certificates:
-
-                        clean_item = (
-                            item
-                            .replace("•", "")
-                            .replace("-", "")
-                            .strip()
-                        )
-
-                        st.markdown(
-                            f"🔹 {clean_item}"
-                        )
-
-                else:
-
-                    st.write(
-                        "No certificate details found"
-                    )
-
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
+                close_card()
 
             # =====================================================
             # SKILLS
@@ -688,83 +512,55 @@ else:
 
             with col5:
 
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
+                open_card()
+
+                section_title(
+                    "🛠 Skills",
+                    "#00cc66"
                 )
 
-                st.markdown(
-                    '<div class="title green">🛠 Skills</div>',
-                    unsafe_allow_html=True
-                )
+                display_list(skills)
 
-                if skills:
-
-                    for item in skills:
-
-                        clean_item = (
-                            item
-                            .replace("•", "")
-                            .replace("-", "")
-                            .strip()
-                        )
-
-                        st.markdown(
-                            f"🔹 {clean_item}"
-                        )
-
-                else:
-
-                    st.write(
-                        "No skills found"
-                    )
-
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
+                close_card()
 
             # =====================================================
             # RECOMMENDED JOBS
             # =====================================================
 
-            st.markdown(
-                '<div class="card">',
-                unsafe_allow_html=True
-            )
+            open_card()
 
-            st.markdown(
-                '<div class="title">💼 Recommended Jobs</div>',
-                unsafe_allow_html=True
+            section_title(
+                "💼 Recommended Jobs"
             )
 
             recommended_jobs = recommend_jobs(
                 resume_skills
             )
 
-            for job in recommended_jobs:
+            if recommended_jobs:
 
-                st.markdown(
-                    f"🔹 [{job['title']}]({job['link']})"
+                for job in recommended_jobs:
+
+                    st.markdown(
+                        f"🔹 [{job['title']}]({job['link']})"
+                    )
+
+            else:
+
+                st.write(
+                    "No jobs found"
                 )
 
-            st.markdown(
-                '</div>',
-                unsafe_allow_html=True
-            )
+            close_card()
 
             # =====================================================
             # AI IMPROVEMENTS
             # =====================================================
 
-            st.markdown(
-                '<div class="card">',
-                unsafe_allow_html=True
-            )
+            open_card()
 
-            st.markdown(
-                '<div class="title">✨ AI Resume Improvement Generator</div>',
-                unsafe_allow_html=True
+            section_title(
+                "✨ AI Resume Improvement Generator"
             )
 
             if st.button(
@@ -779,23 +575,11 @@ else:
                     resume_text
                 )
 
-                for tip in improvements:
+                display_list(
+                    improvements
+                )
 
-                    clean_tip = (
-                        tip
-                        .replace("•", "")
-                        .replace("-", "")
-                        .strip()
-                    )
-
-                    st.markdown(
-                        f"🔹 {clean_tip}"
-                    )
-
-            st.markdown(
-                '</div>',
-                unsafe_allow_html=True
-            )
+            close_card()
 
     # =====================================================
     # ABOUT PROJECT
