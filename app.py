@@ -112,9 +112,6 @@ a:hover {
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-if "show_login" not in st.session_state:
-    st.session_state.show_login = False
-
 
 # =====================================================
 # PDF READER
@@ -230,147 +227,10 @@ def create_gauge(score):
 
 
 # =====================================================
-# LANDING PAGE
-# =====================================================
-
-if not st.session_state.logged_in and not st.session_state.show_login:
-
-    st.markdown("""
-    <style>
-
-    .hero {
-        text-align: center;
-        padding-top: 70px;
-        padding-bottom: 60px;
-    }
-
-    .hero-title {
-        font-size: 65px;
-        font-weight: bold;
-        color: white;
-    }
-
-    .hero-subtitle {
-        font-size: 24px;
-        color: #cccccc;
-        margin-top: 20px;
-    }
-
-    .feature-card {
-        background-color: #1e1e2f;
-        padding: 30px;
-        border-radius: 20px;
-        text-align: center;
-        box-shadow: 0px 4px 20px rgba(0,0,0,0.35);
-        transition: 0.3s;
-    }
-
-    .feature-card:hover {
-        transform: scale(1.03);
-    }
-
-    .feature-title {
-        font-size: 24px;
-        font-weight: bold;
-        margin-top: 10px;
-        color: white;
-    }
-
-    .feature-text {
-        color: #cccccc;
-        margin-top: 10px;
-        font-size: 17px;
-    }
-
-    </style>
-    """, unsafe_allow_html=True)
-
-    # HERO SECTION
-    st.markdown("""
-    <div class="hero">
-
-        <div class="hero-title">
-            🚀 Smart Resume Analyzer
-        </div>
-
-        <div class="hero-subtitle">
-            AI-Powered ATS Resume Evaluation Platform
-        </div>
-
-    </div>
-    """, unsafe_allow_html=True)
-
-    # FEATURE CARDS
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-
-        st.markdown("""
-        <div class="feature-card">
-
-            <h1>📊</h1>
-
-            <div class="feature-title">
-                ATS Score Analysis
-            </div>
-
-            <div class="feature-text">
-                Analyze resume ATS compatibility instantly.
-            </div>
-
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col2:
-
-        st.markdown("""
-        <div class="feature-card">
-
-            <h1>💼</h1>
-
-            <div class="feature-title">
-                Job Recommendations
-            </div>
-
-            <div class="feature-text">
-                Get smart job recommendations based on skills.
-            </div>
-
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col3:
-
-        st.markdown("""
-        <div class="feature-card">
-
-            <h1>🤖</h1>
-
-            <div class="feature-title">
-                AI Resume Improvements
-            </div>
-
-            <div class="feature-text">
-                Improve your resume using intelligent suggestions.
-            </div>
-
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown("<br><br>", unsafe_allow_html=True)
-
-    if st.button("🚀 Get Started"):
-
-        st.session_state.show_login = True
-
-        st.rerun()
-
-
-# =====================================================
 # LOGIN PAGE
 # =====================================================
 
-elif not st.session_state.logged_in:
+if not st.session_state.logged_in:
 
     st.title("🔐 Smart Resume Analyzer")
 
@@ -464,7 +324,6 @@ else:
         if st.button("Logout"):
 
             st.session_state.logged_in = False
-            st.session_state.show_login = False
 
             st.rerun()
 
