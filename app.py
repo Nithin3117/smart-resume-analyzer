@@ -33,6 +33,10 @@ st.set_page_config(
 st.markdown("""
 <style>
 
+html, body, [class*="css"] {
+    font-family: 'Segoe UI', sans-serif;
+}
+
 .main {
     background-color: #0f1117;
 }
@@ -77,6 +81,14 @@ st.markdown("""
     height: 3em;
     font-size: 16px;
     font-weight: bold;
+    background-color: #00cc66;
+    color: white;
+    border: none;
+}
+
+.stButton > button:hover {
+    background-color: #00aa55;
+    color: white;
 }
 
 a {
@@ -224,37 +236,41 @@ def create_gauge(score):
 if not st.session_state.logged_in and not st.session_state.show_login:
 
     st.markdown("""
-
     <style>
 
     .hero {
         text-align: center;
-        padding-top: 50px;
-        padding-bottom: 50px;
+        padding-top: 70px;
+        padding-bottom: 60px;
     }
 
     .hero-title {
-        font-size: 60px;
+        font-size: 65px;
         font-weight: bold;
         color: white;
     }
 
     .hero-subtitle {
         font-size: 24px;
-        color: #bbbbbb;
+        color: #cccccc;
         margin-top: 20px;
     }
 
     .feature-card {
         background-color: #1e1e2f;
-        padding: 25px;
-        border-radius: 18px;
+        padding: 30px;
+        border-radius: 20px;
         text-align: center;
         box-shadow: 0px 4px 20px rgba(0,0,0,0.35);
+        transition: 0.3s;
+    }
+
+    .feature-card:hover {
+        transform: scale(1.03);
     }
 
     .feature-title {
-        font-size: 22px;
+        font-size: 24px;
         font-weight: bold;
         margin-top: 10px;
         color: white;
@@ -263,15 +279,14 @@ if not st.session_state.logged_in and not st.session_state.show_login:
     .feature-text {
         color: #cccccc;
         margin-top: 10px;
+        font-size: 17px;
     }
 
     </style>
-
     """, unsafe_allow_html=True)
 
-    # HERO
+    # HERO SECTION
     st.markdown("""
-
     <div class="hero">
 
         <div class="hero-title">
@@ -283,16 +298,14 @@ if not st.session_state.logged_in and not st.session_state.show_login:
         </div>
 
     </div>
-
     """, unsafe_allow_html=True)
 
-    # FEATURES
+    # FEATURE CARDS
     col1, col2, col3 = st.columns(3)
 
     with col1:
 
         st.markdown("""
-
         <div class="feature-card">
 
             <h1>📊</h1>
@@ -306,13 +319,11 @@ if not st.session_state.logged_in and not st.session_state.show_login:
             </div>
 
         </div>
-
         """, unsafe_allow_html=True)
 
     with col2:
 
         st.markdown("""
-
         <div class="feature-card">
 
             <h1>💼</h1>
@@ -326,13 +337,11 @@ if not st.session_state.logged_in and not st.session_state.show_login:
             </div>
 
         </div>
-
         """, unsafe_allow_html=True)
 
     with col3:
 
         st.markdown("""
-
         <div class="feature-card">
 
             <h1>🤖</h1>
@@ -346,12 +355,10 @@ if not st.session_state.logged_in and not st.session_state.show_login:
             </div>
 
         </div>
-
         """, unsafe_allow_html=True)
 
     st.markdown("<br><br>", unsafe_allow_html=True)
 
-    # BUTTON
     if st.button("🚀 Get Started"):
 
         st.session_state.show_login = True
@@ -419,7 +426,6 @@ elif not st.session_state.logged_in:
 
 else:
 
-    # SIDEBAR
     st.sidebar.title("🤖 AI Resume Assistant")
 
     user_question = st.sidebar.text_input(
@@ -439,9 +445,7 @@ else:
     st.sidebar.title("📌 Navigation")
 
     page = st.sidebar.radio(
-
         "Go To",
-
         [
             "Dashboard",
             "About Project",
@@ -450,14 +454,13 @@ else:
     )
 
     # =====================================================
-    # DASHBOARD PAGE
+    # DASHBOARD
     # =====================================================
 
     if page == "Dashboard":
 
         st.title("🚀 Smart Resume Analyzer Dashboard")
 
-        # LOGOUT
         if st.button("Logout"):
 
             st.session_state.logged_in = False
@@ -465,7 +468,6 @@ else:
 
             st.rerun()
 
-        # INPUTS
         uploaded_file = st.file_uploader(
             "📄 Upload Resume",
             type=["pdf", "docx"]
@@ -496,14 +498,10 @@ else:
                 )
 
             # NLP
-            tokens = preprocess(
-                resume_text
-            )
+            tokens = preprocess(resume_text)
 
             # SKILLS
-            skills_list = load_skills(
-                "skills.txt"
-            )
+            skills_list = load_skills("skills.txt")
 
             resume_skills = extract_skills(
                 tokens,
@@ -602,9 +600,7 @@ else:
             # SKILLS
             # =====================================================
 
-            st.markdown(
-                "## 🛠️ Skills Analysis"
-            )
+            st.markdown("## 🛠️ Skills Analysis")
 
             col1, col2 = st.columns(2)
 
@@ -629,10 +625,7 @@ else:
                         )
 
                 else:
-
-                    st.write(
-                        "No matched skills found"
-                    )
+                    st.write("No matched skills found")
 
                 st.markdown(
                     '</div>',
@@ -660,10 +653,7 @@ else:
                         )
 
                 else:
-
-                    st.success(
-                        "No missing skills 🎉"
-                    )
+                    st.success("No missing skills 🎉")
 
                 st.markdown(
                     '</div>',
@@ -674,9 +664,7 @@ else:
             # RESUME DETAILS
             # =====================================================
 
-            st.markdown(
-                "## 📋 Resume Details"
-            )
+            st.markdown("## 📋 Resume Details")
 
             col1, col2, col3 = st.columns(3)
 
@@ -696,16 +684,10 @@ else:
                 if education:
 
                     for item in education:
-
-                        st.markdown(
-                            f"➡ {item}"
-                        )
+                        st.markdown(f"➡ {item}")
 
                 else:
-
-                    st.write(
-                        "No education details found"
-                    )
+                    st.write("No education details found")
 
                 st.markdown(
                     '</div>',
@@ -728,16 +710,10 @@ else:
                 if experience:
 
                     for item in experience:
-
-                        st.markdown(
-                            f"➡ {item}"
-                        )
+                        st.markdown(f"➡ {item}")
 
                 else:
-
-                    st.write(
-                        "No experience details found"
-                    )
+                    st.write("No experience details found")
 
                 st.markdown(
                     '</div>',
@@ -760,16 +736,10 @@ else:
                 if projects:
 
                     for item in projects:
-
-                        st.markdown(
-                            f"➡ {item}"
-                        )
+                        st.markdown(f"➡ {item}")
 
                 else:
-
-                    st.write(
-                        "No project details found"
-                    )
+                    st.write("No project details found")
 
                 st.markdown(
                     '</div>',
@@ -806,7 +776,7 @@ else:
             )
 
             # =====================================================
-            # AI RESUME IMPROVER
+            # AI IMPROVEMENTS
             # =====================================================
 
             st.markdown(
@@ -873,7 +843,7 @@ else:
         """)
 
     # =====================================================
-    # TECH STACK PAGE
+    # TECH STACK
     # =====================================================
 
     elif page == "Tech Stack":
