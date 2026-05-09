@@ -1,0 +1,82 @@
+import google.generativeai as genai
+
+
+# CONFIGURE GEMINI API
+genai.configure(
+    api_key="AIzaSyCNy-8WNnYS8WnT-y2pyeYed9NPdvsTt3A"
+)
+
+# LOAD MODEL
+model = genai.GenerativeModel(
+    "gemini-1.5-flash"
+)
+
+
+# ---------- AI RESUME REVIEW ----------
+def generate_ai_resume_review(
+        resume_text,
+        missing_skills,
+        score
+):
+
+    # LIMIT TEXT SIZE
+    resume_text = resume_text[:4000]
+
+    prompt = f"""
+
+    You are a professional ATS Resume Analyzer and Career Coach.
+
+    Analyze the resume carefully and provide:
+
+    1. ATS Score Improvement Suggestions
+    2. Important Missing Technical Skills
+    3. Resume Formatting Improvements
+    4. Stronger Project Description Suggestions
+    5. Better Resume Keywords for ATS
+    6. Interview Preparation Tips
+    7. Resume Strengths
+    8. Resume Weaknesses
+
+    Rules:
+    - Give clear bullet points
+    - Be specific
+    - Focus on software engineering jobs
+    - Avoid generic advice
+
+    ATS Match Score:
+    {score}
+
+    Missing Skills:
+    {missing_skills}
+
+    Resume Content:
+    {resume_text}
+
+    """
+
+    response = model.generate_content(
+        prompt
+    )
+
+    return response.text
+
+
+# ---------- AI CHATBOT ----------
+def ask_ai(question):
+
+    prompt = f"""
+
+    You are an AI Resume Assistant.
+
+    Answer professionally and briefly.
+
+    Question:
+    {question}
+
+    """
+
+    response = model.generate_content(
+        prompt
+    )
+
+    return response.text
