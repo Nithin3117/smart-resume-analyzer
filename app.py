@@ -8,8 +8,16 @@ from chatbot import chatbot_response
 
 from job_link_extractor import extract_job_text
 from nlp_processing import preprocess, extract_sections
-from skill_extractor import load_skills, extract_skills
-from job_matcher import extract_job_skills, calculate_match
+
+from skill_extractor import (
+    load_skills,
+    extract_skills
+)
+
+from job_matcher import (
+    extract_job_skills,
+    calculate_match
+)
 
 from score_breakdown import calculate_breakdown
 from ai_resume_improver import improve_resume
@@ -253,7 +261,10 @@ if not st.session_state.logged_in:
 
         if st.button("Create Account"):
 
-            success, msg = signup(email, password)
+            success, msg = signup(
+                email,
+                password
+            )
 
             if success:
                 st.success(msg)
@@ -266,7 +277,10 @@ if not st.session_state.logged_in:
 
         if st.button("Login"):
 
-            success, msg = login(email, password)
+            success, msg = login(
+                email,
+                password
+            )
 
             if success:
 
@@ -285,6 +299,10 @@ if not st.session_state.logged_in:
 # =====================================================
 
 else:
+
+    # =====================================================
+    # SIDEBAR
+    # =====================================================
 
     st.sidebar.title("🤖 AI Resume Assistant")
 
@@ -341,6 +359,10 @@ else:
         if job_url:
             job_text = extract_job_text(job_url)
 
+        # =====================================================
+        # AFTER RESUME UPLOAD
+        # =====================================================
+
         if uploaded_file:
 
             # =====================================================
@@ -360,16 +382,20 @@ else:
                 )
 
             # =====================================================
-            # NLP
+            # NLP PROCESSING
             # =====================================================
 
-            tokens = preprocess(resume_text)
+            tokens = preprocess(
+                resume_text
+            )
 
             # =====================================================
             # SKILLS
             # =====================================================
 
-            skills_list = load_skills("skills.txt")
+            skills_list = load_skills(
+                "skills.txt"
+            )
 
             resume_skills = extract_skills(
                 tokens,
@@ -382,7 +408,7 @@ else:
             )
 
             # =====================================================
-            # SCORE
+            # MATCH SCORE
             # =====================================================
 
             score, matched, missing = calculate_match(
@@ -391,7 +417,7 @@ else:
             )
 
             # =====================================================
-            # DETAILS
+            # SECTIONS
             # =====================================================
 
             education, experience, projects, certificates, skills = extract_sections(
@@ -412,7 +438,7 @@ else:
             )
 
             # =====================================================
-            # RESUME MATCH SCORE
+            # RESUME SCORE
             # =====================================================
 
             st.markdown(
@@ -474,10 +500,12 @@ else:
             )
 
             # =====================================================
-            # SKILLS ANALYSIS
+            # MATCHED / MISSING SKILLS
             # =====================================================
 
-            st.markdown("## 🛠️ Skills Analysis")
+            st.markdown(
+                "## 🛠️ Skills Analysis"
+            )
 
             col1, col2 = st.columns(2)
 
@@ -498,13 +526,22 @@ else:
 
                     for skill in matched:
 
+                        clean_skill = (
+                            skill
+                            .replace("•", "")
+                            .replace("-", "")
+                            .strip()
+                        )
+
                         st.markdown(
-                            f"➡ {skill.upper()}"
+                            f"🔹 {clean_skill.upper()}"
                         )
 
                 else:
 
-                    st.write("No matched skills found")
+                    st.write(
+                        "No matched skills found"
+                    )
 
                 st.markdown(
                     '</div>',
@@ -528,13 +565,22 @@ else:
 
                     for skill in missing:
 
+                        clean_skill = (
+                            skill
+                            .replace("•", "")
+                            .replace("-", "")
+                            .strip()
+                        )
+
                         st.markdown(
-                            f"➡ {skill.upper()}"
+                            f"🔹 {clean_skill.upper()}"
                         )
 
                 else:
 
-                    st.success("No missing skills 🎉")
+                    st.success(
+                        "No missing skills 🎉"
+                    )
 
                 st.markdown(
                     '</div>',
@@ -545,14 +591,13 @@ else:
             # RESUME DETAILS
             # =====================================================
 
-            st.markdown("## 📋 Resume Details")
+            st.markdown(
+                "## 📋 Resume Details"
+            )
 
             col1, col2, col3, col4, col5 = st.columns(5)
 
-            # =====================================================
             # EDUCATION
-            # =====================================================
-
             with col1:
 
                 st.markdown(
@@ -569,21 +614,29 @@ else:
 
                     for item in education:
 
-                        st.markdown(f"➡ {item}")
+                        clean_item = (
+                            item
+                            .replace("•", "")
+                            .replace("-", "")
+                            .strip()
+                        )
+
+                        st.markdown(
+                            f"🔹 {clean_item}"
+                        )
 
                 else:
 
-                    st.write("No education details found")
+                    st.write(
+                        "No education details found"
+                    )
 
                 st.markdown(
                     '</div>',
                     unsafe_allow_html=True
                 )
 
-            # =====================================================
             # EXPERIENCE
-            # =====================================================
-
             with col2:
 
                 st.markdown(
@@ -600,21 +653,29 @@ else:
 
                     for item in experience:
 
-                        st.markdown(f"➡ {item}")
+                        clean_item = (
+                            item
+                            .replace("•", "")
+                            .replace("-", "")
+                            .strip()
+                        )
+
+                        st.markdown(
+                            f"🔹 {clean_item}"
+                        )
 
                 else:
 
-                    st.write("No experience details found")
+                    st.write(
+                        "No experience details found"
+                    )
 
                 st.markdown(
                     '</div>',
                     unsafe_allow_html=True
                 )
 
-            # =====================================================
             # PROJECTS
-            # =====================================================
-
             with col3:
 
                 st.markdown(
@@ -631,23 +692,29 @@ else:
 
                     for project in projects:
 
+                        clean_project = (
+                            project
+                            .replace("•", "")
+                            .replace("-", "")
+                            .strip()
+                        )
+
                         st.markdown(
-                            f"➡ {project}"
+                            f"🔹 {clean_project}"
                         )
 
                 else:
 
-                    st.write("No project details found")
+                    st.write(
+                        "No project details found"
+                    )
 
                 st.markdown(
                     '</div>',
                     unsafe_allow_html=True
                 )
 
-            # =====================================================
             # CERTIFICATES
-            # =====================================================
-
             with col4:
 
                 st.markdown(
@@ -664,23 +731,29 @@ else:
 
                     for item in certificates:
 
+                        clean_item = (
+                            item
+                            .replace("•", "")
+                            .replace("-", "")
+                            .strip()
+                        )
+
                         st.markdown(
-                            f"➡ {item}"
+                            f"🔹 {clean_item}"
                         )
 
                 else:
 
-                    st.write("No certificate details found")
+                    st.write(
+                        "No certificate details found"
+                    )
 
                 st.markdown(
                     '</div>',
                     unsafe_allow_html=True
                 )
 
-            # =====================================================
             # SKILLS
-            # =====================================================
-
             with col5:
 
                 st.markdown(
@@ -697,13 +770,22 @@ else:
 
                     for item in skills:
 
+                        clean_item = (
+                            item
+                            .replace("•", "")
+                            .replace("-", "")
+                            .strip()
+                        )
+
                         st.markdown(
-                            f"➡ {item}"
+                            f"🔹 {clean_item}"
                         )
 
                 else:
 
-                    st.write("No skills found")
+                    st.write(
+                        "No skills found"
+                    )
 
                 st.markdown(
                     '</div>',
@@ -731,7 +813,7 @@ else:
             for job in recommended_jobs:
 
                 st.markdown(
-                    f"➡ [{job['title']}]({job['link']})"
+                    f"🔹 [{job['title']}]({job['link']})"
                 )
 
             st.markdown(
@@ -753,7 +835,9 @@ else:
                 unsafe_allow_html=True
             )
 
-            if st.button("Generate Improvements"):
+            if st.button(
+                "Generate Improvements"
+            ):
 
                 improvements = improve_resume(
                     missing,
@@ -765,8 +849,15 @@ else:
 
                 for tip in improvements:
 
+                    clean_tip = (
+                        tip
+                        .replace("•", "")
+                        .replace("-", "")
+                        .strip()
+                    )
+
                     st.markdown(
-                        f"➡ {tip}"
+                        f"🔹 {clean_tip}"
                     )
 
             st.markdown(
@@ -780,31 +871,33 @@ else:
 
     elif page == "About Project":
 
-        st.title("📘 About Project")
+        st.title(
+            "📘 About Project"
+        )
 
         st.markdown("""
 
-        ## Smart Resume Analyzer
+## Smart Resume Analyzer
 
-        This project helps users:
+This project helps users:
 
-        - Analyze ATS compatibility
-        - Match skills with job descriptions
-        - Get AI-based resume improvements
-        - Discover recommended jobs
-        - Improve resume quality
+- Analyze ATS compatibility
+- Match skills with job descriptions
+- Get AI-based resume improvements
+- Discover recommended jobs
+- Improve resume quality
 
-        ### Features
+### Features
 
-        ✅ Resume Match Score  
-        ✅ ATS Resume Breakdown  
-        ✅ Skill Analysis  
-        ✅ Resume Details  
-        ✅ Recommended Jobs  
-        ✅ AI Resume Improvement Generator  
-        ✅ AI Chatbot Assistant  
+✅ Resume Match Score  
+✅ ATS Resume Breakdown  
+✅ Skill Analysis  
+✅ Resume Details  
+✅ Recommended Jobs  
+✅ AI Resume Improvement Generator  
+✅ AI Chatbot Assistant  
 
-        """)
+""")
 
     # =====================================================
     # TECH STACK
@@ -812,17 +905,19 @@ else:
 
     elif page == "Tech Stack":
 
-        st.title("🛠️ Technologies Used")
+        st.title(
+            "🛠️ Technologies Used"
+        )
 
         st.markdown("""
 
-        | Technology | Purpose |
-        |---|---|
-        | Python | Backend |
-        | Streamlit | Frontend |
-        | Plotly | Charts |
-        | NLP | Text Processing |
-        | PyPDF2 | PDF Reading |
-        | HTML/CSS | UI Styling |
+| Technology | Purpose |
+|---|---|
+| Python | Backend |
+| Streamlit | Frontend |
+| Plotly | Charts |
+| NLP | Text Processing |
+| PyPDF2 | PDF Reading |
+| HTML/CSS | UI Styling |
 
-        """)
+""")
