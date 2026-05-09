@@ -27,149 +27,90 @@ st.set_page_config(
 
 
 # =====================================================
-# SESSION
+# PREMIUM UI
 # =====================================================
 
-if "theme" not in st.session_state:
-    st.session_state.theme = "dark"
-
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-
-
-# =====================================================
-# GLASSMORPHISM UI
-# =====================================================
-
-st.markdown(f"""
+st.markdown("""
 <style>
 
-html, body, [class*="css"] {{
+html, body, [class*="css"] {
     font-family: 'Segoe UI', sans-serif;
-}}
+}
 
-.stApp {{
-    background: linear-gradient(
-        135deg,
-        #0f172a,
-        #111827,
-        #1e293b
-    );
-    color: white;
-}}
+.main {
+    background-color: #0f1117;
+}
 
-.card {{
-    background: rgba(255, 255, 255, 0.08);
-
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-
-    border-radius: 20px;
-
-    border: 1px solid rgba(255,255,255,0.1);
-
-    padding: 25px;
-
+.card {
+    background-color: #1e1e2f;
+    padding: 20px;
+    border-radius: 18px;
     margin-bottom: 20px;
+    box-shadow: 0px 4px 20px rgba(0,0,0,0.35);
+}
 
-    box-shadow:
-        0 8px 32px rgba(0,0,0,0.35);
-
-    transition: 0.3s;
-}}
-
-.card:hover {{
-
-    transform: translateY(-4px);
-
-    box-shadow:
-        0 12px 35px rgba(0,0,0,0.45);
-}}
-
-.title {{
+.title {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 15px;
-}}
+}
 
-.green {{
-    color: #22c55e;
-}}
+.green {
+    color: #00cc66;
+}
 
-.red {{
-    color: #ef4444;
-}}
+.red {
+    color: #ff4b5c;
+}
 
-.blue {{
-    color: #38bdf8;
-}}
+.blue {
+    color: #4da6ff;
+}
 
-.orange {{
-    color: #f59e0b;
-}}
+.orange {
+    color: #ffaa00;
+}
 
-.purple {{
-    color: #c084fc;
-}}
+.purple {
+    color: #b366ff;
+}
 
-.stButton > button {{
-
+.stButton > button {
     width: 100%;
-
-    border-radius: 14px;
-
+    border-radius: 12px;
     height: 3em;
-
     font-size: 16px;
-
     font-weight: bold;
-
-    background: linear-gradient(
-        90deg,
-        #06b6d4,
-        #3b82f6
-    );
-
+    background-color: #00cc66;
     color: white;
-
     border: none;
+}
 
-    transition: 0.3s;
-}}
+.stButton > button:hover {
+    background-color: #00aa55;
+    color: white;
+}
 
-.stButton > button:hover {{
-
-    transform: scale(1.02);
-
-    background: linear-gradient(
-        90deg,
-        #0891b2,
-        #2563eb
-    );
-}}
-
-section[data-testid="stSidebar"] {{
-
-    background: rgba(255,255,255,0.05);
-
-    backdrop-filter: blur(14px);
-
-    border-right:
-        1px solid rgba(255,255,255,0.08);
-}}
-
-a {{
-    color: #67e8f9 !important;
+a {
+    color: #66ccff !important;
     text-decoration: none;
     font-weight: bold;
-}}
+}
 
-a:hover {{
-    color: #22d3ee !important;
-}}
+a:hover {
+    color: #00ffcc !important;
+}
 
 </style>
 """, unsafe_allow_html=True)
+
+
+# =====================================================
+# SESSION
+# =====================================================
+
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
 
 # =====================================================
@@ -246,28 +187,28 @@ def create_gauge(score):
                 'thickness': 0.25
             },
 
-            'bgcolor': "rgba(255,255,255,0.05)",
+            'bgcolor': "#1e1e2f",
 
             'steps': [
 
                 {
                     'range': [0, 40],
-                    'color': "#ef4444"
+                    'color': "#ff4b5c"
                 },
 
                 {
                     'range': [40, 60],
-                    'color': "#facc15"
+                    'color': "#f7c948"
                 },
 
                 {
                     'range': [60, 85],
-                    'color': "#4ade80"
+                    'color': "#66ff99"
                 },
 
                 {
                     'range': [85, 100],
-                    'color': "#22c55e"
+                    'color': "#00cc66"
                 }
             ]
         }
@@ -275,7 +216,7 @@ def create_gauge(score):
 
     fig.update_layout(
 
-        paper_bgcolor="rgba(0,0,0,0)",
+        paper_bgcolor="#1e1e2f",
 
         font={'color': "white"},
 
@@ -291,7 +232,7 @@ def create_gauge(score):
 
 if not st.session_state.logged_in:
 
-    st.title("🚀 Smart Resume Analyzer")
+    st.title("🔐 Smart Resume Analyzer")
 
     st.markdown("### Login / Signup")
 
@@ -345,10 +286,6 @@ if not st.session_state.logged_in:
 
 else:
 
-    # =====================================================
-    # SIDEBAR
-    # =====================================================
-
     st.sidebar.title("🤖 AI Resume Assistant")
 
     user_question = st.sidebar.text_input(
@@ -362,29 +299,6 @@ else:
         )
 
         st.sidebar.success(answer)
-
-    st.sidebar.markdown("---")
-
-    # =====================================================
-    # SIDEBAR STATS
-    # =====================================================
-
-    st.sidebar.markdown("## 📊 Quick Stats")
-
-    st.sidebar.metric(
-        "Users",
-        "1.2K+"
-    )
-
-    st.sidebar.metric(
-        "Resumes Analyzed",
-        "8.5K+"
-    )
-
-    st.sidebar.metric(
-        "ATS Accuracy",
-        "94%"
-    )
 
     st.sidebar.markdown("---")
 
@@ -549,7 +463,6 @@ else:
 
             col1, col2 = st.columns(2)
 
-            # MATCHED
             with col1:
 
                 st.markdown(
@@ -578,7 +491,6 @@ else:
                     unsafe_allow_html=True
                 )
 
-            # MISSING
             with col2:
 
                 st.markdown(
