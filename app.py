@@ -16,14 +16,20 @@ from ai_resume_improver import improve_resume
 from job_recommender import recommend_jobs
 
 
-# ---------- PAGE CONFIG ----------
+# =====================================================
+# PAGE CONFIG
+# =====================================================
+
 st.set_page_config(
     page_title="Smart Resume Analyzer",
     layout="wide"
 )
 
 
-# ---------- PREMIUM UI ----------
+# =====================================================
+# PREMIUM UI
+# =====================================================
+
 st.markdown("""
 <style>
 
@@ -40,7 +46,7 @@ st.markdown("""
 }
 
 .title {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: bold;
     margin-bottom: 15px;
 }
@@ -65,7 +71,7 @@ st.markdown("""
     color: #b366ff;
 }
 
-.stButton>button {
+.stButton > button {
     width: 100%;
     border-radius: 12px;
     height: 3em;
@@ -87,12 +93,18 @@ a:hover {
 """, unsafe_allow_html=True)
 
 
-# ---------- SESSION ----------
+# =====================================================
+# SESSION
+# =====================================================
+
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 
-# ---------- FILE READERS ----------
+# =====================================================
+# PDF READER
+# =====================================================
+
 def extract_text_pdf(file):
 
     text = ""
@@ -109,6 +121,10 @@ def extract_text_pdf(file):
     return text
 
 
+# =====================================================
+# DOCX READER
+# =====================================================
+
 def extract_text_docx(file):
 
     doc = docx.Document(file)
@@ -121,7 +137,10 @@ def extract_text_docx(file):
     return text
 
 
-# ---------- ATS GAUGE ----------
+# =====================================================
+# ATS GAUGE
+# =====================================================
+
 def create_gauge(score):
 
     fig = go.Figure(go.Indicator(
@@ -195,7 +214,9 @@ def create_gauge(score):
     return fig
 
 
-# ================= LOGIN PAGE =================
+# =====================================================
+# LOGIN PAGE
+# =====================================================
 
 if not st.session_state.logged_in:
 
@@ -247,11 +268,16 @@ if not st.session_state.logged_in:
                 st.error(msg)
 
 
-# ================= DASHBOARD =================
+# =====================================================
+# MAIN DASHBOARD
+# =====================================================
 
 else:
 
-    # ---------- CHATBOT SIDEBAR ----------
+    # =====================================================
+    # SIDEBAR CHATBOT
+    # =====================================================
+
     st.sidebar.title("🤖 AI Resume Assistant")
 
     user_question = st.sidebar.text_input(
@@ -266,7 +292,10 @@ else:
 
         st.sidebar.success(answer)
 
-    # ---------- SIDEBAR NAVIGATION ----------
+    # =====================================================
+    # SIDEBAR NAVIGATION
+    # =====================================================
+
     st.sidebar.markdown("---")
 
     st.sidebar.title("📌 Navigation")
@@ -282,7 +311,10 @@ else:
         ]
     )
 
-    # ================= DASHBOARD PAGE =================
+    # =====================================================
+    # DASHBOARD PAGE
+    # =====================================================
+
     if page == "Dashboard":
 
         st.title("🚀 Smart Resume Analyzer Dashboard")
@@ -326,7 +358,9 @@ else:
                 )
 
             # NLP
-            tokens = preprocess(resume_text)
+            tokens = preprocess(
+                resume_text
+            )
 
             # SKILLS
             skills_list = load_skills(
@@ -364,9 +398,17 @@ else:
                 projects
             )
 
-            # ---------- ATS SCORE ----------
+            # =====================================================
+            # 1. RESUME MATCH SCORE
+            # =====================================================
+
             st.markdown(
                 '<div class="card">',
+                unsafe_allow_html=True
+            )
+
+            st.markdown(
+                '<div class="title">📊 Resume Match Score</div>',
                 unsafe_allow_html=True
             )
 
@@ -383,14 +425,17 @@ else:
                 unsafe_allow_html=True
             )
 
-            # ---------- ATS BREAKDOWN ----------
+            # =====================================================
+            # 2. ATS RESUME BREAKDOWN
+            # =====================================================
+
             st.markdown(
                 '<div class="card">',
                 unsafe_allow_html=True
             )
 
             st.markdown(
-                '<div class="title">📊 ATS Resume Breakdown</div>',
+                '<div class="title">📈 ATS Resume Breakdown</div>',
                 unsafe_allow_html=True
             )
 
@@ -415,36 +460,190 @@ else:
                 unsafe_allow_html=True
             )
 
-            # ---------- AI IMPROVER ----------
-            st.markdown(
-                '<div class="card">',
-                unsafe_allow_html=True
-            )
+            # =====================================================
+            # 3. MATCHED & MISSING SKILLS
+            # =====================================================
 
             st.markdown(
-                '<div class="title">✨ AI Resume Improvement Generator</div>',
-                unsafe_allow_html=True
+                "## 🛠️ Skills Analysis"
             )
 
-            if st.button("Generate Improvements"):
+            col1, col2 = st.columns(2)
 
-                improvements = improve_resume(
-                    missing,
-                    education,
-                    experience,
-                    projects,
-                    resume_text
+            # MATCHED
+            with col1:
+
+                st.markdown(
+                    '<div class="card">',
+                    unsafe_allow_html=True
                 )
 
-                for tip in improvements:
-                    st.markdown(f"➡ {tip}")
+                st.markdown(
+                    '<div class="title green">✅ Matched Skills</div>',
+                    unsafe_allow_html=True
+                )
+
+                if matched:
+
+                    for skill in matched:
+
+                        st.markdown(
+                            f"➡ {skill.upper()}"
+                        )
+
+                else:
+
+                    st.write(
+                        "No matched skills found"
+                    )
+
+                st.markdown(
+                    '</div>',
+                    unsafe_allow_html=True
+                )
+
+            # MISSING
+            with col2:
+
+                st.markdown(
+                    '<div class="card">',
+                    unsafe_allow_html=True
+                )
+
+                st.markdown(
+                    '<div class="title red">❌ Missing Skills</div>',
+                    unsafe_allow_html=True
+                )
+
+                if missing:
+
+                    for skill in missing:
+
+                        st.markdown(
+                            f"➡ {skill.upper()}"
+                        )
+
+                else:
+
+                    st.success(
+                        "No missing skills 🎉"
+                    )
+
+                st.markdown(
+                    '</div>',
+                    unsafe_allow_html=True
+                )
+
+            # =====================================================
+            # 4. RESUME DETAILS
+            # =====================================================
 
             st.markdown(
-                '</div>',
-                unsafe_allow_html=True
+                "## 📋 Resume Details"
             )
 
-            # ---------- JOB RECOMMENDATIONS ----------
+            col1, col2, col3 = st.columns(3)
+
+            # EDUCATION
+            with col1:
+
+                st.markdown(
+                    '<div class="card">',
+                    unsafe_allow_html=True
+                )
+
+                st.markdown(
+                    '<div class="title blue">🎓 Education</div>',
+                    unsafe_allow_html=True
+                )
+
+                if education:
+
+                    for item in education:
+
+                        st.markdown(
+                            f"➡ {item}"
+                        )
+
+                else:
+
+                    st.write(
+                        "No education details found"
+                    )
+
+                st.markdown(
+                    '</div>',
+                    unsafe_allow_html=True
+                )
+
+            # EXPERIENCE
+            with col2:
+
+                st.markdown(
+                    '<div class="card">',
+                    unsafe_allow_html=True
+                )
+
+                st.markdown(
+                    '<div class="title orange">💼 Experience</div>',
+                    unsafe_allow_html=True
+                )
+
+                if experience:
+
+                    for item in experience:
+
+                        st.markdown(
+                            f"➡ {item}"
+                        )
+
+                else:
+
+                    st.write(
+                        "No experience details found"
+                    )
+
+                st.markdown(
+                    '</div>',
+                    unsafe_allow_html=True
+                )
+
+            # PROJECTS
+            with col3:
+
+                st.markdown(
+                    '<div class="card">',
+                    unsafe_allow_html=True
+                )
+
+                st.markdown(
+                    '<div class="title purple">🚀 Projects</div>',
+                    unsafe_allow_html=True
+                )
+
+                if projects:
+
+                    for item in projects:
+
+                        st.markdown(
+                            f"➡ {item}"
+                        )
+
+                else:
+
+                    st.write(
+                        "No project details found"
+                    )
+
+                st.markdown(
+                    '</div>',
+                    unsafe_allow_html=True
+                )
+
+            # =====================================================
+            # 5. RECOMMENDED JOBS
+            # =====================================================
+
             st.markdown(
                 '<div class="card">',
                 unsafe_allow_html=True
@@ -470,149 +669,45 @@ else:
                 unsafe_allow_html=True
             )
 
-            # ---------- MATCHED / MISSING ----------
-            col1, col2 = st.columns(2)
+            # =====================================================
+            # 6. AI RESUME IMPROVEMENT GENERATOR
+            # =====================================================
 
-            # MATCHED
-            with col1:
+            st.markdown(
+                '<div class="card">',
+                unsafe_allow_html=True
+            )
 
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
+            st.markdown(
+                '<div class="title">✨ AI Resume Improvement Generator</div>',
+                unsafe_allow_html=True
+            )
+
+            if st.button("Generate Improvements"):
+
+                improvements = improve_resume(
+                    missing,
+                    education,
+                    experience,
+                    projects,
+                    resume_text
                 )
 
-                st.markdown(
-                    '<div class="title green">✅ Matched Skills</div>',
-                    unsafe_allow_html=True
-                )
+                for tip in improvements:
 
-                if matched:
+                    st.markdown(
+                        f"➡ {tip}"
+                    )
 
-                    for skill in matched:
-                        st.markdown(
-                            f"➡ {skill.upper()}"
-                        )
+            st.markdown(
+                '</div>',
+                unsafe_allow_html=True
+            )
 
-                else:
-                    st.write("No matched skills found")
+    # =====================================================
+    # ABOUT PAGE
+    # =====================================================
 
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
-
-            # MISSING
-            with col2:
-
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
-                )
-
-                st.markdown(
-                    '<div class="title red">❌ Missing Skills</div>',
-                    unsafe_allow_html=True
-                )
-
-                if missing:
-
-                    for skill in missing:
-                        st.markdown(
-                            f"➡ {skill.upper()}"
-                        )
-
-                else:
-                    st.success("No missing skills 🎉")
-
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
-
-            # ---------- DETAILS ----------
-            st.markdown("## 📊 Resume Details")
-
-            col1, col2, col3 = st.columns(3)
-
-            # EDUCATION
-            with col1:
-
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
-                )
-
-                st.markdown(
-                    '<div class="title blue">🎓 Education</div>',
-                    unsafe_allow_html=True
-                )
-
-                if education:
-
-                    for item in education:
-                        st.markdown(f"➡ {item}")
-
-                else:
-                    st.write("No education details found")
-
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
-
-            # EXPERIENCE
-            with col2:
-
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
-                )
-
-                st.markdown(
-                    '<div class="title orange">💼 Experience</div>',
-                    unsafe_allow_html=True
-                )
-
-                if experience:
-
-                    for item in experience:
-                        st.markdown(f"➡ {item}")
-
-                else:
-                    st.write("No experience details found")
-
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
-
-            # PROJECTS
-            with col3:
-
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
-                )
-
-                st.markdown(
-                    '<div class="title purple">🚀 Projects</div>',
-                    unsafe_allow_html=True
-                )
-
-                if projects:
-
-                    for item in projects:
-                        st.markdown(f"➡ {item}")
-
-                else:
-                    st.write("No project details found")
-
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
-
-    # ================= ABOUT PAGE =================
     elif page == "About Project":
 
         st.title("📘 About Project")
@@ -621,25 +716,30 @@ else:
 
         ## Smart Resume Analyzer
 
-        This AI-powered Resume Analyzer helps users:
+        This project helps users:
 
         - Analyze ATS compatibility
         - Match skills with job descriptions
-        - Get AI resume improvements
+        - Get AI-based resume improvements
         - Discover recommended jobs
         - Improve resume quality
 
-        ### Key Features
+        ### Features
 
-        ✅ ATS Resume Score  
-        ✅ AI Resume Suggestions  
-        ✅ Job Recommendations  
+        ✅ Resume Match Score  
+        ✅ ATS Resume Breakdown  
+        ✅ Skill Analysis  
+        ✅ Resume Details  
+        ✅ Recommended Jobs  
+        ✅ AI Resume Improvement Generator  
         ✅ AI Chatbot Assistant  
-        ✅ Resume Section Analysis  
 
         """)
 
-    # ================= TECH STACK PAGE =================
+    # =====================================================
+    # TECH STACK PAGE
+    # =====================================================
+
     elif page == "Tech Stack":
 
         st.title("🛠️ Technologies Used")
