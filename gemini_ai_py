@@ -19,37 +19,27 @@ def generate_ai_resume_review(
         score
 ):
 
-    # LIMIT TEXT SIZE
     resume_text = resume_text[:4000]
 
     prompt = f"""
 
-    You are a professional ATS Resume Analyzer and Career Coach.
+    You are a professional ATS Resume Analyzer.
 
-    Analyze the resume carefully and provide:
+    Analyze this resume and provide:
 
-    1. ATS Score Improvement Suggestions
-    2. Important Missing Technical Skills
-    3. Resume Formatting Improvements
-    4. Stronger Project Description Suggestions
-    5. Better Resume Keywords for ATS
-    6. Interview Preparation Tips
-    7. Resume Strengths
-    8. Resume Weaknesses
+    1. ATS improvement suggestions
+    2. Missing important technical skills
+    3. Resume enhancement ideas
+    4. Better project descriptions
+    5. Interview preparation tips
 
-    Rules:
-    - Give clear bullet points
-    - Be specific
-    - Focus on software engineering jobs
-    - Avoid generic advice
-
-    ATS Match Score:
+    ATS Score:
     {score}
 
     Missing Skills:
     {missing_skills}
 
-    Resume Content:
+    Resume:
     {resume_text}
 
     """
@@ -68,7 +58,7 @@ def ask_ai(question):
 
     You are an AI Resume Assistant.
 
-    Answer professionally and briefly.
+    Answer professionally.
 
     Question:
     {question}
