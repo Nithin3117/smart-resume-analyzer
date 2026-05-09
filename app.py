@@ -1,10 +1,13 @@
 import streamlit as st
-import PyPDF2
-import docx
 import plotly.graph_objects as go
 
 from auth import signup, login
 from chatbot import chatbot_response
+
+from resume_parser import (
+    extract_text_pdf,
+    extract_text_docx
+)
 
 from job_link_extractor import extract_job_text
 from nlp_processing import preprocess, extract_sections
@@ -119,42 +122,6 @@ a:hover {
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
-
-
-# =====================================================
-# PDF READER
-# =====================================================
-
-def extract_text_pdf(file):
-
-    text = ""
-
-    reader = PyPDF2.PdfReader(file)
-
-    for page in reader.pages:
-
-        extracted = page.extract_text()
-
-        if extracted:
-            text += extracted
-
-    return text
-
-
-# =====================================================
-# DOCX READER
-# =====================================================
-
-def extract_text_docx(file):
-
-    doc = docx.Document(file)
-
-    text = ""
-
-    for para in doc.paragraphs:
-        text += para.text + "\n"
-
-    return text
 
 
 # =====================================================
@@ -483,8 +450,8 @@ else:
             )
 
             for col, (key, value) in zip(
-                    cols,
-                    breakdown.items()
+                cols,
+                breakdown.items()
             ):
 
                 with col:
@@ -500,7 +467,7 @@ else:
             )
 
             # =====================================================
-            # MATCHED / MISSING SKILLS
+            # SKILLS ANALYSIS
             # =====================================================
 
             st.markdown(
