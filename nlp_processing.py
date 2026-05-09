@@ -9,7 +9,6 @@ def preprocess(text):
 
     return tokens
 
-
 def extract_sections(text):
 
     lines = text.split("\n")
@@ -18,10 +17,11 @@ def extract_sections(text):
     experience = []
     projects = []
     certificates = []
+    skills = []
 
     current_section = None
 
-    buffer = ""
+    current_project = ""
 
     for line in lines:
 
@@ -53,44 +53,82 @@ def extract_sections(text):
 
         elif (
             "certificate" in lower or
-            "certification" in lower
+            "certification" in lower or
+            "achievement" in lower
         ):
 
             current_section = "certificates"
             continue
 
+        elif (
+            "skill" in lower or
+            "technical skill" in lower
+        ):
+
+            current_section = "skills"
+            continue
+
         # =====================================================
-        # MERGE SMALL BROKEN LINES
+        # EDUCATION
         # =====================================================
 
-        if len(line.split()) <= 3:
+        if current_section == "education":
 
-            buffer += " " + line
+            education.append(line)
 
-        else:
+        # =====================================================
+        # EXPERIENCE
+        # =====================================================
 
-            if buffer:
-                line = buffer + " " + line
-                buffer = ""
+        elif current_section == "experience":
 
-            # =====================================================
-            # ADD TO SECTION
-            # =====================================================
+            experience.append(line)
 
-            if current_section == "education":
+        # =====================================================
+        # PROJECTS
+        # =====================================================
 
-                education.append(line)
+        elif current_section == "projects":
 
-            elif current_section == "experience":
+            # MAIN PROJECT TITLE
+            if (
+                "resume analyzer" in lower or
+                "project" in lower or
+                "(" in line
+            ):
 
-                experience.append(line)
+                current_project = line
 
-            elif current_section == "projects":
+            else:
 
-                projects.append(line)
+                if current_project:
 
-            elif current_section == "certificates":
+                    current_project += "\n• " + line
 
-                certificates.append(line)
+            if current_project not in projects:
 
-    return education, experience, projects, certificates
+                projects.append(current_project)
+
+        # =====================================================
+        # CERTIFICATES
+        # =====================================================
+
+        elif current_section == "certificates":
+
+            certificates.append(line)
+
+        # =====================================================
+        # SKILLS
+        # =====================================================
+
+        elif current_section == "skills":
+
+            skills.append(line)
+
+    return (
+        education,
+        experience,
+        projects,
+        certificates,
+        skills
+    )
