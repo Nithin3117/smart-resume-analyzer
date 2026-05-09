@@ -394,7 +394,7 @@ else:
             # DETAILS
             # =====================================================
 
-            education, experience, projects, certificates = extract_sections(
+            education, experience, projects, certificates, skills = extract_sections(
                 resume_text
             )
 
@@ -474,7 +474,7 @@ else:
             )
 
             # =====================================================
-            # SKILLS
+            # SKILLS ANALYSIS
             # =====================================================
 
             st.markdown("## 🛠️ Skills Analysis")
@@ -503,6 +503,7 @@ else:
                         )
 
                 else:
+
                     st.write("No matched skills found")
 
                 st.markdown(
@@ -532,6 +533,7 @@ else:
                         )
 
                 else:
+
                     st.success("No missing skills 🎉")
 
                 st.markdown(
@@ -545,9 +547,12 @@ else:
 
             st.markdown("## 📋 Resume Details")
 
-            col1, col2, col3, col4 = st.columns(4)
+            col1, col2, col3, col4, col5 = st.columns(5)
 
+            # =====================================================
             # EDUCATION
+            # =====================================================
+
             with col1:
 
                 st.markdown(
@@ -563,9 +568,11 @@ else:
                 if education:
 
                     for item in education:
+
                         st.markdown(f"➡ {item}")
 
                 else:
+
                     st.write("No education details found")
 
                 st.markdown(
@@ -573,7 +580,10 @@ else:
                     unsafe_allow_html=True
                 )
 
+            # =====================================================
             # EXPERIENCE
+            # =====================================================
+
             with col2:
 
                 st.markdown(
@@ -589,9 +599,11 @@ else:
                 if experience:
 
                     for item in experience:
+
                         st.markdown(f"➡ {item}")
 
                 else:
+
                     st.write("No experience details found")
 
                 st.markdown(
@@ -599,7 +611,10 @@ else:
                     unsafe_allow_html=True
                 )
 
+            # =====================================================
             # PROJECTS
+            # =====================================================
+
             with col3:
 
                 st.markdown(
@@ -614,10 +629,14 @@ else:
 
                 if projects:
 
-                    for item in projects:
-                        st.markdown(f"➡ {item}")
+                    for project in projects:
+
+                        st.markdown(
+                            f"➡ {project}"
+                        )
 
                 else:
+
                     st.write("No project details found")
 
                 st.markdown(
@@ -625,7 +644,10 @@ else:
                     unsafe_allow_html=True
                 )
 
+            # =====================================================
             # CERTIFICATES
+            # =====================================================
+
             with col4:
 
                 st.markdown(
@@ -642,11 +664,46 @@ else:
 
                     for item in certificates:
 
-                        st.markdown(f"➡ {item}")
+                        st.markdown(
+                            f"➡ {item}"
+                        )
 
                 else:
 
                     st.write("No certificate details found")
+
+                st.markdown(
+                    '</div>',
+                    unsafe_allow_html=True
+                )
+
+            # =====================================================
+            # SKILLS
+            # =====================================================
+
+            with col5:
+
+                st.markdown(
+                    '<div class="card">',
+                    unsafe_allow_html=True
+                )
+
+                st.markdown(
+                    '<div class="title green">🛠 Skills</div>',
+                    unsafe_allow_html=True
+                )
+
+                if skills:
+
+                    for item in skills:
+
+                        st.markdown(
+                            f"➡ {item}"
+                        )
+
+                else:
+
+                    st.write("No skills found")
 
                 st.markdown(
                     '</div>',
