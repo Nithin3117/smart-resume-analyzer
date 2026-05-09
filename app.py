@@ -100,6 +100,9 @@ a:hover {
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
+if "show_login" not in st.session_state:
+    st.session_state.show_login = False
+
 
 # =====================================================
 # PDF READER
@@ -215,10 +218,152 @@ def create_gauge(score):
 
 
 # =====================================================
+# LANDING PAGE
+# =====================================================
+
+if not st.session_state.logged_in and not st.session_state.show_login:
+
+    st.markdown("""
+
+    <style>
+
+    .hero {
+        text-align: center;
+        padding-top: 50px;
+        padding-bottom: 50px;
+    }
+
+    .hero-title {
+        font-size: 60px;
+        font-weight: bold;
+        color: white;
+    }
+
+    .hero-subtitle {
+        font-size: 24px;
+        color: #bbbbbb;
+        margin-top: 20px;
+    }
+
+    .feature-card {
+        background-color: #1e1e2f;
+        padding: 25px;
+        border-radius: 18px;
+        text-align: center;
+        box-shadow: 0px 4px 20px rgba(0,0,0,0.35);
+    }
+
+    .feature-title {
+        font-size: 22px;
+        font-weight: bold;
+        margin-top: 10px;
+        color: white;
+    }
+
+    .feature-text {
+        color: #cccccc;
+        margin-top: 10px;
+    }
+
+    </style>
+
+    """, unsafe_allow_html=True)
+
+    # HERO
+    st.markdown("""
+
+    <div class="hero">
+
+        <div class="hero-title">
+            🚀 Smart Resume Analyzer
+        </div>
+
+        <div class="hero-subtitle">
+            AI-Powered ATS Resume Evaluation Platform
+        </div>
+
+    </div>
+
+    """, unsafe_allow_html=True)
+
+    # FEATURES
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+
+        st.markdown("""
+
+        <div class="feature-card">
+
+            <h1>📊</h1>
+
+            <div class="feature-title">
+                ATS Score Analysis
+            </div>
+
+            <div class="feature-text">
+                Analyze resume ATS compatibility instantly.
+            </div>
+
+        </div>
+
+        """, unsafe_allow_html=True)
+
+    with col2:
+
+        st.markdown("""
+
+        <div class="feature-card">
+
+            <h1>💼</h1>
+
+            <div class="feature-title">
+                Job Recommendations
+            </div>
+
+            <div class="feature-text">
+                Get smart job recommendations based on skills.
+            </div>
+
+        </div>
+
+        """, unsafe_allow_html=True)
+
+    with col3:
+
+        st.markdown("""
+
+        <div class="feature-card">
+
+            <h1>🤖</h1>
+
+            <div class="feature-title">
+                AI Resume Improvements
+            </div>
+
+            <div class="feature-text">
+                Improve your resume using intelligent suggestions.
+            </div>
+
+        </div>
+
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br><br>", unsafe_allow_html=True)
+
+    # BUTTON
+    if st.button("🚀 Get Started"):
+
+        st.session_state.show_login = True
+
+        st.rerun()
+
+
+# =====================================================
 # LOGIN PAGE
 # =====================================================
 
-if not st.session_state.logged_in:
+elif not st.session_state.logged_in:
 
     st.title("🔐 Smart Resume Analyzer")
 
@@ -274,10 +419,7 @@ if not st.session_state.logged_in:
 
 else:
 
-    # =====================================================
-    # SIDEBAR CHATBOT
-    # =====================================================
-
+    # SIDEBAR
     st.sidebar.title("🤖 AI Resume Assistant")
 
     user_question = st.sidebar.text_input(
@@ -291,10 +433,6 @@ else:
         )
 
         st.sidebar.success(answer)
-
-    # =====================================================
-    # SIDEBAR NAVIGATION
-    # =====================================================
 
     st.sidebar.markdown("---")
 
@@ -323,6 +461,7 @@ else:
         if st.button("Logout"):
 
             st.session_state.logged_in = False
+            st.session_state.show_login = False
 
             st.rerun()
 
@@ -341,7 +480,6 @@ else:
         if job_url:
             job_text = extract_job_text(job_url)
 
-        # MAIN PROCESS
         if uploaded_file:
 
             # READ RESUME
@@ -383,7 +521,7 @@ else:
                 job_skills
             )
 
-            # SECTIONS
+            # DETAILS
             education, experience, projects = extract_sections(
                 resume_text
             )
@@ -399,7 +537,7 @@ else:
             )
 
             # =====================================================
-            # 1. RESUME MATCH SCORE
+            # RESUME MATCH SCORE
             # =====================================================
 
             st.markdown(
@@ -426,7 +564,7 @@ else:
             )
 
             # =====================================================
-            # 2. ATS RESUME BREAKDOWN
+            # ATS BREAKDOWN
             # =====================================================
 
             st.markdown(
@@ -461,7 +599,7 @@ else:
             )
 
             # =====================================================
-            # 3. MATCHED & MISSING SKILLS
+            # SKILLS
             # =====================================================
 
             st.markdown(
@@ -470,7 +608,6 @@ else:
 
             col1, col2 = st.columns(2)
 
-            # MATCHED
             with col1:
 
                 st.markdown(
@@ -502,7 +639,6 @@ else:
                     unsafe_allow_html=True
                 )
 
-            # MISSING
             with col2:
 
                 st.markdown(
@@ -535,7 +671,7 @@ else:
                 )
 
             # =====================================================
-            # 4. RESUME DETAILS
+            # RESUME DETAILS
             # =====================================================
 
             st.markdown(
@@ -641,7 +777,7 @@ else:
                 )
 
             # =====================================================
-            # 5. RECOMMENDED JOBS
+            # RECOMMENDED JOBS
             # =====================================================
 
             st.markdown(
@@ -670,7 +806,7 @@ else:
             )
 
             # =====================================================
-            # 6. AI RESUME IMPROVEMENT GENERATOR
+            # AI RESUME IMPROVER
             # =====================================================
 
             st.markdown(
