@@ -1,5 +1,4 @@
 import streamlit as st
-import plotly.graph_objects as go
 
 from auth import signup, login
 from chatbot import chatbot_response
@@ -8,6 +7,8 @@ from resume_parser import (
     extract_text_pdf,
     extract_text_docx
 )
+
+from charts import create_gauge
 
 from job_link_extractor import extract_job_text
 from nlp_processing import preprocess, extract_sections
@@ -125,83 +126,6 @@ if "logged_in" not in st.session_state:
 
 
 # =====================================================
-# ATS GAUGE
-# =====================================================
-
-def create_gauge(score):
-
-    fig = go.Figure(go.Indicator(
-
-        mode="gauge+number",
-
-        value=score,
-
-        number={
-            'font': {
-                'size': 70,
-                'color': "white"
-            }
-        },
-
-        title={
-            'text': "Resume Match Score",
-            'font': {
-                'size': 32,
-                'color': "white"
-            }
-        },
-
-        gauge={
-
-            'axis': {
-                'range': [0, 100]
-            },
-
-            'bar': {
-                'color': "white",
-                'thickness': 0.25
-            },
-
-            'bgcolor': "#1e1e2f",
-
-            'steps': [
-
-                {
-                    'range': [0, 40],
-                    'color': "#ff4b5c"
-                },
-
-                {
-                    'range': [40, 60],
-                    'color': "#f7c948"
-                },
-
-                {
-                    'range': [60, 85],
-                    'color': "#66ff99"
-                },
-
-                {
-                    'range': [85, 100],
-                    'color': "#00cc66"
-                }
-            ]
-        }
-    ))
-
-    fig.update_layout(
-
-        paper_bgcolor="#1e1e2f",
-
-        font={'color': "white"},
-
-        height=500
-    )
-
-    return fig
-
-
-# =====================================================
 # LOGIN PAGE
 # =====================================================
 
@@ -223,7 +147,10 @@ if not st.session_state.logged_in:
         type="password"
     )
 
+    # =====================================================
     # SIGNUP
+    # =====================================================
+
     if option == "Signup":
 
         if st.button("Create Account"):
@@ -234,12 +161,17 @@ if not st.session_state.logged_in:
             )
 
             if success:
+
                 st.success(msg)
 
             else:
+
                 st.error(msg)
 
+    # =====================================================
     # LOGIN
+    # =====================================================
+
     else:
 
         if st.button("Login"):
@@ -258,6 +190,7 @@ if not st.session_state.logged_in:
                 st.rerun()
 
             else:
+
                 st.error(msg)
 
 
@@ -299,18 +232,26 @@ else:
     )
 
     # =====================================================
-    # DASHBOARD
+    # DASHBOARD PAGE
     # =====================================================
 
     if page == "Dashboard":
 
         st.title("🚀 Smart Resume Analyzer Dashboard")
 
+        # =====================================================
+        # LOGOUT
+        # =====================================================
+
         if st.button("Logout"):
 
             st.session_state.logged_in = False
 
             st.rerun()
+
+        # =====================================================
+        # INPUTS
+        # =====================================================
 
         uploaded_file = st.file_uploader(
             "📄 Upload Resume",
@@ -324,10 +265,13 @@ else:
         job_text = ""
 
         if job_url:
-            job_text = extract_job_text(job_url)
+
+            job_text = extract_job_text(
+                job_url
+            )
 
         # =====================================================
-        # AFTER RESUME UPLOAD
+        # AFTER UPLOAD
         # =====================================================
 
         if uploaded_file:
@@ -375,7 +319,7 @@ else:
             )
 
             # =====================================================
-            # MATCH SCORE
+            # SCORE
             # =====================================================
 
             score, matched, missing = calculate_match(
@@ -384,7 +328,7 @@ else:
             )
 
             # =====================================================
-            # SECTIONS
+            # RESUME SECTIONS
             # =====================================================
 
             education, experience, projects, certificates, skills = extract_sections(
@@ -405,7 +349,7 @@ else:
             )
 
             # =====================================================
-            # RESUME SCORE
+            # SCORE CARD
             # =====================================================
 
             st.markdown(
@@ -422,7 +366,7 @@ else:
                 create_gauge(score),
                 use_container_width=True,
                 config={
-                    'displayModeBar': False
+                    "displayModeBar": False
                 }
             )
 
@@ -476,7 +420,10 @@ else:
 
             col1, col2 = st.columns(2)
 
-            # MATCHED
+            # =====================================================
+            # MATCHED SKILLS
+            # =====================================================
+
             with col1:
 
                 st.markdown(
@@ -515,7 +462,10 @@ else:
                     unsafe_allow_html=True
                 )
 
-            # MISSING
+            # =====================================================
+            # MISSING SKILLS
+            # =====================================================
+
             with col2:
 
                 st.markdown(
@@ -564,7 +514,10 @@ else:
 
             col1, col2, col3, col4, col5 = st.columns(5)
 
+            # =====================================================
             # EDUCATION
+            # =====================================================
+
             with col1:
 
                 st.markdown(
@@ -603,7 +556,10 @@ else:
                     unsafe_allow_html=True
                 )
 
+            # =====================================================
             # EXPERIENCE
+            # =====================================================
+
             with col2:
 
                 st.markdown(
@@ -642,7 +598,10 @@ else:
                     unsafe_allow_html=True
                 )
 
+            # =====================================================
             # PROJECTS
+            # =====================================================
+
             with col3:
 
                 st.markdown(
@@ -681,7 +640,10 @@ else:
                     unsafe_allow_html=True
                 )
 
+            # =====================================================
             # CERTIFICATES
+            # =====================================================
+
             with col4:
 
                 st.markdown(
@@ -720,7 +682,10 @@ else:
                     unsafe_allow_html=True
                 )
 
+            # =====================================================
             # SKILLS
+            # =====================================================
+
             with col5:
 
                 st.markdown(
@@ -833,7 +798,7 @@ else:
             )
 
     # =====================================================
-    # ABOUT PAGE
+    # ABOUT PROJECT
     # =====================================================
 
     elif page == "About Project":
@@ -884,7 +849,6 @@ This project helps users:
 | Streamlit | Frontend |
 | Plotly | Charts |
 | NLP | Text Processing |
-| PyPDF2 | PDF Reading |
 | HTML/CSS | UI Styling |
 
 """)
