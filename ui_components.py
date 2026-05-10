@@ -8,7 +8,9 @@ import streamlit as st
 def open_card():
 
     st.markdown(
-        '<div class="card">',
+        """
+        <div class="card">
+        """,
         unsafe_allow_html=True
     )
 
@@ -20,7 +22,9 @@ def open_card():
 def close_card():
 
     st.markdown(
-        '</div>',
+        """
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
@@ -29,10 +33,19 @@ def close_card():
 # SECTION TITLE
 # =====================================================
 
-def section_title(title, color="white"):
+def section_title(title, color="#ffffff"):
 
     st.markdown(
-        f'<div class="title" style="color:{color};">{title}</div>',
+        f"""
+        <h3 style="
+            color:{color};
+            font-weight:bold;
+            margin-bottom:15px;
+            font-size:26px;
+        ">
+            {title}
+        </h3>
+        """,
         unsafe_allow_html=True
     )
 
@@ -64,9 +77,20 @@ def display_list(items):
             clean_item = clean_text(item)
 
             st.markdown(
-                f"🔹 {clean_item}"
+                f"""
+                <p style="
+                    font-size:18px;
+                    margin-bottom:10px;
+                    color:white;
+                ">
+                    🔹 {clean_item}
+                </p>
+                """,
+                unsafe_allow_html=True
             )
 
     else:
 
-        st.write("No data found")
+        st.write(
+            "No data found"
+        )
