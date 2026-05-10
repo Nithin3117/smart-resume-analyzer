@@ -72,12 +72,20 @@ def show_dashboard():
 
     if job_url:
 
-        job_text = extract_job_text(
-            job_url
-        )
+        try:
+
+            job_text = extract_job_text(
+                job_url
+            )
+
+        except:
+
+            st.warning(
+                "Unable to extract job description from link."
+            )
 
     # =====================================================
-    # AFTER UPLOAD
+    # AFTER RESUME UPLOAD
     # =====================================================
 
     if uploaded_file:
@@ -86,17 +94,39 @@ def show_dashboard():
         # READ RESUME
         # =====================================================
 
-        if uploaded_file.type == "application/pdf":
+        try:
 
-            resume_text = extract_text_pdf(
-                uploaded_file
+            if uploaded_file.type == "application/pdf":
+
+                resume_text = extract_text_pdf(
+                    uploaded_file
+                )
+
+            else:
+
+                resume_text = extract_text_docx(
+                    uploaded_file
+                )
+
+        except Exception as e:
+
+            st.error(
+                f"Resume reading failed: {e}"
             )
 
-        else:
+            return
 
-            resume_text = extract_text_docx(
-                uploaded_file
+        # =====================================================
+        # CHECK RESUME TEXT
+        # =====================================================
+
+        if not resume_text.strip():
+
+            st.error(
+                "No text found in resume."
             )
+
+            return
 
         # =====================================================
         # NLP PROCESSING
@@ -107,12 +137,16 @@ def show_dashboard():
         )
 
         # =====================================================
-        # SKILLS
+        # LOAD SKILLS
         # =====================================================
 
         skills_list = load_skills(
             "skills.txt"
         )
+
+        # =====================================================
+        # EXTRACT SKILLS
+        # =====================================================
 
         resume_skills = extract_skills(
             tokens,
@@ -134,12 +168,44 @@ def show_dashboard():
         )
 
         # =====================================================
-        # RESUME SECTIONS
+        # EXTRACT RESUME SECTIONS
         # =====================================================
 
-        education, experience, projects, certificates, skills = extract_sections(
-            resume_text
-        )
+        try:
+
+            education, experience, projects, certificates, skills = extract_sections(
+                resume_text
+            )
+
+        except Exception as e:
+
+            st.error(
+                f"Section extraction failed: {e}"
+            )
+
+            education = []
+            experience = []
+            projects = []
+            certificates = []
+            skills = []
+
+        # =====================================================
+        # DEBUG OUTPUT
+        # =====================================================
+
+        st.write("### DEBUG INFO")
+
+        st.write("Resume Text Preview:")
+        st.write(resume_text[:1000])
+
+        st.write("Education:", education)
+        st.write("Experience:", experience)
+        st.write("Projects:", projects)
+        st.write("Certificates:", certificates)
+        st.write("Skills:", skills)
+
+        st.write("Matched Skills:", matched)
+        st.write("Missing Skills:", missing)
 
         # =====================================================
         # BREAKDOWN
@@ -212,7 +278,8 @@ def show_dashboard():
 
         col1, col2 = st.columns(2)
 
-        # MATCHED
+        # MATCHED SKILLS
+
         with col1:
 
             open_card()
@@ -222,11 +289,14 @@ def show_dashboard():
                 "#00cc66"
             )
 
-            display_list(matched)
+            display_list(
+                matched
+            )
 
             close_card()
 
-        # MISSING
+        # MISSING SKILLS
+
         with col2:
 
             open_card()
@@ -236,7 +306,9 @@ def show_dashboard():
                 "#ff4b5c"
             )
 
-            display_list(missing)
+            display_list(
+                missing
+            )
 
             close_card()
 
@@ -251,6 +323,7 @@ def show_dashboard():
         col1, col2, col3, col4, col5 = st.columns(5)
 
         # EDUCATION
+
         with col1:
 
             open_card()
@@ -260,11 +333,14 @@ def show_dashboard():
                 "#4da6ff"
             )
 
-            display_list(education)
+            display_list(
+                education
+            )
 
             close_card()
 
         # EXPERIENCE
+
         with col2:
 
             open_card()
@@ -274,11 +350,14 @@ def show_dashboard():
                 "#ffaa00"
             )
 
-            display_list(experience)
+            display_list(
+                experience
+            )
 
             close_card()
 
         # PROJECTS
+
         with col3:
 
             open_card()
@@ -288,11 +367,14 @@ def show_dashboard():
                 "#b366ff"
             )
 
-            display_list(projects)
+            display_list(
+                projects
+            )
 
             close_card()
 
         # CERTIFICATES
+
         with col4:
 
             open_card()
@@ -302,11 +384,14 @@ def show_dashboard():
                 "#ff66cc"
             )
 
-            display_list(certificates)
+            display_list(
+                certificates
+            )
 
             close_card()
 
         # SKILLS
+
         with col5:
 
             open_card()
@@ -316,7 +401,9 @@ def show_dashboard():
                 "#00cc66"
             )
 
-            display_list(skills)
+            display_list(
+                skills
+            )
 
             close_card()
 
@@ -345,7 +432,7 @@ def show_dashboard():
         else:
 
             st.write(
-                "No jobs found"
+                "No recommended jobs found"
             )
 
         close_card()
