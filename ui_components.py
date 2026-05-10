@@ -9,7 +9,13 @@ def open_card():
 
     st.markdown(
         """
-        <div class="card">
+        <div style="
+            background-color:#1e1e2f;
+            padding:20px;
+            border-radius:18px;
+            margin-bottom:20px;
+            box-shadow:0px 4px 20px rgba(0,0,0,0.35);
+        ">
         """,
         unsafe_allow_html=True
     )
@@ -39,9 +45,9 @@ def section_title(title, color="#ffffff"):
         f"""
         <h3 style="
             color:{color};
+            font-size:24px;
             font-weight:bold;
             margin-bottom:15px;
-            font-size:26px;
         ">
             {title}
         </h3>
@@ -78,19 +84,28 @@ def display_list(items):
 
             st.markdown(
                 f"""
-                <p style="
-                    font-size:18px;
-                    margin-bottom:10px;
+                <div style="
                     color:white;
+                    font-size:17px;
+                    margin-bottom:10px;
+                    line-height:1.6;
                 ">
                     🔹 {clean_item}
-                </p>
+                </div>
                 """,
                 unsafe_allow_html=True
             )
 
     else:
 
-        st.write(
-            "No data found"
+        st.markdown(
+            """
+            <div style="
+                color:#cccccc;
+                font-size:16px;
+            ">
+                No data found
+            </div>
+            """,
+            unsafe_allow_html=True
         )
