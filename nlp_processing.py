@@ -1,17 +1,4 @@
 import re
-import nltk
-
-from nltk.tokenize import word_tokenize
-
-# =====================================================
-# DOWNLOAD NLTK DATA
-# =====================================================
-
-try:
-    nltk.data.find("tokenizers/punkt")
-
-except LookupError:
-    nltk.download("punkt")
 
 
 # =====================================================
@@ -26,8 +13,8 @@ def preprocess(text):
     # Remove extra spaces
     text = re.sub(r"\s+", " ", text)
 
-    # Tokenize
-    tokens = word_tokenize(text)
+    # Simple tokenization
+    tokens = text.split()
 
     return tokens
 
@@ -44,10 +31,8 @@ def clean_lines(text):
 
     for line in lines:
 
-        # Remove extra spaces
         line = line.strip()
 
-        # Ignore empty/small lines
         if len(line) > 2:
 
             cleaned.append(line)
@@ -89,7 +74,7 @@ def extract_sections(text):
     skills = []
 
     # =====================================================
-    # SECTION KEYWORDS
+    # KEYWORDS
     # =====================================================
 
     education_keywords = [
@@ -105,8 +90,7 @@ def extract_sections(text):
     experience_keywords = [
         "experience",
         "internship",
-        "work experience",
-        "employment"
+        "work"
     ]
 
     project_keywords = [
@@ -117,8 +101,7 @@ def extract_sections(text):
     certificate_keywords = [
         "certificate",
         "certification",
-        "achievement",
-        "achievements"
+        "achievement"
     ]
 
     skill_keywords = [
@@ -127,8 +110,7 @@ def extract_sections(text):
         "programming",
         "languages",
         "tools",
-        "technologies",
-        "frameworks"
+        "technologies"
     ]
 
     # =====================================================
@@ -140,27 +122,27 @@ def extract_sections(text):
         lower = line.lower()
 
         # EDUCATION
-        if any(keyword in lower for keyword in education_keywords):
+        if any(word in lower for word in education_keywords):
 
             education.append(line)
 
         # EXPERIENCE
-        elif any(keyword in lower for keyword in experience_keywords):
+        elif any(word in lower for word in experience_keywords):
 
             experience.append(line)
 
         # PROJECTS
-        elif any(keyword in lower for keyword in project_keywords):
+        elif any(word in lower for word in project_keywords):
 
             projects.append(line)
 
         # CERTIFICATES
-        elif any(keyword in lower for keyword in certificate_keywords):
+        elif any(word in lower for word in certificate_keywords):
 
             certificates.append(line)
 
         # SKILLS
-        elif any(keyword in lower for keyword in skill_keywords):
+        elif any(word in lower for word in skill_keywords):
 
             skills.append(line)
 
@@ -177,10 +159,6 @@ def extract_sections(text):
     certificates = remove_duplicates(certificates)
 
     skills = remove_duplicates(skills)
-
-    # =====================================================
-    # RETURN RESULTS
-    # =====================================================
 
     return (
         education,
