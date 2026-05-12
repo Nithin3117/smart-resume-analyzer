@@ -1,53 +1,36 @@
 import streamlit as st
+import PyPDF2
+import docx
+import plotly.graph_objects as go
 
 from auth import signup, login
-from chatbot import chatbot_response
-
-from resume_parser import (
-    extract_text_pdf,
-    extract_text_docx
-)
-
-from charts import create_gauge
-
 from job_link_extractor import extract_job_text
 from nlp_processing import preprocess, extract_sections
-
-from skill_extractor import (
-    load_skills,
-    extract_skills
-)
-
-from job_matcher import (
-    extract_job_skills,
-    calculate_match
-)
+from skill_extractor import load_skills, extract_skills
+from job_matcher import extract_job_skills, calculate_match
 
 from score_breakdown import calculate_breakdown
 from ai_resume_improver import improve_resume
 from job_recommender import recommend_jobs
+from keyword_analyzer import analyze_keywords
+
+# GEMINI AI
+from gemini_ai import (
+    generate_ai_resume_review,
+    ask_ai
+)
 
 
-# =====================================================
-# PAGE CONFIG
-# =====================================================
-
+# ---------- PAGE CONFIG ----------
 st.set_page_config(
     page_title="Smart Resume Analyzer",
     layout="wide"
 )
 
 
-# =====================================================
-# PREMIUM UI
-# =====================================================
-
+# ---------- PREMIUM UI ----------
 st.markdown("""
 <style>
-
-html, body, [class*="css"] {
-    font-family: 'Segoe UI', sans-serif;
-}
 
 .main {
     background-color: #0f1117;
@@ -62,7 +45,7 @@ html, body, [class*="css"] {
 }
 
 .title {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: bold;
     margin-bottom: 15px;
 }
@@ -87,20 +70,12 @@ html, body, [class*="css"] {
     color: #b366ff;
 }
 
-.stButton > button {
+.stButton>button {
     width: 100%;
     border-radius: 12px;
     height: 3em;
     font-size: 16px;
     font-weight: bold;
-    background-color: #00cc66;
-    color: white;
-    border: none;
-}
-
-.stButton > button:hover {
-    background-color: #00aa55;
-    color: white;
 }
 
 a {
@@ -117,17 +92,115 @@ a:hover {
 """, unsafe_allow_html=True)
 
 
-# =====================================================
-# SESSION
-# =====================================================
-
+# ---------- SESSION ----------
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 
-# =====================================================
-# LOGIN PAGE
-# =====================================================
+# ---------- FILE READERS ----------
+def extract_text_pdf(file):
+
+    text = ""
+
+    reader = PyPDF2.PdfReader(file)
+
+    for page in reader.pages:
+
+        extracted = page.extract_text()
+
+        if extracted:
+            text += extracted
+
+    return text
+
+
+def extract_text_docx(file):
+
+    doc = docx.Document(file)
+
+    text = ""
+
+    for para in doc.paragraphs:
+        text += para.text + "\n"
+
+    return text
+
+
+# ---------- ATS GAUGE ----------
+def create_gauge(score):
+
+    fig = go.Figure(go.Indicator(
+
+        mode="gauge+number",
+
+        value=score,
+
+        number={
+            'font': {
+                'size': 70,
+                'color': "white"
+            }
+        },
+
+        title={
+            'text': "Resume Match Score",
+            'font': {
+                'size': 32,
+                'color': "white"
+            }
+        },
+
+        gauge={
+
+            'axis': {
+                'range': [0, 100]
+            },
+
+            'bar': {
+                'color': "white",
+                'thickness': 0.25
+            },
+
+            'bgcolor': "#1e1e2f",
+
+            'steps': [
+
+                {
+                    'range': [0, 40],
+                    'color': "#ff4b5c"
+                },
+
+                {
+                    'range': [40, 60],
+                    'color': "#f7c948"
+                },
+
+                {
+                    'range': [60, 85],
+                    'color': "#66ff99"
+                },
+
+                {
+                    'range': [85, 100],
+                    'color': "#00cc66"
+                }
+            ]
+        }
+    ))
+
+    fig.update_layout(
+
+        paper_bgcolor="#1e1e2f",
+
+        font={'color': "white"},
+
+        height=500
+    )
+
+    return fig
+
+
+# ================= LOGIN PAGE =================
 
 if not st.session_state.logged_in:
 
@@ -147,39 +220,25 @@ if not st.session_state.logged_in:
         type="password"
     )
 
-    # =====================================================
     # SIGNUP
-    # =====================================================
-
     if option == "Signup":
 
         if st.button("Create Account"):
 
-            success, msg = signup(
-                email,
-                password
-            )
+            success, msg = signup(email, password)
 
             if success:
-
                 st.success(msg)
 
             else:
-
                 st.error(msg)
 
-    # =====================================================
     # LOGIN
-    # =====================================================
-
     else:
 
         if st.button("Login"):
 
-            success, msg = login(
-                email,
-                password
-            )
+            success, msg = login(email, password)
 
             if success:
 
@@ -190,21 +249,15 @@ if not st.session_state.logged_in:
                 st.rerun()
 
             else:
-
                 st.error(msg)
 
 
-# =====================================================
-# MAIN DASHBOARD
-# =====================================================
+# ================= DASHBOARD =================
 
 else:
 
-    # =====================================================
-    # SIDEBAR
-    # =====================================================
-
-    st.sidebar.title("🤖 AI Resume Assistant")
+    # ---------- AI CHATBOT SIDEBAR ----------
+    st.sidebar.title("🤖 Gemini AI Assistant")
 
     user_question = st.sidebar.text_input(
         "Ask something about your resume"
@@ -212,18 +265,25 @@ else:
 
     if user_question:
 
-        answer = chatbot_response(
-            user_question
-        )
+        with st.sidebar:
 
-        st.sidebar.success(answer)
+            with st.spinner("Thinking..."):
 
+                answer = ask_ai(
+                    user_question
+                )
+
+                st.success(answer)
+
+    # ---------- SIDEBAR NAVIGATION ----------
     st.sidebar.markdown("---")
 
     st.sidebar.title("📌 Navigation")
 
     page = st.sidebar.radio(
+
         "Go To",
+
         [
             "Dashboard",
             "About Project",
@@ -231,28 +291,19 @@ else:
         ]
     )
 
-    # =====================================================
-    # DASHBOARD PAGE
-    # =====================================================
-
+    # ================= DASHBOARD =================
     if page == "Dashboard":
 
         st.title("🚀 Smart Resume Analyzer Dashboard")
 
-        # =====================================================
         # LOGOUT
-        # =====================================================
-
         if st.button("Logout"):
 
             st.session_state.logged_in = False
 
             st.rerun()
 
-        # =====================================================
         # INPUTS
-        # =====================================================
-
         uploaded_file = st.file_uploader(
             "📄 Upload Resume",
             type=["pdf", "docx"]
@@ -265,21 +316,12 @@ else:
         job_text = ""
 
         if job_url:
+            job_text = extract_job_text(job_url)
 
-            job_text = extract_job_text(
-                job_url
-            )
-
-        # =====================================================
-        # AFTER UPLOAD
-        # =====================================================
-
+        # MAIN PROCESS
         if uploaded_file:
 
-            # =====================================================
             # READ RESUME
-            # =====================================================
-
             if uploaded_file.type == "application/pdf":
 
                 resume_text = extract_text_pdf(
@@ -292,18 +334,10 @@ else:
                     uploaded_file
                 )
 
-            # =====================================================
-            # NLP PROCESSING
-            # =====================================================
+            # NLP
+            tokens = preprocess(resume_text)
 
-            tokens = preprocess(
-                resume_text
-            )
-
-            # =====================================================
             # SKILLS
-            # =====================================================
-
             skills_list = load_skills(
                 "skills.txt"
             )
@@ -318,27 +352,18 @@ else:
                 skills_list
             )
 
-            # =====================================================
             # SCORE
-            # =====================================================
-
             score, matched, missing = calculate_match(
                 resume_skills,
                 job_skills
             )
 
-            # =====================================================
-            # RESUME SECTIONS
-            # =====================================================
-
-            education, experience, projects, certificates, skills = extract_sections(
+            # SECTIONS
+            education, experience, projects = extract_sections(
                 resume_text
             )
 
-            # =====================================================
             # BREAKDOWN
-            # =====================================================
-
             breakdown = calculate_breakdown(
                 score,
                 matched,
@@ -348,17 +373,9 @@ else:
                 projects
             )
 
-            # =====================================================
-            # SCORE CARD
-            # =====================================================
-
+            # ---------- ATS SCORE ----------
             st.markdown(
                 '<div class="card">',
-                unsafe_allow_html=True
-            )
-
-            st.markdown(
-                '<div class="title">📊 Resume Match Score</div>',
                 unsafe_allow_html=True
             )
 
@@ -366,7 +383,7 @@ else:
                 create_gauge(score),
                 use_container_width=True,
                 config={
-                    "displayModeBar": False
+                    'displayModeBar': False
                 }
             )
 
@@ -375,17 +392,14 @@ else:
                 unsafe_allow_html=True
             )
 
-            # =====================================================
-            # ATS BREAKDOWN
-            # =====================================================
-
+            # ---------- ATS BREAKDOWN ----------
             st.markdown(
                 '<div class="card">',
                 unsafe_allow_html=True
             )
 
             st.markdown(
-                '<div class="title">📈 ATS Resume Breakdown</div>',
+                '<div class="title">📊 ATS Resume Breakdown</div>',
                 unsafe_allow_html=True
             )
 
@@ -394,8 +408,8 @@ else:
             )
 
             for col, (key, value) in zip(
-                cols,
-                breakdown.items()
+                    cols,
+                    breakdown.items()
             ):
 
                 with col:
@@ -410,324 +424,66 @@ else:
                 unsafe_allow_html=True
             )
 
-            # =====================================================
-            # SKILLS ANALYSIS
-            # =====================================================
-
+            # ---------- AI IMPROVER ----------
             st.markdown(
-                "## 🛠️ Skills Analysis"
+                '<div class="card">',
+                unsafe_allow_html=True
             )
 
-            col1, col2 = st.columns(2)
-
-            # =====================================================
-            # MATCHED SKILLS
-            # =====================================================
-
-            with col1:
-
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
-                )
-
-                st.markdown(
-                    '<div class="title green">✅ Matched Skills</div>',
-                    unsafe_allow_html=True
-                )
-
-                if matched:
-
-                    for skill in matched:
-
-                        clean_skill = (
-                            skill
-                            .replace("•", "")
-                            .replace("-", "")
-                            .strip()
-                        )
-
-                        st.markdown(
-                            f"🔹 {clean_skill.upper()}"
-                        )
-
-                else:
-
-                    st.write(
-                        "No matched skills found"
-                    )
-
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
-
-            # =====================================================
-            # MISSING SKILLS
-            # =====================================================
-
-            with col2:
-
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
-                )
-
-                st.markdown(
-                    '<div class="title red">❌ Missing Skills</div>',
-                    unsafe_allow_html=True
-                )
-
-                if missing:
-
-                    for skill in missing:
-
-                        clean_skill = (
-                            skill
-                            .replace("•", "")
-                            .replace("-", "")
-                            .strip()
-                        )
-
-                        st.markdown(
-                            f"🔹 {clean_skill.upper()}"
-                        )
-
-                else:
-
-                    st.success(
-                        "No missing skills 🎉"
-                    )
-
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
-
-            # =====================================================
-            # RESUME DETAILS
-            # =====================================================
-
             st.markdown(
-                "## 📋 Resume Details"
+                '<div class="title">✨ AI Resume Improvement Generator</div>',
+                unsafe_allow_html=True
             )
 
-            col1, col2, col3, col4, col5 = st.columns(5)
+            if st.button("Generate Improvements"):
 
-            # =====================================================
-            # EDUCATION
-            # =====================================================
-
-            with col1:
-
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
+                improvements = improve_resume(
+                    missing,
+                    education,
+                    experience,
+                    projects,
+                    resume_text
                 )
 
-                st.markdown(
-                    '<div class="title blue">🎓 Education</div>',
-                    unsafe_allow_html=True
-                )
+                for tip in improvements:
+                    st.markdown(f"➡ {tip}")
 
-                if education:
+            st.markdown(
+                '</div>',
+                unsafe_allow_html=True
+            )
 
-                    for item in education:
+            # ---------- GEMINI AI REVIEW ----------
+            st.markdown(
+                '<div class="card">',
+                unsafe_allow_html=True
+            )
 
-                        clean_item = (
-                            item
-                            .replace("•", "")
-                            .replace("-", "")
-                            .strip()
-                        )
+            st.markdown(
+                '<div class="title">🤖 Gemini AI Resume Review</div>',
+                unsafe_allow_html=True
+            )
 
-                        st.markdown(
-                            f"🔹 {clean_item}"
-                        )
+            if st.button("Generate AI Resume Review"):
 
-                else:
+                with st.spinner(
+                        "Gemini AI is analyzing your resume..."
+                ):
 
-                    st.write(
-                        "No education details found"
+                    ai_review = generate_ai_resume_review(
+                        resume_text,
+                        missing,
+                        score
                     )
 
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
+                    st.write(ai_review)
 
-            # =====================================================
-            # EXPERIENCE
-            # =====================================================
+            st.markdown(
+                '</div>',
+                unsafe_allow_html=True
+            )
 
-            with col2:
-
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
-                )
-
-                st.markdown(
-                    '<div class="title orange">💼 Experience</div>',
-                    unsafe_allow_html=True
-                )
-
-                if experience:
-
-                    for item in experience:
-
-                        clean_item = (
-                            item
-                            .replace("•", "")
-                            .replace("-", "")
-                            .strip()
-                        )
-
-                        st.markdown(
-                            f"🔹 {clean_item}"
-                        )
-
-                else:
-
-                    st.write(
-                        "No experience details found"
-                    )
-
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
-
-            # =====================================================
-            # PROJECTS
-            # =====================================================
-
-            with col3:
-
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
-                )
-
-                st.markdown(
-                    '<div class="title purple">🚀 Projects</div>',
-                    unsafe_allow_html=True
-                )
-
-                if projects:
-
-                    for project in projects:
-
-                        clean_project = (
-                            project
-                            .replace("•", "")
-                            .replace("-", "")
-                            .strip()
-                        )
-
-                        st.markdown(
-                            f"🔹 {clean_project}"
-                        )
-
-                else:
-
-                    st.write(
-                        "No project details found"
-                    )
-
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
-
-            # =====================================================
-            # CERTIFICATES
-            # =====================================================
-
-            with col4:
-
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
-                )
-
-                st.markdown(
-                    '<div class="title purple">🏆 Certificates</div>',
-                    unsafe_allow_html=True
-                )
-
-                if certificates:
-
-                    for item in certificates:
-
-                        clean_item = (
-                            item
-                            .replace("•", "")
-                            .replace("-", "")
-                            .strip()
-                        )
-
-                        st.markdown(
-                            f"🔹 {clean_item}"
-                        )
-
-                else:
-
-                    st.write(
-                        "No certificate details found"
-                    )
-
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
-
-            # =====================================================
-            # SKILLS
-            # =====================================================
-
-            with col5:
-
-                st.markdown(
-                    '<div class="card">',
-                    unsafe_allow_html=True
-                )
-
-                st.markdown(
-                    '<div class="title green">🛠 Skills</div>',
-                    unsafe_allow_html=True
-                )
-
-                if skills:
-
-                    for item in skills:
-
-                        clean_item = (
-                            item
-                            .replace("•", "")
-                            .replace("-", "")
-                            .strip()
-                        )
-
-                        st.markdown(
-                            f"🔹 {clean_item}"
-                        )
-
-                else:
-
-                    st.write(
-                        "No skills found"
-                    )
-
-                st.markdown(
-                    '</div>',
-                    unsafe_allow_html=True
-                )
-
-            # =====================================================
-            # RECOMMENDED JOBS
-            # =====================================================
-
+            # ---------- JOB RECOMMENDATIONS ----------
             st.markdown(
                 '<div class="card">',
                 unsafe_allow_html=True
@@ -745,7 +501,7 @@ else:
             for job in recommended_jobs:
 
                 st.markdown(
-                    f"🔹 [{job['title']}]({job['link']})"
+                    f"➡ [{job['title']}]({job['link']})"
                 )
 
             st.markdown(
@@ -753,43 +509,27 @@ else:
                 unsafe_allow_html=True
             )
 
-            # =====================================================
-            # AI IMPROVEMENTS
-            # =====================================================
-
+            # ---------- KEYWORD ANALYZER ----------
             st.markdown(
                 '<div class="card">',
                 unsafe_allow_html=True
             )
 
             st.markdown(
-                '<div class="title">✨ AI Resume Improvement Generator</div>',
+                '<div class="title">📈 Resume Keyword Density</div>',
                 unsafe_allow_html=True
             )
 
-            if st.button(
-                "Generate Improvements"
-            ):
+            keywords = analyze_keywords(
+                resume_text
+            )
 
-                improvements = improve_resume(
-                    missing,
-                    education,
-                    experience,
-                    projects,
-                    resume_text
-                )
+            if keywords:
 
-                for tip in improvements:
-
-                    clean_tip = (
-                        tip
-                        .replace("•", "")
-                        .replace("-", "")
-                        .strip()
-                    )
+                for word, count in keywords:
 
                     st.markdown(
-                        f"🔹 {clean_tip}"
+                        f"➡ **{word.upper()}** — {count} times"
                     )
 
             st.markdown(
@@ -797,59 +537,94 @@ else:
                 unsafe_allow_html=True
             )
 
-    # =====================================================
-    # ABOUT PROJECT
-    # =====================================================
+            # ---------- MATCHED / MISSING ----------
+            col1, col2 = st.columns(2)
 
+            with col1:
+
+                st.markdown(
+                    '<div class="card">',
+                    unsafe_allow_html=True
+                )
+
+                st.markdown(
+                    '<div class="title green">✅ Matched Skills</div>',
+                    unsafe_allow_html=True
+                )
+
+                for skill in matched:
+                    st.markdown(
+                        f"➡ {skill.upper()}"
+                    )
+
+                st.markdown(
+                    '</div>',
+                    unsafe_allow_html=True
+                )
+
+            with col2:
+
+                st.markdown(
+                    '<div class="card">',
+                    unsafe_allow_html=True
+                )
+
+                st.markdown(
+                    '<div class="title red">❌ Missing Skills</div>',
+                    unsafe_allow_html=True
+                )
+
+                for skill in missing:
+                    st.markdown(
+                        f"➡ {skill.upper()}"
+                    )
+
+                st.markdown(
+                    '</div>',
+                    unsafe_allow_html=True
+                )
+
+    # ================= ABOUT PAGE =================
     elif page == "About Project":
 
-        st.title(
-            "📘 About Project"
-        )
+        st.title("📘 About Project")
 
         st.markdown("""
 
-## Smart Resume Analyzer
+        ## Smart Resume Analyzer
 
-This project helps users:
+        AI-powered Resume Analyzer using:
 
-- Analyze ATS compatibility
-- Match skills with job descriptions
-- Get AI-based resume improvements
-- Discover recommended jobs
-- Improve resume quality
+        - Gemini AI
+        - NLP
+        - ATS Matching
+        - Streamlit
+        - Plotly
 
-### Features
+        ### Features
 
-✅ Resume Match Score  
-✅ ATS Resume Breakdown  
-✅ Skill Analysis  
-✅ Resume Details  
-✅ Recommended Jobs  
-✅ AI Resume Improvement Generator  
-✅ AI Chatbot Assistant  
+        ✅ ATS Score  
+        ✅ Gemini AI Review  
+        ✅ Job Recommendations  
+        ✅ Keyword Analysis  
+        ✅ AI Chatbot  
 
-""")
+        """)
 
-    # =====================================================
-    # TECH STACK
-    # =====================================================
-
+    # ================= TECH STACK =================
     elif page == "Tech Stack":
 
-        st.title(
-            "🛠️ Technologies Used"
-        )
+        st.title("🛠️ Technologies Used")
 
         st.markdown("""
 
-| Technology | Purpose |
-|---|---|
-| Python | Backend |
-| Streamlit | Frontend |
-| Plotly | Charts |
-| NLP | Text Processing |
-| PyPDF2 | PDF Reading |
-| HTML/CSS | UI Styling |
+        | Technology | Purpose |
+        |---|---|
+        | Python | Backend |
+        | Streamlit | Frontend |
+        | Gemini AI | AI |
+        | Plotly | Charts |
+        | NLP | Text Processing |
+        | PyPDF2 | PDF Parsing |
 
-""")
+        """)
