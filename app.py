@@ -109,7 +109,7 @@ def extract_sections(text):
         "certificates": [
             "certifications",
             "certificates",
-            "achievements"
+            "achievement"
         ],
 
         "skills": [
@@ -484,13 +484,15 @@ else:
 
             st.subheader("📋 Resume Summary")
 
-            col1, col2 = st.columns(2)
+            # 5 COLUMNS IN SINGLE ROW
 
-            # LEFT SIDE
+            col1, col2, col3, col4, col5 = st.columns(5)
+
+            # =====================================================
+            # EDUCATION
+            # =====================================================
 
             with col1:
-
-                # EDUCATION
 
                 st.markdown("### 🎓 Education")
 
@@ -502,15 +504,17 @@ else:
 
                     st.write("No education found")
 
-                st.markdown("---")
+            # =====================================================
+            # EXPERIENCE
+            # =====================================================
 
-                # EXPERIENCE
+            with col2:
 
                 st.markdown("### 💼 Experience")
 
                 if experience:
 
-                    for exp in experience[:3]:
+                    for exp in experience[:2]:
 
                         st.write(f"🔹 {exp}")
 
@@ -518,27 +522,11 @@ else:
 
                     st.write("No experience found")
 
-            # RIGHT SIDE
+            # =====================================================
+            # TOP SKILLS
+            # =====================================================
 
-            with col2:
-
-                # PROJECTS
-
-                st.markdown("### 🚀 Projects")
-
-                if projects:
-
-                    for project in projects[:3]:
-
-                        st.write(f"🔹 {project}")
-
-                else:
-
-                    st.write("No projects found")
-
-                st.markdown("---")
-
-                # TOP SKILLS
+            with col3:
 
                 st.markdown("### 🛠 Top Skills")
 
@@ -555,6 +543,55 @@ else:
                 else:
 
                     st.write("No skills found")
+
+            # =====================================================
+            # CERTIFICATES
+            # =====================================================
+
+            with col4:
+
+                st.markdown("### 🏆 Certificates")
+
+                valid_certificates = []
+
+                for cert in certificates:
+
+                    cert_lower = cert.lower()
+
+                    if (
+                        "certificate" in cert_lower
+                        or "certification" in cert_lower
+                    ):
+
+                        valid_certificates.append(cert)
+
+                if valid_certificates:
+
+                    for cert in valid_certificates[:3]:
+
+                        st.write(f"🔹 {cert}")
+
+                else:
+
+                    st.write("No certificates found")
+
+            # =====================================================
+            # PROJECTS
+            # =====================================================
+
+            with col5:
+
+                st.markdown("### 🚀 Projects")
+
+                if projects:
+
+                    for project in projects[:2]:
+
+                        st.write(f"🔹 {project}")
+
+                else:
+
+                    st.write("No projects found")
 
             st.divider()
 
