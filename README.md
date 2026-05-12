@@ -2,7 +2,7 @@
 
 An AI-powered ATS Resume Analyzer built using Python and Streamlit.
 
--> Features
+## Features
 
 - ATS Resume Compatibility Score
 - Resume Skill Extraction
