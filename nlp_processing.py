@@ -1,57 +1,104 @@
 import re
 
 
+# =====================================================
+# PREPROCESS TEXT
+# =====================================================
+
 def preprocess(text):
 
     text = text.lower()
 
-    tokens = re.findall(r'\b[a-z]+\b', text)
+    text = re.sub(r"\s+", " ", text)
 
-    return tokens
+    return text.split()
 
+
+# =====================================================
+# EXTRACT RESUME SECTIONS
+# =====================================================
 
 def extract_sections(text):
 
-    text = text.lower()
-
-    education = []
-    experience = []
-    projects = []
-
     lines = text.split("\n")
 
-    current_section = None
+    cleaned = []
 
     for line in lines:
 
         line = line.strip()
 
-        if line == "":
-            continue
+        if len(line) > 2:
 
-        # Detect section names
-        if "education" in line:
-            current_section = "education"
-            continue
+            cleaned.append(line)
 
-        elif "experience" in line or "internship" in line:
-            current_section = "experience"
-            continue
+    education = []
+    experience = []
+    projects = []
+    certificates = []
+    skills = []
 
-        elif "project" in line:
-            current_section = "projects"
-            continue
+    for line in cleaned:
 
-        # Store section content
-        if len(line.split()) > 3:
+        lower = line.lower()
 
-            if current_section == "education":
-                education.append(line)
+        # EDUCATION
 
-            elif current_section == "experience":
-                experience.append(line)
+        if any(word in lower for word in [
+            "education",
+            "college",
+            "university",
+            "b.tech",
+            "cgpa"
+        ]):
 
-            elif current_section == "projects":
-                projects.append(line)
+            education.append(line)
 
-    return education, experience, projects
+        # EXPERIENCE
+
+        elif any(word in lower for word in [
+            "experience",
+            "internship",
+            "work"
+        ]):
+
+            experience.append(line)
+
+        # PROJECTS
+
+        elif any(word in lower for word in [
+            "project",
+            "projects"
+        ]):
+
+            projects.append(line)
+
+        # CERTIFICATES
+
+        elif any(word in lower for word in [
+            "certificate",
+            "certification",
+            "achievement"
+        ]):
+
+            certificates.append(line)
+
+        # SKILLS
+
+        elif any(word in lower for word in [
+            "skills",
+            "technical",
+            "programming",
+            "tools",
+            "technologies"
+        ]):
+
+            skills.append(line)
+
+    return (
+        list(set(education)),
+        list(set(experience)),
+        list(set(projects)),
+        list(set(certificates)),
+        list(set(skills))
+    )
