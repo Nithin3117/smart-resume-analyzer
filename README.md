@@ -35,11 +35,7 @@ An AI-powered ATS Resume Analyzer built using Python and Streamlit.
 
 -> Live Demo
 
-(Add Streamlit deployment link)
-
--> GitHub Repository
-
-(Add GitHub repository link)
+https://smart-resume-analyzer-em4ajd4gnpkfkzis9j5giq.streamlit.app/#resume-details
 
 -> Author
 
