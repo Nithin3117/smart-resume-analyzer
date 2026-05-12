@@ -1,6 +1,3 @@
-# Final `app.py` (Single File Version)
-
-```python
 import streamlit as st
 import re
 
@@ -26,7 +23,7 @@ st.set_page_config(
 
 
 # =====================================================
-# STYLES
+# CUSTOM CSS
 # =====================================================
 
 st.markdown(
@@ -35,14 +32,6 @@ st.markdown(
 
     html, body, [class*="css"] {
         font-family: 'Segoe UI', sans-serif;
-    }
-
-    .main {
-        background-color: #0f1117;
-    }
-
-    h1, h2, h3 {
-        color: white;
     }
 
     .stButton > button {
@@ -70,7 +59,6 @@ st.markdown(
 # PREPROCESS
 # =====================================================
 
-
 def preprocess(text):
 
     text = text.lower()
@@ -83,7 +71,6 @@ def preprocess(text):
 # =====================================================
 # EXTRACT RESUME SECTIONS
 # =====================================================
-
 
 def extract_sections(text):
 
@@ -109,6 +96,8 @@ def extract_sections(text):
 
         lower = line.lower()
 
+        # EDUCATION
+
         if any(word in lower for word in [
             "education",
             "college",
@@ -119,6 +108,8 @@ def extract_sections(text):
 
             education.append(line)
 
+        # EXPERIENCE
+
         elif any(word in lower for word in [
             "experience",
             "internship",
@@ -127,12 +118,16 @@ def extract_sections(text):
 
             experience.append(line)
 
+        # PROJECTS
+
         elif any(word in lower for word in [
             "project",
             "projects"
         ]):
 
             projects.append(line)
+
+        # CERTIFICATES
 
         elif any(word in lower for word in [
             "certificate",
@@ -141,6 +136,8 @@ def extract_sections(text):
         ]):
 
             certificates.append(line)
+
+        # SKILLS
 
         elif any(word in lower for word in [
             "skills",
@@ -555,4 +552,3 @@ else:
             | NLP | Text Processing |
             """
         )
-```
