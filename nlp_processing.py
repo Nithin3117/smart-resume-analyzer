@@ -1,17 +1,86 @@
 import re
+import nltk
 
+from nltk.tokenize import word_tokenize
+
+# =====================================================
+# DOWNLOAD NLTK DATA
+# =====================================================
+
+try:
+    nltk.data.find("tokenizers/punkt")
+
+except LookupError:
+    nltk.download("punkt")
+
+
+# =====================================================
+# PREPROCESS TEXT
+# =====================================================
 
 def preprocess(text):
 
+    # Convert to lowercase
     text = text.lower()
 
-    tokens = re.findall(r'\b[a-z]+\b', text)
+    # Remove extra spaces
+    text = re.sub(r"\s+", " ", text)
+
+    # Tokenize
+    tokens = word_tokenize(text)
 
     return tokens
 
-def extract_sections(text):
+
+# =====================================================
+# CLEAN LINES
+# =====================================================
+
+def clean_lines(text):
 
     lines = text.split("\n")
+
+    cleaned = []
+
+    for line in lines:
+
+        # Remove extra spaces
+        line = line.strip()
+
+        # Ignore empty/small lines
+        if len(line) > 2:
+
+            cleaned.append(line)
+
+    return cleaned
+
+
+# =====================================================
+# REMOVE DUPLICATES
+# =====================================================
+
+def remove_duplicates(items):
+
+    unique = []
+
+    for item in items:
+
+        item = item.strip()
+
+        if item and item not in unique:
+
+            unique.append(item)
+
+    return unique
+
+
+# =====================================================
+# EXTRACT RESUME SECTIONS
+# =====================================================
+
+def extract_sections(text):
+
+    lines = clean_lines(text)
 
     education = []
     experience = []
@@ -19,111 +88,99 @@ def extract_sections(text):
     certificates = []
     skills = []
 
-    current_section = None
+    # =====================================================
+    # SECTION KEYWORDS
+    # =====================================================
 
-    current_project = ""
+    education_keywords = [
+        "education",
+        "college",
+        "university",
+        "b.tech",
+        "bachelor",
+        "cgpa",
+        "school"
+    ]
+
+    experience_keywords = [
+        "experience",
+        "internship",
+        "work experience",
+        "employment"
+    ]
+
+    project_keywords = [
+        "project",
+        "projects"
+    ]
+
+    certificate_keywords = [
+        "certificate",
+        "certification",
+        "achievement",
+        "achievements"
+    ]
+
+    skill_keywords = [
+        "skills",
+        "technical skills",
+        "programming",
+        "languages",
+        "tools",
+        "technologies",
+        "frameworks"
+    ]
+
+    # =====================================================
+    # EXTRACT DATA
+    # =====================================================
 
     for line in lines:
 
-        line = line.strip()
-
-        if not line:
-            continue
-
         lower = line.lower()
 
-        # =====================================================
-        # SECTION HEADINGS
-        # =====================================================
-
-        if "education" in lower:
-
-            current_section = "education"
-            continue
-
-        elif "experience" in lower:
-
-            current_section = "experience"
-            continue
-
-        elif "project" in lower:
-
-            current_section = "projects"
-            continue
-
-        elif (
-            "certificate" in lower or
-            "certification" in lower or
-            "achievement" in lower
-        ):
-
-            current_section = "certificates"
-            continue
-
-        elif (
-            "skill" in lower or
-            "technical skill" in lower
-        ):
-
-            current_section = "skills"
-            continue
-
-        # =====================================================
         # EDUCATION
-        # =====================================================
-
-        if current_section == "education":
+        if any(keyword in lower for keyword in education_keywords):
 
             education.append(line)
 
-        # =====================================================
         # EXPERIENCE
-        # =====================================================
-
-        elif current_section == "experience":
+        elif any(keyword in lower for keyword in experience_keywords):
 
             experience.append(line)
 
-        # =====================================================
         # PROJECTS
-        # =====================================================
+        elif any(keyword in lower for keyword in project_keywords):
 
-        elif current_section == "projects":
+            projects.append(line)
 
-            # MAIN PROJECT TITLE
-            if (
-                "resume analyzer" in lower or
-                "project" in lower or
-                "(" in line
-            ):
-
-                current_project = line
-
-            else:
-
-                if current_project:
-
-                    current_project += "\n• " + line
-
-            if current_project not in projects:
-
-                projects.append(current_project)
-
-        # =====================================================
         # CERTIFICATES
-        # =====================================================
-
-        elif current_section == "certificates":
+        elif any(keyword in lower for keyword in certificate_keywords):
 
             certificates.append(line)
 
-        # =====================================================
         # SKILLS
-        # =====================================================
-
-        elif current_section == "skills":
+        elif any(keyword in lower for keyword in skill_keywords):
 
             skills.append(line)
+
+    # =====================================================
+    # REMOVE DUPLICATES
+    # =====================================================
+
+    education = remove_duplicates(education)
+
+    experience = remove_duplicates(experience)
+
+    projects = remove_duplicates(projects)
+
+    certificates = remove_duplicates(certificates)
+
+    skills = remove_duplicates(skills)
+
+    # =====================================================
+    # RETURN RESULTS
+    # =====================================================
 
     return (
         education,
