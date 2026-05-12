@@ -498,7 +498,11 @@ else:
 
                 if education:
 
-                    st.write(f"🔹 {education[0]}")
+                    # SHOW TOP 3 EDUCATION DETAILS
+
+                    for edu in education[:3]:
+
+                        st.write(f"🔹 {edu}")
 
                 else:
 
@@ -523,12 +527,12 @@ else:
                     st.write("No experience found")
 
             # =====================================================
-            # TOP SKILLS
+            # SKILLS
             # =====================================================
 
             with col3:
 
-                st.markdown("### 🛠 Top Skills")
+                st.markdown("### 🛠 Skills")
 
                 if resume_skills:
 
@@ -585,7 +589,7 @@ else:
 
                 if projects:
 
-                    for project in projects[:2]:
+                    for project in projects[:3]:
 
                         st.write(f"🔹 {project}")
 
