@@ -74,87 +74,141 @@ def preprocess(text):
 
 def extract_sections(text):
 
-    lines = text.split("\n")
+    text = text.replace("\t", "\n")
 
-    cleaned = []
+    lines = [
+        line.strip()
+        for line in text.split("\n")
+        if line.strip()
+    ]
+
+    # =====================================================
+    # SECTION HEADINGS
+    # =====================================================
+
+    section_keywords = {
+
+        "education": [
+            "education",
+            "academic details",
+            "academic background"
+        ],
+
+        "experience": [
+            "experience",
+            "work experience",
+            "internship",
+            "employment"
+        ],
+
+        "projects": [
+            "projects",
+            "project"
+        ],
+
+        "certificates": [
+            "certifications",
+            "certificates",
+            "achievements"
+        ],
+
+        "skills": [
+            "skills",
+            "technical skills",
+            "tools",
+            "technologies"
+        ]
+    }
+
+    # =====================================================
+    # STORAGE
+    # =====================================================
+
+    sections = {
+        "education": [],
+        "experience": [],
+        "projects": [],
+        "certificates": [],
+        "skills": []
+    }
+
+    current_section = None
+
+    # =====================================================
+    # DETECT SECTIONS
+    # =====================================================
 
     for line in lines:
 
-        line = line.strip()
+        clean_line = line.lower().strip()
 
-        if len(line) > 2:
+        found_new_section = False
 
-            cleaned.append(line)
+        # CHECK SECTION TITLES
 
-    education = []
-    experience = []
-    projects = []
-    certificates = []
-    skills = []
+        for section, keywords in section_keywords.items():
 
-    for line in cleaned:
+            if clean_line in keywords:
 
-        lower = line.lower()
+                current_section = section
+                found_new_section = True
+                break
 
-        # EDUCATION
+        # SKIP SECTION TITLES
 
-        if any(word in lower for word in [
-            "education",
-            "college",
-            "university",
-            "b.tech",
-            "cgpa"
-        ]):
+        if found_new_section:
+            continue
 
-            education.append(line)
+        # ADD CONTENT UNDER CURRENT SECTION
 
-        # EXPERIENCE
+        if current_section:
 
-        elif any(word in lower for word in [
-            "experience",
-            "internship",
-            "work"
-        ]):
+            if len(line) > 3:
 
-            experience.append(line)
+                cleaned_line = re.sub(
+                    r'^[•●◦▪➤▶♦★✓✔➢➣\\-]+',
+                    '',
+                    line
+                ).strip()
 
-        # PROJECTS
+                cleaned_line = re.sub(
+                    r'\\s+',
+                    ' ',
+                    cleaned_line
+                )
 
-        elif any(word in lower for word in [
-            "project",
-            "projects"
-        ]):
+                if cleaned_line:
 
-            projects.append(line)
+                    sections[current_section].append(
+                        cleaned_line
+                    )
 
-        # CERTIFICATES
+    # =====================================================
+    # REMOVE DUPLICATES
+    # =====================================================
 
-        elif any(word in lower for word in [
-            "certificate",
-            "certification",
-            "achievement"
-        ]):
+    for key in sections:
 
-            certificates.append(line)
+        unique = []
 
-        # SKILLS
+        for item in sections[key]:
 
-        elif any(word in lower for word in [
-            "skills",
-            "technical",
-            "programming",
-            "tools",
-            "technologies"
-        ]):
+            if item not in unique:
 
-            skills.append(line)
+                unique.append(item)
+
+        sections[key] = unique
+
+    # =====================================================
+    # RETURN
+    # =====================================================
 
     return (
-        list(set(education)),
-        list(set(experience)),
-        list(set(projects)),
-        list(set(certificates)),
-        list(set(skills))
+        sections["education"],
+        sections["experience"],
+        sections["projects"],
+        sections["certificates"],
+        sections["skills"]
     )
 
 
