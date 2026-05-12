@@ -12,7 +12,7 @@ An AI-powered ATS Resume Analyzer built using Python and Streamlit.
 - Recommended Job Roles
 - PDF and DOCX Resume Support
 
--> Tech Stack
+## Tech Stack
 
 - Python
 - Streamlit
@@ -20,7 +20,7 @@ An AI-powered ATS Resume Analyzer built using Python and Streamlit.
 - Plotly
 - GitHub
 
--> Project Screenshots
+## Project Screenshots
 
 <img width="1872" height="626" alt="image" src="https://github.com/user-attachments/assets/990ab5a7-7850-4d9a-b938-dc1774eb0dc1" />
 
@@ -33,10 +33,10 @@ An AI-powered ATS Resume Analyzer built using Python and Streamlit.
 <img width="1850" height="872" alt="image" src="https://github.com/user-attachments/assets/f07af7ef-d89a-4835-9910-cc5d5ceff9e5" />
 
 
--> Live Demo
+## Live Demo
 
 https://smart-resume-analyzer-em4ajd4gnpkfkzis9j5giq.streamlit.app/#resume-details
 
--> Author
+## Author
 
 Nithin Bollineni
