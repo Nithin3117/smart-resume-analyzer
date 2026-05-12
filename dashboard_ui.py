@@ -8,8 +8,6 @@ from resume_parser import (
 from charts import create_gauge
 
 from ui_components import (
-    open_card,
-    close_card,
     section_title,
     display_list
 )
@@ -37,7 +35,7 @@ from job_recommender import recommend_jobs
 
 
 # =====================================================
-# DASHBOARD PAGE
+# DASHBOARD
 # =====================================================
 
 def show_dashboard():
@@ -81,17 +79,17 @@ def show_dashboard():
         except:
 
             st.warning(
-                "Unable to extract job description from link."
+                "Unable to fetch job description."
             )
 
     # =====================================================
-    # AFTER RESUME UPLOAD
+    # AFTER UPLOAD
     # =====================================================
 
     if uploaded_file:
 
         # =====================================================
-        # READ RESUME
+        # EXTRACT RESUME TEXT
         # =====================================================
 
         try:
@@ -111,19 +109,19 @@ def show_dashboard():
         except Exception as e:
 
             st.error(
-                f"Resume reading failed: {e}"
+                f"Resume extraction failed: {e}"
             )
 
             return
 
         # =====================================================
-        # CHECK RESUME TEXT
+        # CHECK EMPTY TEXT
         # =====================================================
 
         if not resume_text.strip():
 
             st.error(
-                "No text found in resume."
+                "No readable text found in resume."
             )
 
             return
@@ -137,16 +135,12 @@ def show_dashboard():
         )
 
         # =====================================================
-        # LOAD SKILLS
+        # SKILLS
         # =====================================================
 
         skills_list = load_skills(
             "skills.txt"
         )
-
-        # =====================================================
-        # EXTRACT SKILLS
-        # =====================================================
 
         resume_skills = extract_skills(
             tokens,
@@ -159,7 +153,7 @@ def show_dashboard():
         )
 
         # =====================================================
-        # SCORE
+        # MATCH SCORE
         # =====================================================
 
         score, matched, missing = calculate_match(
@@ -168,44 +162,12 @@ def show_dashboard():
         )
 
         # =====================================================
-        # EXTRACT RESUME SECTIONS
+        # EXTRACT SECTIONS
         # =====================================================
 
-        try:
-
-            education, experience, projects, certificates, skills = extract_sections(
-                resume_text
-            )
-
-        except Exception as e:
-
-            st.error(
-                f"Section extraction failed: {e}"
-            )
-
-            education = []
-            experience = []
-            projects = []
-            certificates = []
-            skills = []
-
-        # =====================================================
-        # DEBUG OUTPUT
-        # =====================================================
-
-        st.write("### DEBUG INFO")
-
-        st.write("Resume Text Preview:")
-        st.write(resume_text[:1000])
-
-        st.write("Education:", education)
-        st.write("Experience:", experience)
-        st.write("Projects:", projects)
-        st.write("Certificates:", certificates)
-        st.write("Skills:", skills)
-
-        st.write("Matched Skills:", matched)
-        st.write("Missing Skills:", missing)
+        education, experience, projects, certificates, skills = extract_sections(
+            resume_text
+        )
 
         # =====================================================
         # BREAKDOWN
@@ -221,13 +183,12 @@ def show_dashboard():
         )
 
         # =====================================================
-        # SCORE CARD
+        # SCORE
         # =====================================================
 
-        open_card()
-
         section_title(
-            "📊 Resume Match Score"
+            "📊 Resume Match Score",
+            "#ffffff"
         )
 
         st.plotly_chart(
@@ -238,16 +199,15 @@ def show_dashboard():
             }
         )
 
-        close_card()
+        st.divider()
 
         # =====================================================
         # ATS BREAKDOWN
         # =====================================================
 
-        open_card()
-
         section_title(
-            "📈 ATS Resume Breakdown"
+            "📈 ATS Resume Breakdown",
+            "#ffffff"
         )
 
         cols = st.columns(
@@ -262,18 +222,19 @@ def show_dashboard():
             with col:
 
                 st.metric(
-                    label=key,
-                    value=f"{value}%"
+                    key,
+                    f"{value}%"
                 )
 
-        close_card()
+        st.divider()
 
         # =====================================================
         # SKILLS ANALYSIS
         # =====================================================
 
-        st.markdown(
-            "## 🛠️ Skills Analysis"
+        section_title(
+            "🛠 Skills Analysis",
+            "#ffffff"
         )
 
         col1, col2 = st.columns(2)
@@ -281,8 +242,6 @@ def show_dashboard():
         # MATCHED SKILLS
 
         with col1:
-
-            open_card()
 
             section_title(
                 "✅ Matched Skills",
@@ -293,13 +252,9 @@ def show_dashboard():
                 matched
             )
 
-            close_card()
-
         # MISSING SKILLS
 
         with col2:
-
-            open_card()
 
             section_title(
                 "❌ Missing Skills",
@@ -310,14 +265,15 @@ def show_dashboard():
                 missing
             )
 
-            close_card()
+        st.divider()
 
         # =====================================================
         # RESUME DETAILS
         # =====================================================
 
-        st.markdown(
-            "## 📋 Resume Details"
+        section_title(
+            "📋 Resume Details",
+            "#ffffff"
         )
 
         col1, col2, col3, col4, col5 = st.columns(5)
@@ -325,8 +281,6 @@ def show_dashboard():
         # EDUCATION
 
         with col1:
-
-            open_card()
 
             section_title(
                 "🎓 Education",
@@ -337,13 +291,9 @@ def show_dashboard():
                 education
             )
 
-            close_card()
-
         # EXPERIENCE
 
         with col2:
-
-            open_card()
 
             section_title(
                 "💼 Experience",
@@ -354,13 +304,9 @@ def show_dashboard():
                 experience
             )
 
-            close_card()
-
         # PROJECTS
 
         with col3:
-
-            open_card()
 
             section_title(
                 "🚀 Projects",
@@ -371,13 +317,9 @@ def show_dashboard():
                 projects
             )
 
-            close_card()
-
         # CERTIFICATES
 
         with col4:
-
-            open_card()
 
             section_title(
                 "🏆 Certificates",
@@ -388,13 +330,9 @@ def show_dashboard():
                 certificates
             )
 
-            close_card()
-
         # SKILLS
 
         with col5:
-
-            open_card()
 
             section_title(
                 "🛠 Skills",
@@ -405,16 +343,15 @@ def show_dashboard():
                 skills
             )
 
-            close_card()
+        st.divider()
 
         # =====================================================
         # RECOMMENDED JOBS
         # =====================================================
 
-        open_card()
-
         section_title(
-            "💼 Recommended Jobs"
+            "💼 Recommended Jobs",
+            "#ffffff"
         )
 
         recommended_jobs = recommend_jobs(
@@ -432,19 +369,18 @@ def show_dashboard():
         else:
 
             st.write(
-                "No recommended jobs found"
+                "No jobs found"
             )
 
-        close_card()
+        st.divider()
 
         # =====================================================
         # AI IMPROVEMENTS
         # =====================================================
 
-        open_card()
-
         section_title(
-            "✨ AI Resume Improvement Generator"
+            "✨ AI Resume Improvement Generator",
+            "#ffffff"
         )
 
         if st.button(
@@ -462,5 +398,3 @@ def show_dashboard():
             display_list(
                 improvements
             )
-
-        close_card()
