@@ -339,7 +339,9 @@ else:
 
         if uploaded_file:
 
+            # =====================================================
             # READ RESUME
+            # =====================================================
 
             if uploaded_file.type == "application/pdf":
 
@@ -358,7 +360,9 @@ else:
                 st.error("No readable text found in resume")
                 st.stop()
 
+            # =====================================================
             # PROCESSING
+            # =====================================================
 
             tokens = preprocess(resume_text)
 
@@ -396,7 +400,9 @@ else:
                 projects
             )
 
+            # =====================================================
             # SCORE
+            # =====================================================
 
             st.subheader("📊 Resume Match Score")
 
@@ -408,7 +414,9 @@ else:
 
             st.divider()
 
-            # BREAKDOWN
+            # =====================================================
+            # ATS BREAKDOWN
+            # =====================================================
 
             st.subheader("📈 ATS Resume Breakdown")
 
@@ -428,7 +436,9 @@ else:
 
             st.divider()
 
+            # =====================================================
             # SKILLS ANALYSIS
+            # =====================================================
 
             st.subheader("🛠 Skills Analysis")
 
@@ -468,55 +478,89 @@ else:
 
             st.divider()
 
-            # RESUME DETAILS
+            # =====================================================
+            # CLEAN RESUME SUMMARY
+            # =====================================================
 
-            st.subheader("📋 Resume Details")
+            st.subheader("📋 Resume Summary")
 
-            col1, col2, col3, col4, col5 = st.columns(5)
+            col1, col2 = st.columns(2)
+
+            # LEFT SIDE
 
             with col1:
 
+                # EDUCATION
+
                 st.markdown("### 🎓 Education")
 
-                for item in education:
+                if education:
 
-                    st.write(f"🔹 {item}")
+                    st.write(f"🔹 {education[0]}")
 
-            with col2:
+                else:
+
+                    st.write("No education found")
+
+                st.markdown("---")
+
+                # EXPERIENCE
 
                 st.markdown("### 💼 Experience")
 
-                for item in experience:
+                if experience:
 
-                    st.write(f"🔹 {item}")
+                    for exp in experience[:3]:
 
-            with col3:
+                        st.write(f"🔹 {exp}")
+
+                else:
+
+                    st.write("No experience found")
+
+            # RIGHT SIDE
+
+            with col2:
+
+                # PROJECTS
 
                 st.markdown("### 🚀 Projects")
 
-                for item in projects:
+                if projects:
 
-                    st.write(f"🔹 {item}")
+                    for project in projects[:3]:
 
-            with col4:
+                        st.write(f"🔹 {project}")
 
-                st.markdown("### 🏆 Certificates")
+                else:
 
-                for item in certificates:
+                    st.write("No projects found")
 
-                    st.write(f"🔹 {item}")
+                st.markdown("---")
 
-            with col5:
+                # TOP SKILLS
 
-                st.markdown("### 🛠 Skills")
+                st.markdown("### 🛠 Top Skills")
 
-                for item in skills:
+                if resume_skills:
 
-                    st.write(f"🔹 {item}")
+                    top_skills = list(
+                        set(resume_skills)
+                    )[:5]
+
+                    for skill in top_skills:
+
+                        st.write(f"🔹 {skill}")
+
+                else:
+
+                    st.write("No skills found")
 
             st.divider()
 
-            # JOBS
+            # =====================================================
+            # RECOMMENDED JOBS
+            # =====================================================
 
             st.subheader("💼 Recommended Jobs")
 
@@ -538,7 +582,9 @@ else:
 
             st.divider()
 
+            # =====================================================
             # AI IMPROVEMENTS
+            # =====================================================
 
             st.subheader(
                 "✨ AI Resume Improvement Generator"
