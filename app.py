@@ -12,9 +12,7 @@ from ai_resume_improver import improve_resume
 from job_recommender import recommend_jobs
 
 
-# =====================================================
 # PAGE CONFIG
-# =====================================================
 
 st.set_page_config(
     page_title="Smart Resume Analyzer",
@@ -22,9 +20,7 @@ st.set_page_config(
 )
 
 
-# =====================================================
 # CUSTOM CSS
-# =====================================================
 
 st.markdown(
     """
@@ -55,9 +51,8 @@ st.markdown(
 )
 
 
-# =====================================================
 # PREPROCESS
-# =====================================================
+
 
 def preprocess(text):
 
@@ -68,9 +63,8 @@ def preprocess(text):
     return text.split()
 
 
-# =====================================================
 # EXTRACT RESUME SECTIONS
-# =====================================================
+
 
 def extract_sections(text):
 
@@ -82,9 +76,8 @@ def extract_sections(text):
         if line.strip()
     ]
 
-    # =====================================================
     # SECTION HEADINGS
-    # =====================================================
+   
 
     section_keywords = {
 
@@ -120,10 +113,9 @@ def extract_sections(text):
         ]
     }
 
-    # =====================================================
+    
     # STORAGE
-    # =====================================================
-
+   
     sections = {
         "education": [],
         "experience": [],
@@ -134,9 +126,9 @@ def extract_sections(text):
 
     current_section = None
 
-    # =====================================================
+   
     # DETECT SECTIONS
-    # =====================================================
+   
 
     for line in lines:
 
@@ -183,9 +175,8 @@ def extract_sections(text):
                         cleaned_line
                     )
 
-    # =====================================================
     # REMOVE DUPLICATES
-    # =====================================================
+  
 
     for key in sections:
 
@@ -199,10 +190,9 @@ def extract_sections(text):
 
         sections[key] = unique
 
-    # =====================================================
+    
     # RETURN
-    # =====================================================
-
+   
     return (
         sections["education"],
         sections["experience"],
@@ -212,32 +202,30 @@ def extract_sections(text):
     )
 
 
-# =====================================================
 # SESSION
-# =====================================================
+
 
 if "logged_in" not in st.session_state:
 
     st.session_state.logged_in = False
 
 
-# =====================================================
 # LOGIN PAGE
-# =====================================================
+
 
 if not st.session_state.logged_in:
 
-    st.title("🔐 Smart Resume Analyzer")
+    st.title("Smart Resume Analyzer")
 
     option = st.selectbox(
         "Choose Option",
         ["Login", "Signup"]
     )
 
-    email = st.text_input("📧 Email")
+    email = st.text_input("Email")
 
     password = st.text_input(
-        "🔑 Password",
+        "Password",
         type="password"
     )
 
@@ -275,7 +263,7 @@ if not st.session_state.logged_in:
 
                 st.session_state.logged_in = True
 
-                st.success("Login Successful ✅")
+                st.success("Login Successful")
 
                 st.rerun()
 
@@ -284,13 +272,12 @@ if not st.session_state.logged_in:
                 st.error(msg)
 
 
-# =====================================================
 # MAIN APP
-# =====================================================
+
 
 else:
 
-    st.sidebar.title("📌 Navigation")
+    st.sidebar.title("Navigation")
 
     page = st.sidebar.radio(
         "Go To",
@@ -301,13 +288,12 @@ else:
         ]
     )
 
-    # =====================================================
     # DASHBOARD
-    # =====================================================
+    
 
     if page == "Dashboard":
 
-        st.title("🚀 Smart Resume Analyzer Dashboard")
+        st.title("Smart Resume Analyzer Dashboard")
 
         if st.button("Logout"):
 
@@ -315,12 +301,12 @@ else:
             st.rerun()
 
         uploaded_file = st.file_uploader(
-            "📄 Upload Resume",
+            "Upload Resume",
             type=["pdf", "docx"]
         )
 
         job_url = st.text_input(
-            "🌐 Paste Job Description Link"
+            "Paste Job Description Link"
         )
 
         job_text = ""
@@ -339,9 +325,9 @@ else:
 
         if uploaded_file:
 
-            # =====================================================
+            
             # READ RESUME
-            # =====================================================
+        
 
             if uploaded_file.type == "application/pdf":
 
@@ -360,10 +346,8 @@ else:
                 st.error("No readable text found in resume")
                 st.stop()
 
-            # =====================================================
             # PROCESSING
-            # =====================================================
-
+            
             tokens = preprocess(resume_text)
 
             skills_list = load_skills("skills.txt")
@@ -400,11 +384,9 @@ else:
                 projects
             )
 
-            # =====================================================
             # SCORE
-            # =====================================================
-
-            st.subheader("📊 Resume Match Score")
+            
+            st.subheader("Resume Match Score")
 
             st.plotly_chart(
                 create_gauge(score),
@@ -414,11 +396,9 @@ else:
 
             st.divider()
 
-            # =====================================================
             # ATS BREAKDOWN
-            # =====================================================
-
-            st.subheader("📈 ATS Resume Breakdown")
+          
+            st.subheader("ATS Resume Breakdown")
 
             cols = st.columns(len(breakdown))
 
@@ -436,17 +416,15 @@ else:
 
             st.divider()
 
-            # =====================================================
             # SKILLS ANALYSIS
-            # =====================================================
-
-            st.subheader("🛠 Skills Analysis")
+            
+            st.subheader("Skills Analysis")
 
             col1, col2 = st.columns(2)
 
             with col1:
 
-                st.markdown("### ✅ Matched Skills")
+                st.markdown("### Matched Skills")
 
                 if matched:
 
@@ -462,7 +440,7 @@ else:
 
             with col2:
 
-                st.markdown("### ❌ Missing Skills")
+                st.markdown("### Missing Skills")
 
                 if missing:
 
@@ -477,24 +455,20 @@ else:
                     st.write("No missing skills")
 
             st.divider()
-
-            # =====================================================
+          
             # CLEAN RESUME SUMMARY
-            # =====================================================
-
-            st.subheader("📋 Resume Summary")
+           
+            st.subheader("Resume Summary")
 
             # 5 COLUMNS IN SINGLE ROW
 
             col1, col2, col3, col4, col5 = st.columns(5)
 
-            # =====================================================
             # EDUCATION
-            # =====================================================
-
+          
             with col1:
 
-                st.markdown("### 🎓 Education")
+                st.markdown("### Education")
 
                 if education:
 
@@ -508,13 +482,11 @@ else:
 
                     st.write("No education found")
 
-            # =====================================================
             # EXPERIENCE
-            # =====================================================
-
+           
             with col2:
 
-                st.markdown("### 💼 Experience")
+                st.markdown("### Experience")
 
                 if experience:
 
@@ -526,13 +498,11 @@ else:
 
                     st.write("No experience found")
 
-            # =====================================================
             # SKILLS
-            # =====================================================
-
+            
             with col3:
 
-                st.markdown("### 🛠 Skills")
+                st.markdown("### Skills")
 
                 if resume_skills:
 
@@ -548,13 +518,11 @@ else:
 
                     st.write("No skills found")
 
-            # =====================================================
             # CERTIFICATES
-            # =====================================================
-
+           
             with col4:
 
-                st.markdown("### 🏆 Certificates")
+                st.markdown("### Certificates")
 
                 valid_certificates = []
 
@@ -578,14 +546,12 @@ else:
                 else:
 
                     st.write("No certificates found")
-
-            # =====================================================
+            
             # PROJECTS
-            # =====================================================
-
+           
             with col5:
 
-                st.markdown("### 🚀 Projects")
+                st.markdown("### Projects")
 
                 if projects:
 
@@ -599,11 +565,9 @@ else:
 
             st.divider()
 
-            # =====================================================
             # RECOMMENDED JOBS
-            # =====================================================
 
-            st.subheader("💼 Recommended Jobs")
+            st.subheader("Recommended Jobs")
 
             recommended_jobs = recommend_jobs(
                 resume_skills
@@ -623,12 +587,10 @@ else:
 
             st.divider()
 
-            # =====================================================
             # AI IMPROVEMENTS
-            # =====================================================
-
+        
             st.subheader(
-                "✨ AI Resume Improvement Generator"
+                "AI Resume Improvement Generator"
             )
 
             if st.button("Generate Improvements"):
@@ -653,13 +615,11 @@ else:
                         "No suggestions available"
                     )
 
-    # =====================================================
     # ABOUT PROJECT
-    # =====================================================
-
+    
     elif page == "About Project":
 
-        st.title("📘 About Project")
+        st.title("About Project")
 
         st.markdown(
             """
@@ -675,13 +635,11 @@ else:
             """
         )
 
-    # =====================================================
     # TECH STACK
-    # =====================================================
-
+    
     elif page == "Tech Stack":
 
-        st.title("🛠 Technologies Used")
+        st.title("Technologies Used")
 
         st.markdown(
             """
