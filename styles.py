@@ -3,7 +3,6 @@ import streamlit as st
 # LOAD STYLES
 
 def load_styles():
-
     st.markdown("""
     <style>
     html, body, [class*="css"] {
