@@ -3,37 +3,25 @@ import re
 # PREPROCESS TEXT
 
 def preprocess(text):
-
     text = text.lower()
-
     text = re.sub(r"\s+", " ", text)
-
     return text.split()
 
 # EXTRACT RESUME SECTIONS
 
 def extract_sections(text):
-
     lines = text.split("\n")
-
     cleaned = []
-
     for line in lines:
-
         line = line.strip()
-
         if len(line) > 2:
-
             cleaned.append(line)
-
     education = []
     experience = []
     projects = []
     certificates = []
     skills = []
-
     for line in cleaned:
-
         lower = line.lower()
 
         # EDUCATION
@@ -45,7 +33,6 @@ def extract_sections(text):
             "b.tech",
             "cgpa"
         ]):
-
             education.append(line)
 
         # EXPERIENCE
@@ -55,7 +42,6 @@ def extract_sections(text):
             "internship",
             "work"
         ]):
-
             experience.append(line)
 
         # PROJECTS
@@ -64,7 +50,6 @@ def extract_sections(text):
             "project",
             "projects"
         ]):
-
             projects.append(line)
 
         # CERTIFICATES
@@ -74,7 +59,6 @@ def extract_sections(text):
             "certification",
             "achievement"
         ]):
-
             certificates.append(line)
 
         # SKILLS
@@ -86,9 +70,7 @@ def extract_sections(text):
             "tools",
             "technologies"
         ]):
-
             skills.append(line)
-
     return (
         list(set(education)),
         list(set(experience)),
