@@ -2,15 +2,12 @@ import streamlit as st
 
 from auth import signup, login
 
-
-# =====================================================
 # AUTH PAGE
-# =====================================================
 
 def show_auth_page():
 
     st.title(
-        "🔐 Smart Resume Analyzer"
+        "Smart Resume Analyzer"
     )
 
     st.markdown(
@@ -23,18 +20,16 @@ def show_auth_page():
     )
 
     email = st.text_input(
-        "📧 Email"
+        "Email"
     )
 
     password = st.text_input(
-        "🔑 Password",
+        "Password",
         type="password"
     )
 
-    # =====================================================
     # SIGNUP
-    # =====================================================
-
+    
     if option == "Signup":
 
         if st.button(
@@ -54,10 +49,8 @@ def show_auth_page():
 
                 st.error(msg)
 
-    # =====================================================
     # LOGIN
-    # =====================================================
-
+    
     else:
 
         if st.button(
@@ -74,7 +67,7 @@ def show_auth_page():
                 st.session_state.logged_in = True
 
                 st.success(
-                    "Login Successful ✅"
+                    "Login Successful"
                 )
 
                 st.rerun()
