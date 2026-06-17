@@ -1,23 +1,17 @@
 import streamlit as st
 
-
-# =====================================================
 # LOAD STYLES
-# =====================================================
 
 def load_styles():
 
     st.markdown("""
     <style>
-
     html, body, [class*="css"] {
         font-family: 'Segoe UI', sans-serif;
     }
-
     .main {
         background-color: #0f1117;
     }
-
     .card {
         background-color: #1e1e2f;
         padding: 20px;
@@ -25,13 +19,11 @@ def load_styles():
         margin-bottom: 20px;
         box-shadow: 0px 4px 20px rgba(0,0,0,0.35);
     }
-
     .title {
         font-size: 24px;
         font-weight: bold;
         margin-bottom: 15px;
     }
-
     .stButton > button {
         width: 100%;
         border-radius: 12px;
@@ -42,7 +34,6 @@ def load_styles():
         color: white;
         border: none;
     }
-
     .stButton > button:hover {
         background-color: #00aa55;
         color: white;
