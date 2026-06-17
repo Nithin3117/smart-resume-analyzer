@@ -1,14 +1,11 @@
 import streamlit as st
 
-
-# =====================================================
 # ABOUT PROJECT PAGE
-# =====================================================
 
 def show_about_page():
 
     st.title(
-        "📘 About Project"
+        "About Project"
     )
 
     st.markdown("""
@@ -25,25 +22,22 @@ This project helps users:
 
 ### Features
 
-✅ Resume Match Score  
-✅ ATS Resume Breakdown  
-✅ Skill Analysis  
-✅ Resume Details  
-✅ Recommended Jobs  
-✅ AI Resume Improvement Generator  
-✅ AI Chatbot Assistant  
+Resume Match Score  
+ATS Resume Breakdown  
+Skill Analysis  
+Resume Details  
+Recommended Jobs  
+AI Resume Improvement Generator  
+AI Chatbot Assistant  
 
 """)
 
-
-# =====================================================
 # TECH STACK PAGE
-# =====================================================
 
 def show_tech_stack_page():
 
     st.title(
-        "🛠️ Technologies Used"
+        "Technologies Used"
     )
 
     st.markdown("""
