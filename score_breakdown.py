@@ -12,12 +12,10 @@ def calculate_breakdown(
 
     # Skills score
     if len(matched) + len(missing) > 0:
-
         skill_score = int(
             (len(matched) /
             (len(matched) + len(missing))) * 100
         )
-
     else:
         skill_score = 0
 
@@ -31,14 +29,9 @@ def calculate_breakdown(
     project_score = 90 if projects else 40
 
     return {
-
         "ATS Compatibility": ats_score,
-
         "Skills Match": skill_score,
-
         "Education Strength": education_score,
-
         "Experience Strength": experience_score,
-
         "Project Strength": project_score
     }
