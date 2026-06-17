@@ -1,4 +1,4 @@
-# Smart Resume Analyzer 🚀
+# Smart Resume Analyzer 
 
 An AI-powered ATS Resume Analyzer built using Python and Streamlit.
 
