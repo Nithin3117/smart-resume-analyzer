@@ -1,16 +1,11 @@
 import streamlit as st
 
-
-# =====================================================
 # SIDEBAR
-# =====================================================
 
 def show_sidebar():
-
     st.sidebar.title(
-        "📌 Navigation"
+        "Navigation"
     )
-
     page = st.sidebar.radio(
         "Go To",
         [
@@ -19,5 +14,4 @@ def show_sidebar():
             "Tech Stack"
         ]
     )
-
     return page
