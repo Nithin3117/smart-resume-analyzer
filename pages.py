@@ -3,13 +3,10 @@ import streamlit as st
 # ABOUT PROJECT PAGE
 
 def show_about_page():
-
     st.title(
         "About Project"
     )
-
     st.markdown("""
-
 ## Smart Resume Analyzer
 
 This project helps users:
@@ -29,19 +26,15 @@ Resume Details
 Recommended Jobs  
 AI Resume Improvement Generator  
 AI Chatbot Assistant  
-
 """)
 
 # TECH STACK PAGE
 
 def show_tech_stack_page():
-
     st.title(
         "Technologies Used"
     )
-
     st.markdown("""
-
 | Technology | Purpose |
 |---|---|
 | Python | Backend |
@@ -49,5 +42,4 @@ def show_tech_stack_page():
 | Plotly | Charts |
 | NLP | Text Processing |
 | HTML/CSS | UI Styling |
-
 """)
