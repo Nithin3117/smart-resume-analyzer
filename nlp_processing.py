@@ -1,9 +1,6 @@
 import re
 
-
-# =====================================================
 # PREPROCESS TEXT
-# =====================================================
 
 def preprocess(text):
 
@@ -13,10 +10,7 @@ def preprocess(text):
 
     return text.split()
 
-
-# =====================================================
 # EXTRACT RESUME SECTIONS
-# =====================================================
 
 def extract_sections(text):
 
