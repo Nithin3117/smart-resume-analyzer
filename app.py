@@ -204,7 +204,7 @@ if page == "Dashboard":
             job_text = extract_job_text(job_url)
         except:
             st.warning("Unable to fetch job description.")
-        if uploaded_file:
+    if uploaded_file:
             
             # READ RESUME
         
@@ -350,43 +350,43 @@ if page == "Dashboard":
                 else:
                     st.write("No certificates found")
 
-         # EXPERIENCE
+            # EXPERIENCE
            
-                 with col4:
-                    st.markdown("### Experience")
-                    if experience:
-                        for exp in experience[:4]:
-                            st.write(f"🔹 {exp}")
-                            else:
-                                st.write("No experience found")
+            with col4:
+                st.markdown("### Experience")
+                if experience:
+                    for exp in experience[:4]: 
+                        st.write(f"🔹 {exp}")
+                else:
+                    st.write("No experience found")
 
-st.divider()
-st.subheader("Projects")
-if projects:
-    st.markdown(
-        """
-        <div style="
-            border:1px solid #444;
-            border-radius:15px;
-            padding:20px;
-            background-color:#111827;
-            margin-bottom:20px;
-        ">
-        """,
-        unsafe_allow_html=True
-    )
-    title = projects[0]
-    st.markdown(f"### {title}")
-    st.markdown("#### Description")
-    for desc in projects[1:]:
-        st.markdown(f"• {desc}")
-    st.markdown(
-        "</div>",
-        unsafe_allow_html=True
-    )
-else:
-    st.info("No projects found.")
-st.divider()
+            st.divider()
+            st.subheader("Projects")
+            if projects:
+                st.markdown(
+                    """
+                    <div style="
+                        border:1px solid #444;
+                        border-radius:15px;
+                        padding:20px;
+                        background-color:#111827;
+                        margin-bottom:20px;
+                    ">
+                    """,
+                    unsafe_allow_html=True
+                )
+                title = projects[0]
+                st.markdown(f"### {title}")
+                st.markdown("#### Description")
+                for desc in projects[1:]:
+                    st.markdown(f"• {desc}")
+                st.markdown(
+                "</div>",
+                unsafe_allow_html=True
+            )
+            else:
+                st.info("No projects found.")
+                st.divider()
            
             # RECOMMENDED JOBS
 
