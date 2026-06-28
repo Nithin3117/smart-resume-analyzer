@@ -301,7 +301,72 @@ if page == "Dashboard":
             # CLEAN RESUME SUMMARY
            
             st.subheader("Resume Summary")
+            st.subheader("Projects")
 
+if projects:
+    project_title = ""
+    project_description = []
+    technologies = []
+    for line in projects:
+        line = line.strip()
+
+        # Detect title
+        if "|" in line and project_title == "":
+            project_title = line
+
+        # Detect technologies
+        elif any(
+            tech.lower() in line.lower()
+            for tech in [
+                "python",
+                "java",
+                "streamlit",
+                "flask",
+                "django",
+                "html",
+                "css",
+                "javascript",
+                "mysql",
+                "mongodb",
+                "sql",
+                "react"
+            ]
+        ):
+            technologies.append(line)
+        else:
+            project_description.append(line)
+    st.markdown(
+        """
+        <div style="
+            border:1px solid #333;
+            border-radius:18px;
+            padding:20px;
+            background:#111;
+        ">
+        """,
+        unsafe_allow_html=True
+    )
+    st.markdown(
+        f"### {project_title}"
+    )
+    if technologies:
+        st.markdown(
+            "**Technologies:** "
+            + " | ".join(technologies)
+        )
+    st.write("")
+    for desc in project_description:
+        st.markdown(
+            f"- {desc}"
+        )
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True
+    )
+
+else:
+
+    st.info("No projects found.")            
             # 5 COLUMNS IN SINGLE ROW
 
             col1, col2, col3, col4, col5 = st.columns(5)
@@ -349,26 +414,6 @@ if page == "Dashboard":
                         st.write(f"🔹 {cert}")
                 else:
                     st.write("No certificates found")
-            
-            # PROJECTS
-            with col4:
-                st.markdown("### Projects")
-                if projects:
-                    i = 0
-                    while i < len(projects):
-
-                        # Project Title
-                        st.markdown(
-                        f"#### {projects[i]}"
-                        )
-
-                        # Project Description
-                        if i + 1 < len(projects):
-                            st.write(projects[i + 1])
-                            st.markdown("---")
-                            i += 2
-                else:
-                    st.write("No projects found")
 
          # EXPERIENCE
            
@@ -380,7 +425,6 @@ if page == "Dashboard":
                 else:
                     st.write("No experience found")
 
-        
             # RECOMMENDED JOBS
 
             st.subheader("Recommended Jobs")
