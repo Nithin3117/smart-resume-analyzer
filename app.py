@@ -319,19 +319,9 @@ if page == "Dashboard":
                 else:
                     st.write("No education found")
 
-            # EXPERIENCE
-           
-            with col2:
-                st.markdown("### Experience")
-                if experience:
-                    for exp in experience[:2]:
-                        st.write(f"🔹 {exp}")
-                else:
-                    st.write("No experience found")
-
             # SKILLS
             
-            with col3:
+            with col2:
                 st.markdown("### Skills")
                 if resume_skills:
                     top_skills = list(
@@ -344,7 +334,7 @@ if page == "Dashboard":
 
             # CERTIFICATES
            
-            with col4:
+            with col3:
                 st.markdown("### Certificates")
                 valid_certificates = []
                 for cert in certificates:
@@ -362,14 +352,33 @@ if page == "Dashboard":
             
             # PROJECTS
            
-            with col5:
-                st.markdown("### Projects")
-                if projects:
-                    for project in projects[:3]:
-                        st.write(f"🔹 {project}")
-                else:
-                    st.write("No projects found")
-            st.divider()
+           with col4:
+
+    st.markdown("### Projects")
+
+    if projects:
+
+        i = 0
+
+        while i < len(projects):
+
+            # Project Title
+            st.markdown(
+                f"#### {projects[i]}"
+            )
+
+            # Project Description
+            if i + 1 < len(projects):
+
+                st.write(projects[i + 1])
+
+            st.markdown("---")
+
+            i += 2
+
+    else:
+
+        st.write("No projects found")
 
             # RECOMMENDED JOBS
 
@@ -385,6 +394,17 @@ if page == "Dashboard":
             else:
                 st.write("No jobs found")
             st.divider()
+
+     # EXPERIENCE
+           
+            with col5:
+                st.markdown("### Experience")
+                if experience:
+                    for exp in experience[:2]:
+                        st.write(f"🔹 {exp}")
+                else:
+                    st.write("No experience found")
+
 
             # AI IMPROVEMENTS
         
