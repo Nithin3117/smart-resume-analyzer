@@ -204,7 +204,6 @@ if page == "Dashboard":
             job_text = extract_job_text(job_url)
         except:
             st.warning("Unable to fetch job description.")
-                )
         if uploaded_file:
             
             # READ RESUME
