@@ -353,12 +353,12 @@ if page == "Dashboard":
          # EXPERIENCE
            
          with col4:
-    st.markdown("### Experience")
-    if experience:
-        for exp in experience[:4]:
-            st.write(f"🔹 {exp}")
-    else:
-        st.write("No experience found")
+            st.markdown("### Experience")
+            if experience:
+                for exp in experience[:4]:
+                st.write(f"🔹 {exp}")
+                else:
+                    st.write("No experience found")
 
 st.divider()
 st.subheader("Projects")
