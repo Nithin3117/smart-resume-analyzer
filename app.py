@@ -1,6 +1,5 @@
 import streamlit as st
 import re
-from auth import signup, login
 from resume_parser import extract_text_pdf, extract_text_docx
 from charts import create_gauge
 from job_link_extractor import extract_job_text
@@ -171,79 +170,29 @@ def extract_sections(text):
         sections["skills"]
     )
 
-# SESSION
-
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-
-# LOGIN PAGE
-
-if not st.session_state.logged_in:
-    st.title("Smart Resume Analyzer")
-    option = st.selectbox(
-        "Choose Option",
-        ["Login", "Signup"]
-    )
-    email = st.text_input("Email")
-    password = st.text_input(
-        "Password",
-        type="password"
-    )
-
-    # SIGNUP
-
-    if option == "Signup":
-        if st.button("Create Account"):
-            success, msg = signup(
-                email,
-                password
-            )
-            if success:
-                st.success(msg)
-            else:
-                st.error(msg)
-
-    # LOGIN
-
-    else:
-        if st.button("Login"):
-            success, msg = login(
-                email,
-                password
-            )
-            if success:
-                st.session_state.logged_in = True
-                st.success("Login Successful")
-                st.rerun()
-            else:
-                st.error(msg)
-
 # MAIN APP
 
-else:
-    st.sidebar.title("Navigation")
-    page = st.sidebar.radio(
-        "Go To",
-        [
-            "Dashboard",
-            "About Project",
-            "Tech Stack"
-        ]
-    )
+st.sidebar.title("Navigation")
+
+page = st.sidebar.radio(
+    "Go To",
+    [
+        "Dashboard",
+        "About Project",
+        "Tech Stack"
+    ]
+)
 
     # DASHBOARD
    
     if page == "Dashboard":
-        st.title("Smart Resume Analyzer Dashboard")
-        if st.button("Logout"):
-            st.session_state.logged_in = False
-            st.rerun()
+        st.title("Smart Resume Analyzer")
         uploaded_file = st.file_uploader(
-            "Upload Resume",
+            "Upload Your Resume",
             type=["pdf", "docx"]
         )
         job_url = st.text_input(
-            "Paste Job Description Link"
+            "Job Description URL (Optional)"
         )
         job_text = ""
         if job_url:
