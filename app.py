@@ -1,6 +1,6 @@
 import streamlit as st
 import re
-
+from auth import signup, login
 from resume_parser import extract_text_pdf, extract_text_docx
 from charts import create_gauge
 from job_link_extractor import extract_job_text
@@ -10,46 +10,43 @@ from score_breakdown import calculate_breakdown
 from ai_resume_improver import improve_resume
 from job_recommender import recommend_jobs
 
-# -----------------------------------------------------
 # PAGE CONFIG
-# -----------------------------------------------------
 
 st.set_page_config(
     page_title="Smart Resume Analyzer",
     layout="wide"
 )
 
-# -----------------------------------------------------
 # CUSTOM CSS
-# -----------------------------------------------------
 
-st.markdown("""
-<style>
+st.markdown(
+    """
+    <style>
 
-html, body, [class*="css"]{
-    font-family:Segoe UI,sans-serif;
-}
+    html, body, [class*="css"] {
+        font-family: 'Segoe UI', sans-serif;
+    }
 
-.stButton>button{
-    width:100%;
-    border-radius:8px;
-    height:3em;
-    background:#00cc66;
-    color:white;
-    border:none;
-    font-weight:bold;
-}
+    .stButton > button {
+        width: 100%;
+        border-radius: 10px;
+        height: 3em;
+        background-color: #00cc66;
+        color: white;
+        font-weight: bold;
+        border: none;
+    }
 
-.stButton>button:hover{
-    background:#00aa55;
-}
+    .stButton > button:hover {
+        background-color: #00aa55;
+        color: white;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
-</style>
-""", unsafe_allow_html=True)
-
-# -----------------------------------------------------
-# TEXT PREPROCESSING
-# -----------------------------------------------------
+# PREPROCESS
 
 def preprocess(text):
 
@@ -59,167 +56,179 @@ def preprocess(text):
 
     return text.split()
 
-# -----------------------------------------------------
-# RESUME SECTION EXTRACTOR
-# -----------------------------------------------------
+# EXTRACT RESUME SECTIONS
 
 def extract_sections(text):
+    text = text.replace("\t", "\n")
+    lines = [
+        line.strip()
+        for line in text.split("\n")
+        if line.strip()
+    ]
 
-    text = text.replace("\t","\n")
-
-    lines=[]
-
-    for line in text.split("\n"):
-
-        line=line.strip()
-
-        if line!="":
-
-            lines.append(line)
-
-    headings={
-
-        "education":[
+    # SECTION HEADINGS
+   
+    section_keywords = {
+        "education": [
             "education",
             "academic details",
             "academic background"
         ],
-
-        "experience":[
+        
+        "experience": [
             "experience",
             "work experience",
             "internship",
             "employment"
         ],
 
-        "projects":[
+        "projects": [
             "projects",
             "project"
         ],
 
-        "skills":[
-            "skills",
-            "technical skills",
-            "technical expertise",
-            "tools",
-            "technologies"
-        ],
-
-        "certificates":[
+        "certificates": [
             "certifications",
             "certificates",
-            "licenses",
-            "certificate"
+            "achievement"
+        ],
+
+        "skills": [
+            "skills",
+            "technical skills",
+            "tools",
+            "technologies"
         ]
     }
 
-    sections={
-        "education":[],
-        "experience":[],
-        "projects":[],
-        "skills":[],
-        "certificates":[]
+    # STORAGE
+   
+    sections = {
+        "education": [],
+        "experience": [],
+        "projects": [],
+        "certificates": [],
+        "skills": []
     }
+    current_section = None
 
-    current=None
-
+    # DETECT SECTIONS
+  
     for line in lines:
 
-        lower=line.lower()
+        clean_line = line.lower().strip()
 
-        changed=False
+        found_new_section = False
 
-        for key,values in headings.items():
+        # CHECK SECTION TITLES
 
-            if lower in values:
-
-                current=key
-
-                changed=True
-
+        for section, keywords in section_keywords.items():
+            if clean_line in keywords:
+                current_section = section
+                found_new_section = True
                 break
 
-        if changed:
+        # SKIP SECTION TITLES
 
+        if found_new_section:
             continue
 
-        if current is None:
+        # ADD CONTENT UNDER CURRENT SECTION
 
-            continue
+        if current_section:
+            if len(line) > 3:
+                cleaned_line = re.sub(
+                    r'^[•●◦▪➤▶♦★✓✔➢➣\\-]+',
+                    '',
+                    line
+                ).strip()
+                cleaned_line = re.sub(
+                    r'\\s+',
+                    ' ',
+                    cleaned_line
+                )
+                if cleaned_line:
+                    sections[current_section].append(
+                        cleaned_line
+                    )
 
-        clean=re.sub(
-            r'^[•●▪►▶✓✔♦★➤➢➣\\-]+',
-            '',
-            line
-        ).strip()
-
-        if clean:
-
-            sections[current].append(clean)
-
-    # -----------------------------
-    # Remove duplicates
-    # -----------------------------
-
+    # REMOVE DUPLICATES
+  
     for key in sections:
-
-        unique=[]
-
+        unique = []
         for item in sections[key]:
-
             if item not in unique:
-
                 unique.append(item)
-
-        sections[key]=unique
-
-    # -----------------------------
-    # Skills
-    # -----------------------------
-
-    skill_list=[]
-
-    for row in sections["skills"]:
-
-        values=re.split(r"[,|;/]",row)
-
-        for value in values:
-
-            value=value.strip()
-
-            if value!="":
-
-                skill_list.append(value)
-
-    sections["skills"]=list(dict.fromkeys(skill_list))
-
-    # -----------------------------
-    # Certificates
-    # -----------------------------
-
-    certificates=[]
-
-    for item in sections["certificates"]:
-
-        if "certificate" in item.lower() or \
-           "certification" in item.lower():
-
-            certificates.append(item)
-
-    sections["certificates"]=certificates
-
-    return(
-
+        sections[key] = unique
+   
+    # RETURN
+   
+    return (
         sections["education"],
-
         sections["experience"],
-
         sections["projects"],
-
         sections["certificates"],
-
         sections["skills"]
+    )
 
+# SESSION
+
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+# LOGIN PAGE
+
+if not st.session_state.logged_in:
+    st.title("Smart Resume Analyzer")
+    option = st.selectbox(
+        "Choose Option",
+        ["Login", "Signup"]
+    )
+    email = st.text_input("Email")
+    password = st.text_input(
+        "Password",
+        type="password"
+    )
+
+    # SIGNUP
+
+    if option == "Signup":
+        if st.button("Create Account"):
+            success, msg = signup(
+                email,
+                password
+            )
+            if success:
+                st.success(msg)
+            else:
+                st.error(msg)
+
+    # LOGIN
+
+    else:
+        if st.button("Login"):
+            success, msg = login(
+                email,
+                password
+            )
+            if success:
+                st.session_state.logged_in = True
+                st.success("Login Successful")
+                st.rerun()
+            else:
+                st.error(msg)
+
+# MAIN APP
+
+else:
+    st.sidebar.title("Navigation")
+    page = st.sidebar.radio(
+        "Go To",
+        [
+            "Dashboard",
+            "About Project",
+            "Tech Stack"
+        ]
     )
 
     # DASHBOARD
