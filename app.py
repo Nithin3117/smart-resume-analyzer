@@ -184,32 +184,33 @@ page = st.sidebar.radio(
 )
 
 # DASHBOARD
-   
 if page == "Dashboard":
+
     st.title("Smart Resume Analyzer")
+
     uploaded_file = st.file_uploader(
         "Upload Your Resume",
         type=["pdf", "docx"]
-        )
-        job_url = st.text_input(
-            "Job Description URL (Optional)"
-        )
-        job_text = ""
-        if job_url:
-            try:
-                job_text = extract_job_text(job_url)
-            except:
-                st.warning(
-                    "Unable to fetch job description."
+    )
+
+    job_url = st.text_input(
+        "Job Description URL (Optional)"
+    )
+
+    job_text = ""
+
+    if job_url:
+        try:
+            job_text = extract_job_text(job_url)
+        except:
+            st.warning("Unable to fetch job description.")
                 )
         if uploaded_file:
             
             # READ RESUME
         
             if uploaded_file.type == "application/pdf":
-                resume_text = extract_text_pdf(
-                    uploaded_file
-                )
+                resume_text = extract_text_pdf(uploaded_file)
             else:
                 resume_text = extract_text_docx(
                     uploaded_file
