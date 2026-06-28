@@ -300,74 +300,9 @@ if page == "Dashboard":
           
             # CLEAN RESUME SUMMARY
            
-            st.subheader("Resume Summary")
-            st.subheader("Projects")
-
-if projects:
-    project_title = ""
-    project_description = []
-    technologies = []
-    for line in projects:
-        line = line.strip()
-
-        # Detect title
-        if "|" in line and project_title == "":
-            project_title = line
-
-        # Detect technologies
-        elif any(
-            tech.lower() in line.lower()
-            for tech in [
-                "python",
-                "java",
-                "streamlit",
-                "flask",
-                "django",
-                "html",
-                "css",
-                "javascript",
-                "mysql",
-                "mongodb",
-                "sql",
-                "react"
-            ]
-        ):
-            technologies.append(line)
-        else:
-            project_description.append(line)
-    st.markdown(
-        """
-        <div style="
-            border:1px solid #333;
-            border-radius:18px;
-            padding:20px;
-            background:#111;
-        ">
-        """,
-        unsafe_allow_html=True
-    )
-    st.markdown(
-        f"### {project_title}"
-    )
-    if technologies:
-        st.markdown(
-            "**Technologies:** "
-            + " | ".join(technologies)
-        )
-    st.write("")
-    for desc in project_description:
-        st.markdown(
-            f"- {desc}"
-        )
-    st.markdown(
-        "</div>",
-        unsafe_allow_html=True
-    )
-
-else:
-
-    st.info("No projects found.")            
-            # 5 COLUMNS IN SINGLE ROW
+            st.subheader("Resume Summary") 
+    
+            # 4 COLUMNS IN SINGLE ROW
 
             col1, col2, col3, col4 = st.columns(4)
 
@@ -417,14 +352,42 @@ else:
 
          # EXPERIENCE
            
-            with col4:
-                st.markdown("### Experience")
-                if experience:
-                    for exp in experience[:4]:
-                        st.write(f"🔹 {exp}")
-                else:
-                    st.write("No experience found")
+         with col4:
+    st.markdown("### Experience")
+    if experience:
+        for exp in experience[:4]:
+            st.write(f"🔹 {exp}")
+    else:
+        st.write("No experience found")
 
+st.divider()
+st.subheader("Projects")
+if projects:
+    st.markdown(
+        """
+        <div style="
+            border:1px solid #444;
+            border-radius:15px;
+            padding:20px;
+            background-color:#111827;
+            margin-bottom:20px;
+        ">
+        """,
+        unsafe_allow_html=True
+    )
+    title = projects[0]
+    st.markdown(f"### {title}")
+    st.markdown("#### Description")
+    for desc in projects[1:]:
+        st.markdown(f"• {desc}")
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True
+    )
+else:
+    st.info("No projects found.")
+st.divider()
+           
             # RECOMMENDED JOBS
 
             st.subheader("Recommended Jobs")
