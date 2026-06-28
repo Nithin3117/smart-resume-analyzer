@@ -351,35 +351,36 @@ if page == "Dashboard":
                     st.write("No certificates found")
             
             # PROJECTS
+            with col4:
+                st.markdown("### Projects")
+                if projects:
+                    i = 0
+                    while i < len(projects):
+
+                        # Project Title
+                        st.markdown(
+                        f"#### {projects[i]}"
+                        )
+
+                        # Project Description
+                        if i + 1 < len(projects):
+                            st.write(projects[i + 1])
+                            st.markdown("---")
+                            i += 2
+                else:
+                    st.write("No projects found")
+
+         # EXPERIENCE
            
-           with col4:
+            with col5:
+                st.markdown("### Experience")
+                if experience:
+                    for exp in experience[:2]:
+                        st.write(f"🔹 {exp}")
+                else:
+                    st.write("No experience found")
 
-    st.markdown("### Projects")
-
-    if projects:
-
-        i = 0
-
-        while i < len(projects):
-
-            # Project Title
-            st.markdown(
-                f"#### {projects[i]}"
-            )
-
-            # Project Description
-            if i + 1 < len(projects):
-
-                st.write(projects[i + 1])
-
-            st.markdown("---")
-
-            i += 2
-
-    else:
-
-        st.write("No projects found")
-
+        
             # RECOMMENDED JOBS
 
             st.subheader("Recommended Jobs")
@@ -394,17 +395,6 @@ if page == "Dashboard":
             else:
                 st.write("No jobs found")
             st.divider()
-
-     # EXPERIENCE
-           
-            with col5:
-                st.markdown("### Experience")
-                if experience:
-                    for exp in experience[:2]:
-                        st.write(f"🔹 {exp}")
-                else:
-                    st.write("No experience found")
-
 
             # AI IMPROVEMENTS
         
