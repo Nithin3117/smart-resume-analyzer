@@ -5,7 +5,7 @@ def calculate_breakdown(
     education,
     experience,
     projects
-):
+)
 
     # ATS SCORE
     ats_score = int(score)
