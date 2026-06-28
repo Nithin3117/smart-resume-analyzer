@@ -194,7 +194,7 @@ if page == "Dashboard":
     )
 
     job_url = st.text_input(
-        "Job Description URL (Optional)"
+        "Job Description URL * "
     )
 
     job_text = ""
