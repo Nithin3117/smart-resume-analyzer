@@ -304,7 +304,10 @@ if page == "Dashboard":
     
             # 4 COLUMNS IN SINGLE ROW
 
-            col1, col2, col3, col4 = st.columns(4)
+            col1, col2, col3, col4 = st.columns(
+                [1,1,1,1],
+                gap="large"
+            )
 
             # EDUCATION
           
@@ -361,32 +364,22 @@ if page == "Dashboard":
                     st.write("No experience found")
 
             st.divider()
+
             st.subheader("Projects")
+
             if projects:
-                st.markdown(
-                    """
-                    <div style="
-                        border:1px solid #444;
-                        border-radius:15px;
-                        padding:20px;
-                        background-color:#111827;
-                        margin-bottom:20px;
-                    ">
-                    """,
-                    unsafe_allow_html=True
-                )
-                title = projects[0]
-                st.markdown(f"### {title}")
-                st.markdown("#### Description")
+
+                st.markdown(f"### {projects[0]}")
+
                 for desc in projects[1:]:
-                    st.markdown(f"• {desc}")
-                st.markdown(
-                "</div>",
-                unsafe_allow_html=True
-            )
+
+                    st.markdown(f"🔹 {desc}")
+
             else:
-                st.info("No projects found.")
-                st.divider()
+
+                st.write("No projects found")
+
+            st.divider()
            
             # RECOMMENDED JOBS
 
