@@ -1,3 +1,6 @@
+import re
+
+
 def calculate_breakdown(
     score,
     matched,
@@ -7,125 +10,182 @@ def calculate_breakdown(
     projects
 ):
 
-    # -------------------------
-    # ATS SCORE
-    # -------------------------
+    # ---------------- ATS SCORE ----------------
 
-    ats_score = int(score)
+    ats_score = max(0, min(int(score), 100))
 
-    # -------------------------
-    # SKILLS SCORE
-    # -------------------------
+    # ---------------- SKILLS SCORE ----------------
 
     total_skills = len(matched) + len(missing)
 
     if total_skills == 0:
         skills_score = 0
     else:
-        skills_score = int(
+        skills_score = round(
             (len(matched) / total_skills) * 100
         )
 
-    # -------------------------
-    # EDUCATION SCORE
-    # -------------------------
+    # ---------------- EDUCATION SCORE ----------------
 
     education_score = 0
 
-    if education:
+    edu_text = " ".join(education).lower()
 
-        has_degree = False
-        has_inter = False
-        has_school = False
-        has_marks = False
+    # Degree
 
-        for item in education:
+    if any(
+        word in edu_text
+        for word in [
+            "b.tech",
+            "btech",
+            "b.e",
+            "be ",
+            "bachelor"
+        ]
+    ):
+        education_score += 35
 
-            text = item.lower()
+    # Intermediate
 
-            if (
-                "b.tech" in text
-                or "btech" in text
-                or "b.e" in text
-                or "be " in text
-                or "bachelor" in text
-            ):
-                has_degree = True
+    if any(
+        word in edu_text
+        for word in [
+            "intermediate",
+            "12th",
+            "+2"
+        ]
+    ):
+        education_score += 20
 
-            if (
-                "intermediate" in text
-                or "+2" in text
-                or "12th" in text
-            ):
-                has_inter = True
+    # School
 
-            if (
-                "ssc" in text
-                or "10th" in text
-                or "secondary"
-            ):
-                has_school = True
+    if any(
+        word in edu_text
+        for word in [
+            "ssc",
+            "10th",
+            "secondary"
+        ]
+    ):
+        education_score += 15
 
-            if (
-                "cgpa" in text
-                or "%"
-                in text
-            ):
-                has_marks = True
+    # Marks / CGPA
 
-        if has_degree:
-            education_score += 40
+    if re.search(r"cgpa|gpa|percentage|%", edu_text):
+        education_score += 15
 
-        if has_inter:
-            education_score += 20
+    # College
 
-        if has_school:
-            education_score += 20
+    if any(
+        word in edu_text
+        for word in [
+            "university",
+            "college",
+            "institute"
+        ]
+    ):
+        education_score += 15
 
-        if has_marks:
-            education_score += 20
+    education_score = min(education_score, 100)
 
-    # -------------------------
-    # EXPERIENCE SCORE
-    # -------------------------
+    # ---------------- EXPERIENCE SCORE ----------------
 
     experience_score = 0
 
-    if experience:
+    exp_text = " ".join(experience).lower()
 
-        count = len(experience)
+    if exp_text:
 
-        if count == 1:
-            experience_score = 30
+        if any(
+            word in exp_text
+            for word in [
+                "intern",
+                "internship"
+            ]
+        ):
+            experience_score += 40
 
-        elif count == 2:
-            experience_score = 60
+        if any(
+            word in exp_text
+            for word in [
+                "software",
+                "developer",
+                "engineer",
+                "analyst"
+            ]
+        ):
+            experience_score += 30
 
-        elif count >= 3:
-            experience_score = 100
+        years = re.findall(
+            r"\d+\+?\s*(?:year|years|month|months)",
+            exp_text
+        )
 
-    # -------------------------
-    # PROJECT SCORE
-    # -------------------------
+        if years:
+            experience_score += 30
+
+        experience_score = min(
+            experience_score,
+            100
+        )
+
+    # ---------------- PROJECT SCORE ----------------
 
     project_score = 0
 
-    if projects:
+    project_text = " ".join(projects).lower()
 
-        total = len(projects)
+    if project_text:
 
-        if total == 1:
-            project_score = 35
+        project_score += min(
+            len(projects) * 20,
+            40
+        )
 
-        elif total == 2:
-            project_score = 65
+        technologies = [
+            "python",
+            "java",
+            "c++",
+            "streamlit",
+            "tensorflow",
+            "flask",
+            "django",
+            "sql",
+            "mysql",
+            "mongodb",
+            "html",
+            "css",
+            "javascript",
+            "react",
+            "node"
+        ]
 
-        elif total >= 3:
-            project_score = 100
+        tech_count = 0
 
-    # -------------------------
-    # RETURN
-    # -------------------------
+        for tech in technologies:
+
+            if tech in project_text:
+                tech_count += 1
+
+        project_score += min(
+            tech_count * 5,
+            30
+        )
+
+        if (
+            "github" in project_text
+            or "live" in project_text
+            or "deployed" in project_text
+        ):
+            project_score += 15
+
+        if len(project_text) > 250:
+            project_score += 15
+
+        project_score = min(
+            project_score,
+            100
+        )
 
     return {
 
