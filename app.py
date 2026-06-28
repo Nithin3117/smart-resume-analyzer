@@ -183,13 +183,13 @@ page = st.sidebar.radio(
     ]
 )
 
-    # DASHBOARD
+# DASHBOARD
    
-    if page == "Dashboard":
-        st.title("Smart Resume Analyzer")
-        uploaded_file = st.file_uploader(
-            "Upload Your Resume",
-            type=["pdf", "docx"]
+if page == "Dashboard":
+    st.title("Smart Resume Analyzer")
+    uploaded_file = st.file_uploader(
+        "Upload Your Resume",
+        type=["pdf", "docx"]
         )
         job_url = st.text_input(
             "Job Description URL (Optional)"
