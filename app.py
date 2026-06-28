@@ -369,7 +369,7 @@ else:
     st.info("No projects found.")            
             # 5 COLUMNS IN SINGLE ROW
 
-            col1, col2, col3, col4 = st.columns(5)
+            col1, col2, col3, col4 = st.columns(4)
 
             # EDUCATION
           
