@@ -369,7 +369,7 @@ else:
     st.info("No projects found.")            
             # 5 COLUMNS IN SINGLE ROW
 
-            col1, col2, col3, col4, col5 = st.columns(5)
+            col1, col2, col3, col4 = st.columns(5)
 
             # EDUCATION
           
@@ -379,7 +379,7 @@ else:
 
                     # SHOW TOP 3 EDUCATION DETAILS
 
-                    for edu in education[:3]:
+                    for edu in education[:5]:
                         st.write(f"🔹 {edu}")
                 else:
                     st.write("No education found")
@@ -417,10 +417,10 @@ else:
 
          # EXPERIENCE
            
-            with col5:
+            with col4:
                 st.markdown("### Experience")
                 if experience:
-                    for exp in experience[:2]:
+                    for exp in experience[:4]:
                         st.write(f"🔹 {exp}")
                 else:
                     st.write("No experience found")
