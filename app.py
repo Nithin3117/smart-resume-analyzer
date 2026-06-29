@@ -171,10 +171,10 @@ st.sidebar.title("Navigation")
 
 # DASHBOARD
 
-    st.title("Smart Resume Analyzer")
-    uploaded_file = st.file_uploader(
-        "Upload Your Resume",
-        type=["pdf", "docx"]
+st.title("Smart Resume Analyzer")
+uploaded_file = st.file_uploader(
+    "Upload Your Resume",
+    type=["pdf", "docx"]
     )
 
     job_url = st.text_input(
