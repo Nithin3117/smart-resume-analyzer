@@ -201,189 +201,189 @@ if uploaded_file:
 
             # PROCESSING
             
-            tokens = preprocess(resume_text)
-            skills_list = load_skills("skills.txt")
-            resume_skills = extract_skills(
+        tokens = preprocess(resume_text)
+        skills_list = load_skills("skills.txt")
+        resume_skills = extract_skills(
                 tokens,
                 skills_list
-            )
-            job_skills = extract_job_skills(
-                job_text,
-                skills_list
-            )
-            score, matched, missing = calculate_match(
-                resume_skills,
-                job_skills
-            )
-            (
-                education,
-                experience,
-                projects,
-                certificates,
-                skills
-            ) = extract_sections(resume_text)
-            breakdown = calculate_breakdown(
-                score,
-                matched,
-                missing,
-                education,
-                experience,
-                projects
-            )
+        )
+        job_skills = extract_job_skills(
+            job_text,
+            skills_list
+        )
+        score, matched, missing = calculate_match(
+            resume_skills,
+            job_skills
+        )
+        (
+            education,
+            experience,
+            projects,
+            certificates,
+            skills
+        ) = extract_sections(resume_text)
+        breakdown = calculate_breakdown(
+            score,
+            matched,
+            missing,
+            education,
+            experience,
+            projects
+        )
 
             # SCORE
             
-            st.subheader("Resume Match Score")
-            st.plotly_chart(
-                create_gauge(score),
-                use_container_width=True,
-                config={"displayModeBar": False}
-            )
-            st.divider()
+        st.subheader("Resume Match Score")
+        st.plotly_chart(
+            create_gauge(score),
+            use_container_width=True,
+            config={"displayModeBar": False}
+        )
+        st.divider()
 
             # ATS BREAKDOWN
           
-            st.subheader("ATS Resume Breakdown")
-            cols = st.columns(len(breakdown))
-            for col, (key, value) in zip(
-                cols,
-                breakdown.items()
-            ):
-                with col:
-                    st.metric(
-                        key,
-                        f"{value}%"
-                    )
-            st.divider()
+        st.subheader("ATS Resume Breakdown")
+        cols = st.columns(len(breakdown))
+        for col, (key, value) in zip(
+            cols,
+            breakdown.items()
+        ):
+            with col:
+                st.metric(
+                    key,
+                    f"{value}%"
+                )
+        st.divider()
 
             # SKILLS ANALYSIS
             
-            st.subheader("Skills Analysis")
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("### Matched Skills")
-                if matched:
-                    for skill in matched:
-                        if skill.strip():
-                            st.write(f"🔹 {skill}")
-                else:
-                    st.write("No matched skills")
-            with col2:
-                st.markdown("### Missing Skills")
-                if missing:
-                    for skill in missing:
-                        if skill.strip():
-                            st.write(f"🔹 {skill}")
-                else:
-                    st.write("No missing skills")
-            st.divider()
+        st.subheader("Skills Analysis")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("### Matched Skills")
+            if matched:
+                for skill in matched:
+                    if skill.strip():
+                        st.write(f"🔹 {skill}")
+             else:
+                st.write("No matched skills")
+        with col2:
+            st.markdown("### Missing Skills")
+            if missing:
+                for skill in missing:
+                    if skill.strip():
+                        st.write(f"🔹 {skill}")
+            else:
+                st.write("No missing skills")
+        st.divider()
           
             # CLEAN RESUME SUMMARY
            
-            st.subheader("Resume Summary") 
+        st.subheader("Resume Summary") 
     
             # 4 COLUMNS IN SINGLE ROW
 
-            col1, col2, col3, col4 = st.columns(
-                [1,1,1,1],
-                gap="large"
-            )
+        col1, col2, col3, col4 = st.columns(
+            [1,1,1,1],
+            gap="large"
+        )
 
             # EDUCATION
           
-            with col1:
-                st.markdown("### Education")
-                if education:
+        with col1:
+            st.markdown("### Education")
+            if education:
 
                     # SHOW TOP 3 EDUCATION DETAILS
 
-                    for edu in education[:5]:
-                        st.write(f"🔹 {edu}")
-                else:
-                    st.write("No education found")
+                for edu in education[:5]:
+                    st.write(f"🔹 {edu}")
+             else:
+                st.write("No education found")
 
             # SKILLS
             
-            with col2:
-                st.markdown("### Skills")
-                if resume_skills:
-                    top_skills = list(
-                        set(resume_skills)
-                    )[:5]
-                    for skill in top_skills:
-                        st.write(f"🔹 {skill}")
-                else:
-                    st.write("No skills found")
+        with col2:
+            st.markdown("### Skills")
+            if resume_skills:
+                top_skills = list(
+                    set(resume_skills)
+                )[:5]
+                for skill in top_skills:
+                    st.write(f"🔹 {skill}")
+            else:
+                st.write("No skills found")
 
             # CERTIFICATES
            
-            with col3:
-                st.markdown("### Certificates")
-                valid_certificates = []
-                for cert in certificates:
-                    cert_lower = cert.lower()
-                    if (
-                        "certificate" in cert_lower
-                        or "certification" in cert_lower
-                    ):
-                        valid_certificates.append(cert)
-                if valid_certificates:
-                    for cert in valid_certificates[:3]:
-                        st.write(f"🔹 {cert}")
-                else:
-                    st.write("No certificates found")
+        with col3:
+            st.markdown("### Certificates")
+            valid_certificates = []
+            for cert in certificates:
+                cert_lower = cert.lower()
+                if (
+                    "certificate" in cert_lower
+                    or "certification" in cert_lower
+                ):
+                    valid_certificates.append(cert)
+            if valid_certificates:
+                for cert in valid_certificates[:3]:
+                    st.write(f"🔹 {cert}")
+            else:
+                st.write("No certificates found")
 
             # EXPERIENCE
            
-            with col4:
-                st.markdown("### Experience")
-                if experience:
-                    for exp in experience[:4]: 
-                        st.write(f"🔹 {exp}")
-                else:
-                    st.write("No experience found")
-            st.divider()
-            st.subheader("Projects")
-            if projects:
-                st.markdown(f"### {projects[0]}")
-                for desc in projects[1:]:
-                    st.markdown(f"🔹 {desc}")
+        with col4:
+            st.markdown("### Experience")
+            if experience:
+                for exp in experience[:4]: 
+                    st.write(f"🔹 {exp}")
             else:
-                st.write("No projects found")
-            st.divider()
+                st.write("No experience found")
+        st.divider()
+        st.subheader("Projects")
+        if projects:
+            st.markdown(f"### {projects[0]}")
+            for desc in projects[1:]:
+                st.markdown(f"🔹 {desc}")
+        else:
+            st.write("No projects found")
+        st.divider()
            
             # RECOMMENDED JOBS
 
-            st.subheader("Recommended Jobs")
-            recommended_jobs = recommend_jobs(
-                resume_skills
-            )
-            if recommended_jobs:
-                for job in recommended_jobs:
-                    st.markdown(
-                        f"🔹 [{job['title']}]({job['link']})"
-                    )
-            else:
-                st.write("No jobs found")
-            st.divider()
+        st.subheader("Recommended Jobs")
+        recommended_jobs = recommend_jobs(
+            resume_skills
+        )
+        if recommended_jobs:
+            for job in recommended_jobs:
+                st.markdown(
+                    f"🔹 [{job['title']}]({job['link']})"
+                )
+        else:
+            st.write("No jobs found")
+        st.divider()
 
             # AI IMPROVEMENTS
         
-            st.subheader(
-                "AI Resume Improvement Generator"
+        st.subheader(
+            "AI Resume Improvement Generator"
+        )
+        if st.button("Generate Improvements"):
+            improvements = improve_resume(
+                missing,
+                education,
+                experience,
+                projects,
+                resume_text
             )
-            if st.button("Generate Improvements"):
-                improvements = improve_resume(
-                    missing,
-                    education,
-                    experience,
-                    projects,
-                    resume_text
+            if improvements:
+                for tip in improvements:
+                    st.write(f"🔹 {tip}")
+            else:
+                st.write(
+                    "No suggestions available"
                 )
-                if improvements:
-                    for tip in improvements:
-                        st.write(f"🔹 {tip}")
-                else:
-                    st.write(
-                        "No suggestions available"
-                    )
