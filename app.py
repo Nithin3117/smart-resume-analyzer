@@ -183,14 +183,14 @@ job_text = ""
 if job_url:
     try:
         job_text = extract_job_text(job_url)
-if not job_text:
-    st.error(
-        "Unable to read the job description.\n\n"
-        "Supported websites may block scraping."
-    )
-    st.stop()
-    except:
-        st.warning("Unable to fetch job description.")
+        if not job_text:
+            st.error(
+                "Unable to extract the job description from this link."
+            )
+            st.stop()
+    except Exception as e:
+        st.error(f"Error: {e}")
+        st.stop() 
 if uploaded_file:
             
             # READ RESUME
