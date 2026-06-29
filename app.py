@@ -4,7 +4,7 @@ from resume_parser import extract_text_pdf, extract_text_docx
 from charts import create_gauge
 from job_link_extractor import extract_job_text
 from skill_extractor import load_skills, extract_skills
-from job_matcher import extract_job_skills, calculate_match
+from job_matcher import (extract_job_skills, extract_required_experience, extract_required_education, calculate_match)
 from score_breakdown import calculate_breakdown
 from ai_resume_improver import improve_resume
 from job_recommender import recommend_jobs
@@ -206,21 +206,27 @@ if uploaded_file:
             st.stop()
 
             # PROCESSING
-            
-        tokens = preprocess(resume_text)
-        skills_list = load_skills("skills.txt")
-        resume_skills = extract_skills(
-                tokens,
-                skills_list
-        )
-        job_skills = extract_job_skills(
-            job_text,
-            skills_list
-        )
-        score, matched, missing = calculate_match(
-            resume_skills,
-            job_skills
-        )
+      tokens = preprocess(resume_text)
+skills_list = load_skills("skills.txt")
+resume_skills = extract_skills(
+    tokens,
+    skills_list
+)
+job_skills = extract_job_skills(
+    job_text,
+    skills_list
+)
+required_experience = extract_required_experience(
+    job_text
+)
+required_education = extract_required_education(
+    job_text
+)
+score, matched, missing = calculate_match(
+    resume_skills,
+    job_skills
+)      
+
         (
             education,
             experience,
