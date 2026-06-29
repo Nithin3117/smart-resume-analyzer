@@ -266,7 +266,7 @@ if uploaded_file:
                 for skill in matched:
                     if skill.strip():
                         st.write(f"🔹 {skill}")
-             else:
+            else:
                 st.write("No matched skills")
         with col2:
             st.markdown("### Missing Skills")
@@ -293,13 +293,10 @@ if uploaded_file:
           
         with col1:
             st.markdown("### Education")
-            if education:
-
-                    # SHOW TOP 3 EDUCATION DETAILS
-
+            if education:               
                 for edu in education[:5]:
                     st.write(f"🔹 {edu}")
-             else:
+            else:
                 st.write("No education found")
 
             # SKILLS
