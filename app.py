@@ -35,7 +35,7 @@ st.markdown(
         font-weight: bold;
         border: none;
     }
-
+    
     .stButton > button:hover {
         background-color: #00aa55;
         color: white;
@@ -48,11 +48,8 @@ st.markdown(
 # PREPROCESS
 
 def preprocess(text):
-
     text = text.lower()
-
     text = re.sub(r"\s+", " ", text)
-
     return text.split()
 
 # EXTRACT RESUME SECTIONS
@@ -114,9 +111,7 @@ def extract_sections(text):
     # DETECT SECTIONS
   
     for line in lines:
-
         clean_line = line.lower().strip()
-
         found_new_section = False
 
         # CHECK SECTION TITLES
@@ -174,20 +169,9 @@ def extract_sections(text):
 
 st.sidebar.title("Navigation")
 
-page = st.sidebar.radio(
-    "Go To",
-    [
-        "Dashboard",
-        "About Project",
-        "Tech Stack"
-    ]
-)
-
 # DASHBOARD
-if page == "Dashboard":
 
     st.title("Smart Resume Analyzer")
-
     uploaded_file = st.file_uploader(
         "Upload Your Resume",
         type=["pdf", "docx"]
@@ -241,7 +225,6 @@ if page == "Dashboard":
                 certificates,
                 skills
             ) = extract_sections(resume_text)
-
             breakdown = calculate_breakdown(
                 score,
                 matched,
@@ -362,23 +345,14 @@ if page == "Dashboard":
                         st.write(f"🔹 {exp}")
                 else:
                     st.write("No experience found")
-
             st.divider()
-
             st.subheader("Projects")
-
             if projects:
-
                 st.markdown(f"### {projects[0]}")
-
                 for desc in projects[1:]:
-
                     st.markdown(f"🔹 {desc}")
-
             else:
-
                 st.write("No projects found")
-
             st.divider()
            
             # RECOMMENDED JOBS
@@ -416,36 +390,3 @@ if page == "Dashboard":
                     st.write(
                         "No suggestions available"
                     )
-
-    # ABOUT PROJECT
-    
-    elif page == "About Project":
-        st.title("About Project")
-        st.markdown(
-            """
-            ## Smart Resume Analyzer
-
-            This project helps users:
-
-            - Analyze ATS compatibility
-            - Match resume skills with job descriptions
-            - Get AI-based resume improvements
-            - Discover recommended jobs
-            - Improve resume quality
-            """
-        )
-
-    # TECH STACK
-    
-    elif page == "Tech Stack":
-        st.title("Technologies Used")
-        st.markdown(
-            """
-            | Technology | Purpose |
-            |---|---|
-            | Python | Backend |
-            | Streamlit | Frontend |
-            | Plotly | Charts |
-            | NLP | Text Processing |
-            """
-        )
