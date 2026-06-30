@@ -1,22 +1,35 @@
 import requests
-from bs4 import BeautifulSoup
+from playwright.sync_api import sync_playwright
+
 
 def extract_job_text(url):
 
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
+    try:
 
-    response = requests.get(url, headers=headers)
+        with sync_playwright() as p:
 
-    print("=" * 80)
-    print("STATUS:", response.status_code)
-    print("FINAL URL:", response.url)
-    print("=" * 80)
-    print(response.text[:1000])
-    print("=" * 80)
+            browser = p.chromium.launch(
+                headless=True
+            )
 
-    soup = BeautifulSoup(response.text, "html.parser")
+            page = browser.new_page()
 
-    return soup.get_text(separator=" ")
-    
+            page.goto(
+                url,
+                wait_until="networkidle",
+                timeout=60000
+            )
+
+            page.wait_for_timeout(5000)
+
+            text = page.locator("body").inner_text()
+
+            browser.close()
+
+            return text.lower()
+
+    except Exception as e:
+
+        print(e)
+
+        return ""
