@@ -68,4 +68,7 @@ def extract_job_text(url):
 
     text = clean_text(text)
 
+    print("FIRST 1000 CHARACTERS:")
+    print(text[:1000])
+
     return text
