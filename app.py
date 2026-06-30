@@ -2,7 +2,7 @@ import streamlit as st
 import re
 from resume_parser import extract_text_pdf, extract_text_docx
 from charts import create_gauge
-from job_link_extractor import extract_job_text
+###from job_link_extractor import extract_job_text
 from skill_extractor import load_skills, extract_skills
 from job_matcher import (extract_job_skills, extract_required_experience, extract_required_education, calculate_match)
 from score_breakdown import calculate_breakdown
