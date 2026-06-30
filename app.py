@@ -195,72 +195,72 @@ if job_url:
 
     # READ RESUME
 
-    if uploaded_file.type == "application/pdf":
-        resume_text = extract_text_pdf(uploaded_file)
-    else:
-        resume_text = extract_text_docx(uploaded_file)
+        if uploaded_file.type == "application/pdf":
+            resume_text = extract_text_pdf(uploaded_file)
+        else:
+            resume_text = extract_text_docx(uploaded_file)
 
     # CHECK RESUME
 
-    if not resume_text.strip():
-        st.error("No readable text found in resume")
-        st.stop()
+        if not resume_text.strip():
+            st.error("No readable text found in resume")
+            st.stop()
 
     # PREPROCESS
 
-    tokens = preprocess(resume_text)
+        tokens = preprocess(resume_text)
 
-    skills_list = load_skills("skills.txt")
+        skills_list = load_skills("skills.txt")
 
-    resume_skills = extract_skills(
-        tokens,
-        skills_list
-    )
+        resume_skills = extract_skills(
+            tokens,
+            skills_list
+        )
 
     # JOB SKILLS
 
-    job_skills = extract_job_skills(
-        job_text,
-        skills_list
-    )
+        job_skills = extract_job_skills(
+            job_text,
+            skills_list
+        )
 
-    required_experience = extract_required_experience(
-        job_text
-    )
+        required_experience = extract_required_experience(
+            job_text
+        )
 
-    required_education = extract_required_education(
-        job_text
-    )
+        required_education = extract_required_education(
+            job_text
+        )
 
     # MATCH SCORE
 
-    score, matched, missing = calculate_match(
-        resume_skills,
-        job_skills
-    )
+        score, matched, missing = calculate_match(
+            resume_skills,
+            job_skills
+        )
 
     # EXTRACT RESUME SECTIONS
 
-    (
-        education,
-        experience,
-        projects,
-        certificates,
-        skills
-    ) = extract_sections(
-        resume_text
-    )
+        (
+            education,
+            experience,
+            projects,
+            certificates,
+            skills
+        ) = extract_sections(
+            resume_text
+        )
 
     # ATS BREAKDOWN
 
-    breakdown = calculate_breakdown(
-        score,
-        matched,
-        missing,
-        education,
-        experience,
-        projects
-    )
+        breakdown = calculate_breakdown(
+            score,
+            matched,
+            missing,
+            education,
+            experience,
+            projects
+        )
 
             # SCORE
             
