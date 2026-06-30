@@ -225,18 +225,23 @@ elif job_url.strip():
             "Couldn't read the website.\n\n"
             "Please paste the job description above."
         )
-            
+if uploaded_file and not job_text:
+        st.info(
+        "Please paste a job description or provide a supported job URL."
+        )   
+if uploaded_file and job_text:
+        
             # READ RESUME
         
-        if uploaded_file.type == "application/pdf":
-            resume_text = extract_text_pdf(uploaded_file)
-        else:
-            resume_text = extract_text_docx(
-                uploaded_file
-            )
-        if not resume_text.strip():
-            st.error("No readable text found in resume")
-            st.stop()
+    if uploaded_file.type == "application/pdf":
+        resume_text = extract_text_pdf(uploaded_file)
+    else:
+        resume_text = extract_text_docx(
+            uploaded_file
+        )
+    if not resume_text.strip():
+        st.error("No readable text found in resume")
+        st.stop()
 
             # PROCESSING
 
