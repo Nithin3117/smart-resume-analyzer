@@ -1,30 +1,26 @@
-# 📄 Smart Resume Analyzer
+#  Smart Resume Analyzer
 
 An AI-powered ATS (Applicant Tracking System) Resume Analyzer built using **Python**, **Streamlit**, and **NLP**. This application analyzes resumes against a job description, calculates an ATS compatibility score, identifies matching and missing skills, and provides AI-based resume improvement suggestions.
 
----
+## Features
 
-## 🚀 Features
-
-- 📄 Upload Resume (PDF/DOCX)
-- 📝 Paste Job Description
-- 📊 ATS Resume Match Score
-- 📈 ATS Score Breakdown
-- ✅ Matched Skills Detection
-- ❌ Missing Skills Identification
-- 🎓 Resume Summary
+-  Upload Resume (PDF/DOCX)
+-  Paste Job Description
+-  ATS Resume Match Score
+-  ATS Score Breakdown
+-  Matched Skills Detection
+-  Missing Skills Identification
+-  Resume Summary
   - Education
   - Skills
   - Certificates
   - Experience
   - Projects
-- 💼 Job Recommendations
-- 🤖 AI Resume Improvement Suggestions
-- 🎨 Interactive Dashboard using Streamlit
+-  Job Recommendations
+-  AI Resume Improvement Suggestions
+-  Interactive Dashboard using Streamlit
 
----
-
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - Python
 - Streamlit
@@ -35,7 +31,7 @@ An AI-powered ATS (Applicant Tracking System) Resume Analyzer built using **Pyth
 - BeautifulSoup4
 - Requests
 
-## 📖 How to Use
+##  How to Use
 
 1. Upload your resume (PDF or DOCX).
 2. Paste the job description.
@@ -47,9 +43,7 @@ An AI-powered ATS (Applicant Tracking System) Resume Analyzer built using **Pyth
    - Recommend suitable jobs
    - Generate AI-based resume improvement suggestions
 
----
-
-## 📊 ATS Score Analysis
+##  ATS Score Analysis
 
 The ATS score is calculated based on multiple resume factors, including:
 
@@ -59,9 +53,7 @@ The ATS score is calculated based on multiple resume factors, including:
 - Projects
 - Resume Completeness
 
----
-
-## 📸 Screenshots
+##  Screenshots
 
 ### Home Page
 
@@ -79,9 +71,7 @@ _Add application screenshot here_
 
 _Add application screenshot here_
 
----
-
-## 🔮 Future Improvements
+##  Future Improvements
 
 - Resume PDF Report Generation
 - LinkedIn Profile Analysis
@@ -89,16 +79,8 @@ _Add application screenshot here_
 - AI Resume Chatbot
 - Multi-language Resume Support
 
----
-
-## 👨‍💻 Author
+##  Author
 
 **Nithin**
 
 GitHub: https://github.com/Nithin3117
-
----
-
-## ⭐ If you like this project
-
-Please consider giving this repository a **Star ⭐**.
