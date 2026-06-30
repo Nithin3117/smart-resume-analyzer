@@ -176,117 +176,91 @@ uploaded_file = st.file_uploader(
     "Upload Your Resume",
     type=["pdf", "docx"]
 )
-st.subheader("Job Information")
-
 job_url = st.text_input(
-    "Job URL (Optional)"
+    "Job Description URL * "
 )
-
-job_description = st.text_area(
-    "Paste Job Description (Recommended)",
-    height=250,
-    placeholder="""
-Paste the complete job description here.
-
-You can copy it from:
-• Indeed
-• Naukri
-• LinkedIn
-• Foundit
-• Internshala
-• Company Careers Page
-"""
-)
-
 job_text = ""
-
-# First priority → Pasted Job Description
-if job_description.strip():
-
-    job_text = job_description
-
-# Second priority → URL
-elif job_url.strip():
-
+if job_url:
     try:
-
         job_text = extract_job_text(job_url)
-
         if not job_text:
-
-            st.warning(
-                "Couldn't extract the job description from this website.\n\n"
-                "Please copy the job description and paste it above."
+            st.error(
+                "Unable to extract the job description from this link."
             )
+            st.stop()
+    except Exception as e:
+        st.error(f"Error: {e}")
+        st.stop() 
+    if uploaded_file:
 
-    except Exception:
+    # READ RESUME
 
-        st.warning(
-            "Couldn't read the website.\n\n"
-            "Please paste the job description above."
-        )
-if uploaded_file and not job_text:
-        st.info(
-        "Please paste a job description or provide a supported job URL."
-        )   
-if uploaded_file and job_text:
-        
-            # READ RESUME
-        
     if uploaded_file.type == "application/pdf":
         resume_text = extract_text_pdf(uploaded_file)
     else:
-        resume_text = extract_text_docx(
-            uploaded_file
-        )
+        resume_text = extract_text_docx(uploaded_file)
+
+    # CHECK RESUME
+
     if not resume_text.strip():
         st.error("No readable text found in resume")
         st.stop()
 
-            # PROCESSING
+    # PREPROCESS
 
-        tokens = preprocess(resume_text)
+    tokens = preprocess(resume_text)
 
-        skills_list = load_skills("skills.txt")
+    skills_list = load_skills("skills.txt")
 
-        resume_skills = extract_skills(
-            tokens,
-            skills_list
-        )
+    resume_skills = extract_skills(
+        tokens,
+        skills_list
+    )
 
-        job_skills = extract_job_skills(
-            job_text,
-            skills_list
-        )
+    # JOB SKILLS
 
-        required_experience = extract_required_experience(
-            job_text
-        )
+    job_skills = extract_job_skills(
+        job_text,
+        skills_list
+    )
 
-        required_education = extract_required_education(
-            job_text
-        )
+    required_experience = extract_required_experience(
+        job_text
+    )
 
-        score, matched, missing = calculate_match(
-            resume_skills,
-            job_skills
-        )   
+    required_education = extract_required_education(
+        job_text
+    )
 
-        (
-            education,
-            experience,
-            projects,
-            certificates,
-            skills
-        ) = extract_sections(resume_text)
-        breakdown = calculate_breakdown(
-            score,
-            matched,
-            missing,
-            education,
-            experience,
-            projects
-        )
+    # MATCH SCORE
+
+    score, matched, missing = calculate_match(
+        resume_skills,
+        job_skills
+    )
+
+    # EXTRACT RESUME SECTIONS
+
+    (
+        education,
+        experience,
+        projects,
+        certificates,
+        skills
+    ) = extract_sections(
+        resume_text
+    )
+
+    # ATS BREAKDOWN
+
+    breakdown = calculate_breakdown(
+        score,
+        matched,
+        missing,
+        education,
+        experience,
+        projects
+    )
 
             # SCORE
             
