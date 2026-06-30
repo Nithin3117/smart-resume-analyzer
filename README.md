@@ -1,42 +1,104 @@
-# Smart Resume Analyzer 
+# 📄 Smart Resume Analyzer
 
-An AI-powered ATS Resume Analyzer built using Python and Streamlit.
+An AI-powered ATS (Applicant Tracking System) Resume Analyzer built using **Python**, **Streamlit**, and **NLP**. This application analyzes resumes against a job description, calculates an ATS compatibility score, identifies matching and missing skills, and provides AI-based resume improvement suggestions.
 
-## Features
+---
 
-- ATS Resume Compatibility Score
-- Resume Skill Extraction
-- Job Description Matching
-- Resume Summary Extraction
-- AI-Based Resume Improvement Suggestions
-- Recommended Job Roles
-- PDF and DOCX Resume Support
+## 🚀 Features
 
-## Tech Stack
+- 📄 Upload Resume (PDF/DOCX)
+- 📝 Paste Job Description
+- 📊 ATS Resume Match Score
+- 📈 ATS Score Breakdown
+- ✅ Matched Skills Detection
+- ❌ Missing Skills Identification
+- 🎓 Resume Summary
+  - Education
+  - Skills
+  - Certificates
+  - Experience
+  - Projects
+- 💼 Job Recommendations
+- 🤖 AI Resume Improvement Suggestions
+- 🎨 Interactive Dashboard using Streamlit
+
+---
+
+## 🛠️ Tech Stack
 
 - Python
 - Streamlit
-- NLP
+- NLP (Natural Language Processing)
 - Plotly
-- GitHub
+- PyPDF2
+- python-docx
+- BeautifulSoup4
+- Requests
 
-## Project Screenshots
+## 📖 How to Use
 
-<img width="1872" height="626" alt="image" src="https://github.com/user-attachments/assets/990ab5a7-7850-4d9a-b938-dc1774eb0dc1" />
+1. Upload your resume (PDF or DOCX).
+2. Paste the job description.
+3. The application will automatically:
+   - Analyze your resume
+   - Calculate ATS Match Score
+   - Show Matched & Missing Skills
+   - Display Resume Summary
+   - Recommend suitable jobs
+   - Generate AI-based resume improvement suggestions
 
-<img width="1883" height="860" alt="image" src="https://github.com/user-attachments/assets/f2f0286c-ff70-4e2b-b48f-7c79bcb25987" />
+---
 
-<img width="1861" height="911" alt="image" src="https://github.com/user-attachments/assets/adc74c6d-a2ee-45dd-b99a-8fc9b34635a2" />
+## 📊 ATS Score Analysis
 
-<img width="1861" height="910" alt="image" src="https://github.com/user-attachments/assets/56ec8aab-9d10-4fe6-a6ca-6cdddc308cad" />
+The ATS score is calculated based on multiple resume factors, including:
 
-<img width="1850" height="872" alt="image" src="https://github.com/user-attachments/assets/f07af7ef-d89a-4835-9910-cc5d5ceff9e5" />
+- Skills Match
+- Education Strength
+- Experience
+- Projects
+- Resume Completeness
 
+---
 
-## Live Demo
+## 📸 Screenshots
 
-https://smart-resume-analyzer-em4ajd4gnpkfkzis9j5giq.streamlit.app/#resume-details
+### Home Page
 
-## Author
+_Add application screenshot here_
 
-Nithin Bollineni
+### ATS Score Dashboard
+
+_Add application screenshot here_
+
+### Resume Summary
+
+_Add application screenshot here_
+
+### AI Resume Suggestions
+
+_Add application screenshot here_
+
+---
+
+## 🔮 Future Improvements
+
+- Resume PDF Report Generation
+- LinkedIn Profile Analysis
+- Resume Keyword Optimization
+- AI Resume Chatbot
+- Multi-language Resume Support
+
+---
+
+## 👨‍💻 Author
+
+**Nithin**
+
+GitHub: https://github.com/Nithin3117
+
+---
+
+## ⭐ If you like this project
+
+Please consider giving this repository a **Star ⭐**.
