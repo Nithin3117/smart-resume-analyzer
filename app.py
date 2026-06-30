@@ -180,25 +180,26 @@ job_url = st.text_input(
     "Job Description URL * "
 )
 job_text = ""
+
 if job_url:
     try:
         job_text = extract_job_text(job_url)
+
         if not job_text:
             st.warning(
-            "Couldn't extract complete job description.\n"
-            "Trying available page content..."
-        )
-        except Exception as e:
-            st.error(f"Error: {e}")
-            st.stop() 
+                "Couldn't extract the job description from this link."
+            )
+
+    except Exception as e:
+        st.error(f"Error: {e}")
 if uploaded_file:
 
     # READ RESUME
 
-        if uploaded_file.type == "application/pdf":
-            resume_text = extract_text_pdf(uploaded_file)
-        else:
-            resume_text = extract_text_docx(uploaded_file)
+    if uploaded_file.type == "application/pdf":
+        resume_text = extract_text_pdf(uploaded_file)
+    else:
+        resume_text = extract_text_docx(uploaded_file)
 
     # CHECK RESUME
 
