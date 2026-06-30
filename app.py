@@ -184,14 +184,14 @@ if job_url:
     try:
         job_text = extract_job_text(job_url)
         if not job_text:
-            st.error(
-                "Unable to extract the job description from this link."
-            )
-            st.stop()
+    st.warning(
+        "Couldn't extract complete job description.\n"
+        "Trying available page content..."
+    )
     except Exception as e:
         st.error(f"Error: {e}")
         st.stop() 
-    if uploaded_file:
+if uploaded_file:
 
     # READ RESUME
 
