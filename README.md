@@ -57,19 +57,19 @@ The ATS score is calculated based on multiple resume factors, including:
 
 ### Home Page
 
-_Add application screenshot here_
+<img width="1907" height="846" alt="image" src="https://github.com/user-attachments/assets/c83a3895-218e-4ee6-bba8-15649ac08d48" />
 
 ### ATS Score Dashboard
 
-_Add application screenshot here_
+<img width="1918" height="862" alt="image" src="https://github.com/user-attachments/assets/f5f11d8c-9758-4baf-b4aa-414d47c99d9b" />
 
 ### Resume Summary
 
-_Add application screenshot here_
+<img width="1907" height="750" alt="image" src="https://github.com/user-attachments/assets/96599bf4-46a2-42ac-b289-4b1620795de7" />
 
 ### AI Resume Suggestions
 
-_Add application screenshot here_
+<img width="1907" height="593" alt="image" src="https://github.com/user-attachments/assets/c4a2bc85-fb99-44ec-b612-880bb2663088" />
 
 ##  Future Improvements
 
@@ -81,6 +81,6 @@ _Add application screenshot here_
 
 ##  Author
 
-**Nithin**
+**Nithin Bollineni**
 
 GitHub: https://github.com/Nithin3117
