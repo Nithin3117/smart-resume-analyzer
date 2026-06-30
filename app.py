@@ -176,22 +176,55 @@ uploaded_file = st.file_uploader(
     "Upload Your Resume",
     type=["pdf", "docx"]
 )
+st.subheader("Job Information")
+
 job_url = st.text_input(
-    "Job Description URL * "
+    "Job URL (Optional)"
 )
+
+job_description = st.text_area(
+    "Paste Job Description (Recommended)",
+    height=250,
+    placeholder="""
+Paste the complete job description here.
+
+You can copy it from:
+• Indeed
+• Naukri
+• LinkedIn
+• Foundit
+• Internshala
+• Company Careers Page
+"""
+)
+
 job_text = ""
-if job_url:
+
+# First priority → Pasted Job Description
+if job_description.strip():
+
+    job_text = job_description
+
+# Second priority → URL
+elif job_url.strip():
+
     try:
+
         job_text = extract_job_text(job_url)
+
         if not job_text:
-            st.error(
-                "Unable to extract the job description from this link."
+
+            st.warning(
+                "Couldn't extract the job description from this website.\n\n"
+                "Please copy the job description and paste it above."
             )
-            st.stop()
-    except Exception as e:
-        st.error(f"Error: {e}")
-        st.stop() 
-if uploaded_file:
+
+    except Exception:
+
+        st.warning(
+            "Couldn't read the website.\n\n"
+            "Please paste the job description above."
+        )
             
             # READ RESUME
         
@@ -206,7 +239,6 @@ if uploaded_file:
             st.stop()
 
             # PROCESSING
-                # PROCESSING
 
         tokens = preprocess(resume_text)
 
