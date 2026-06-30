@@ -176,23 +176,35 @@ uploaded_file = st.file_uploader(
     "Upload Your Resume",
     type=["pdf", "docx"]
 )
-job_url = st.text_input(
-    "Job Description URL * "
+st.subheader("Job Description")
+
+job_text = st.text_area(
+    "Paste the complete Job Description here",
+    height=250,
+    placeholder="""
+Example:
+
+Python Developer
+
+Responsibilities:
+• Develop Python applications
+• Work with SQL databases
+• REST APIs
+• Git
+• Flask
+• Django
+
+Required Skills:
+Python
+SQL
+Git
+REST API
+Communication
+"""
 )
-job_text = ""
-
-if job_url:
-    try:
-        job_text = extract_job_text(job_url)
-
-        if not job_text:
-            st.warning(
-                "Couldn't extract the job description from this link."
-            )
-
-    except Exception as e:
-        st.error(f"Error: {e}")
-if uploaded_file:
+if not job_text.strip():
+    st.info("👆 Paste a Job Description to start ATS analysis.")
+if uploaded_file and job_text.strip():
 
     # READ RESUME
 
