@@ -1,6 +1,5 @@
 import re
 
-
 def calculate_breakdown(
     score,
     matched,
@@ -10,12 +9,12 @@ def calculate_breakdown(
     projects
 ):
 
-    # ---------------- ATS SCORE ----------------
+    # ATS SCORE 
 
     ats_score = max(0, min(int(score), 100))
 
-    # ---------------- SKILLS SCORE ----------------
-
+    # SKILLS SCORE 
+  
     total_skills = len(matched) + len(missing)
 
     if total_skills == 0:
@@ -25,10 +24,9 @@ def calculate_breakdown(
             (len(matched) / total_skills) * 100
         )
 
-    # ---------------- EDUCATION SCORE ----------------
+    # EDUCATION SCORE 
 
     education_score = 0
-
     edu_text = " ".join(education).lower()
 
     # Degree
@@ -85,17 +83,13 @@ def calculate_breakdown(
         ]
     ):
         education_score += 15
-
     education_score = min(education_score, 100)
 
-    # ---------------- EXPERIENCE SCORE ----------------
+    # EXPERIENCE SCORE 
 
     experience_score = 0
-
     exp_text = " ".join(experience).lower()
-
     if exp_text:
-
         if any(
             word in exp_text
             for word in [
@@ -104,7 +98,6 @@ def calculate_breakdown(
             ]
         ):
             experience_score += 40
-
         if any(
             word in exp_text
             for word in [
@@ -129,19 +122,15 @@ def calculate_breakdown(
             100
         )
 
-    # ---------------- PROJECT SCORE ----------------
+    # PROJECT SCORE 
 
     project_score = 0
-
     project_text = " ".join(projects).lower()
-
     if project_text:
-
         project_score += min(
             len(projects) * 20,
             40
         )
-
         technologies = [
             "python",
             "java",
@@ -161,42 +150,29 @@ def calculate_breakdown(
         ]
 
         tech_count = 0
-
         for tech in technologies:
-
             if tech in project_text:
                 tech_count += 1
-
         project_score += min(
             tech_count * 5,
             30
         )
-
         if (
             "github" in project_text
             or "live" in project_text
             or "deployed" in project_text
         ):
             project_score += 15
-
         if len(project_text) > 250:
             project_score += 15
-
         project_score = min(
             project_score,
             100
         )
-
     return {
-
         "ATS Compatibility": ats_score,
-
         "Skills Match": skills_score,
-
         "Education Strength": education_score,
-
         "Experience Strength": experience_score,
-
         "Project Strength": project_score
-
     }
