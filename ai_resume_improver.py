@@ -9,7 +9,6 @@ def improve_resume(
 
     # Missing Skills
     if missing_skills:
-            a
         improvements.append(
             f"Add important skills like {', '.join(missing_skills[:5])} to improve ATS compatibility."
         )
