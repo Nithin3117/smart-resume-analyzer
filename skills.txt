@@ -22,4 +22,3 @@ github
 aws
 docker
 kubernetes
-m
