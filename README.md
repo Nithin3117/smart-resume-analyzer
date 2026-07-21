@@ -84,4 +84,5 @@ The ATS score is calculated based on multiple resume factors, including:
 **Nithin Bollineni**
 
 GitHub: https://github.com/Nithin3117
+
 Live Demo: https://smart-resume-analyzer-em4ajd4gnpkfkzis9j5giq.streamlit.app/
