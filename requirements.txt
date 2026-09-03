@@ -1,6 +1,6 @@
 streamlit
 plotly
-PyPDF2
+pypdf
 python-docx
 requests
 beautifulsoup4
