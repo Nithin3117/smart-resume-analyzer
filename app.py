@@ -1441,34 +1441,68 @@ if st.session_state.analysis_complete:
         unsafe_allow_html=True
     )
 
-    project_data = [
-        (
-            "Smart Resume Analyzer",
-            [
-                "Processed PDF and DOCX resumes with an interactive dashboard.",
-                "Generated resume summaries and AI-based improvement suggestions.",
-                "Implemented resume parsing, skill extraction, ATS score calculation and job description matching.",
-                "Developed an AI-powered ATS Resume Analyzer using Python and Streamlit."
-            ]
-        ),
-        (
-            "Library Management System",
-            [
-                "Developed a full-stack application using React, FastAPI, SQLAlchemy and SQLite.",
-                "Implemented JWT authentication, book and student CRUD operations and REST API integration.",
-                "Added book issue and return, transaction tracking, overdue detection, fine calculation and dashboard statistics.",
-                "Deployed the frontend on Vercel and backend on Render for live access."
-            ]
-        ),
-        (
-            "Page Pulse",
-            [
-                "Developed a web application to analyse webpages and present useful insights.",
-                "Built a responsive React frontend with FastAPI backend integration.",
-                "Implemented API communication and result presentation."
-            ]
+    project_lines = resume_sections["projects"]
+
+    project_data = []
+    current_project = None
+    current_descriptions = []
+
+    for line in project_lines:
+        line = str(line).strip()
+
+        if not line:
+            continue
+
+        cleaned_line = re.sub(r"^[•●▪◦*-]\s*", "", line).strip()
+
+        if not cleaned_line:
+            continue
+
+        words = cleaned_line.split()
+
+        is_description = (
+            len(words) > 7
+            or cleaned_line.endswith(".")
+            or cleaned_line.endswith(",")
+            or cleaned_line.endswith(":")
+            or cleaned_line.lower().startswith((
+                "built ",
+                "developed ",
+                "implemented ",
+                "created ",
+                "designed ",
+                "deployed ",
+                "added ",
+                "used ",
+                "worked ",
+                "processed ",
+                "generated "
+            ))
         )
-    ]
+
+        if not is_description:
+            if current_project:
+                project_data.append(
+                    (
+                        current_project,
+                        current_descriptions
+                    )
+                )
+
+            current_project = cleaned_line
+            current_descriptions = []
+
+        else:
+            if current_project:
+                current_descriptions.append(cleaned_line)
+
+    if current_project:
+        project_data.append(
+            (
+                current_project,
+                current_descriptions
+            )
+        )
 
     project_cards = [
         render_card(
