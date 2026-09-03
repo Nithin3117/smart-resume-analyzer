@@ -436,5 +436,5 @@ Generate Recommendations
 
 GitHub: https://github.com/Nithin3117
 
-Live Website: http://localhost:8501/
+Live Website: https://smart-resume-analyzer-em4ajd4gnpkfkzis9j5giq.streamlit.app/
 
