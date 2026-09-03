@@ -426,12 +426,15 @@ Analyze Skill Gaps
 Analyze Resume Quality
       ↓
 Generate Recommendations
+```
 
-##  Author
+---
+
+## Author
 
 **Nithin Bollineni**
 
-GitHub : https://github.com/Nithin3117
+GitHub: https://github.com/Nithin3117
 
-Live Website : http://localhost:8501/
+Live Website: http://localhost:8501/
 
